@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PresupuestApp CR Consulting</title>
+<style>
+:root{--dark:#002b41;--teal:#00657e;--cream:#fff7ee;--cream2:#ffecd5;--border:#b8d4dc;--text:#002b41;--muted:#4a7a8a;--green:#1a7a52;--red:#c0392b;--surface:#fff;--surface2:#f0f8fb;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Tahoma,'Segoe UI',Arial,sans-serif;background:var(--cream);color:var(--text);min-height:100vh;font-size:14px}
+.app-header{background:var(--teal);padding:10px 14px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.hbrand{display:flex;align-items:center;gap:9px}
+.htitle{font-size:14px;font-weight:700;color:var(--cream)}
+.hsub{font-size:10px;color:rgba(255,247,238,.65);margin-top:1px}
+.back-btn{background:rgba(255,247,238,.15);border:1px solid rgba(255,247,238,.3);color:var(--cream);padding:6px 12px;border-radius:6px;font-family:Tahoma,sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+.back-btn:hover{background:rgba(255,247,238,.25)}
+.tabs{display:flex;background:var(--teal);border-bottom:3px solid var(--cream2);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:58px;padding:8px 3px;text-align:center;font-size:9px;font-weight:700;color:rgba(255,247,238,.5);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-3px;transition:all .2s;white-space:nowrap;font-family:Tahoma,sans-serif;text-transform:uppercase;letter-spacing:.3px}
+.tab.active{color:var(--cream);border-bottom-color:var(--cream)}
+.tab-icon{display:block;font-size:14px;margin-bottom:2px}
+.page{display:none;padding:13px}
+.page.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:11px;box-shadow:0 1px 4px rgba(0,43,65,.07)}
+.card-title{font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.9px;margin-bottom:11px;padding-bottom:6px;border-bottom:2px solid var(--cream2)}
+.sin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sin-btn{padding:12px 6px;border-radius:8px;border:2px solid var(--border);background:var(--surface2);color:var(--muted);font-family:Tahoma,sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s}
+.sin-btn.ac{border-color:var(--teal);background:rgba(0,101,126,.1);color:var(--teal)}
+.sin-btn.ac-sismo{border-color:#8B4513;background:rgba(139,69,19,.08);color:#8B4513}
+.sin-btn.ac-incendio{border-color:#c0392b;background:rgba(192,57,43,.08);color:#c0392b}
+.sin-icon{font-size:18px;display:block;margin-bottom:3px}
+.ig{margin-bottom:10px}
+label{display:block;font-size:10px;color:var(--muted);margin-bottom:3px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:9px 11px;color:var(--text);font-family:Tahoma,sans-serif;font-size:13px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--teal)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.btn{width:100%;padding:11px;border-radius:8px;border:none;font-family:Tahoma,sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:8px}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-sec{background:var(--surface2);color:var(--text);border:1.5px solid var(--border)}
+.btn-danger{background:rgba(192,57,43,.1);color:var(--red);border:1.5px solid var(--red)}
+.btn-import{background:rgba(0,101,126,.12);color:var(--teal);border:1.5px solid var(--teal)}
+.btn-save{background:rgba(26,122,82,.12);color:var(--green);border:1.5px solid var(--green)}
+.btn-sm{padding:6px 10px;font-size:11px;border-radius:6px;border:none;cursor:pointer;font-family:Tahoma,sans-serif;font-weight:700;transition:all .2s;white-space:nowrap}
+.btn-sm-teal{background:var(--teal);color:#fff}
+.btn-sm-sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-sm-red{background:rgba(192,57,43,.1);color:var(--red);border:1px solid var(--red)}
+.mini-res{background:rgba(0,101,126,.1);border:1.5px solid var(--teal);border-radius:8px;padding:10px 13px;margin-bottom:10px;display:none;justify-content:space-between;align-items:center}
+.mini-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.mini-val{font-size:14px;color:var(--teal);font-weight:700}
+.rc-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,43,65,.07)}
+.rc-hdr{background:var(--teal);color:var(--cream);padding:10px 13px;display:flex;justify-content:space-between;align-items:center}
+.rc-name{font-size:13px;font-weight:700}
+.rc-meta{font-size:10px;color:rgba(255,247,238,.65);margin-top:2px}
+.rc-actions{display:flex;gap:6px;flex-shrink:0}
+.rc-body{padding:8px}
+.prow{display:flex;align-items:flex-start;padding:7px 8px;border-bottom:1px solid var(--cream2);gap:5px;font-size:11px}
+.prow:last-child{border:none}
+.prow-det{flex:1;color:var(--text);font-size:11px;line-height:1.3}
+.prow-un{color:var(--muted);min-width:28px;text-align:center;font-size:10px;padding-top:1px}
+.prow-qty{color:var(--teal);font-weight:700;min-width:40px;text-align:right;padding-top:1px}
+.prow-tot{color:var(--green);font-weight:700;min-width:70px;text-align:right;padding-top:1px}
+.prow-obs{font-size:9px;color:var(--muted);margin-top:2px}
+.prow-btns{display:flex;gap:3px;flex-shrink:0}
+.rc-sub{display:flex;justify-content:flex-end;padding:7px 10px;font-size:12px;color:var(--muted);background:var(--surface2)}
+.empty{text-align:center;padding:32px 18px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:8px}
+.empty-txt{font-size:12px;line-height:1.5}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:flex-end;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:var(--surface);border-radius:18px 18px 0 0;width:100%;max-height:93vh;overflow-y:auto;padding:16px 13px 28px;border-top:3px solid var(--teal)}
+.modal-title{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:13px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.cap-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.cap-tab{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);color:var(--muted);background:var(--surface2);transition:all .15s;font-family:Tahoma,sans-serif}
+.cap-tab.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.picker-list{max-height:220px;overflow-y:auto;border:1.5px solid var(--border);border-radius:8px}
+.picker-item{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--cream2);transition:background .12s}
+.picker-item:last-child{border:none}
+.picker-item:hover{background:var(--surface2)}
+.picker-chk{width:16px;height:16px;accent-color:var(--teal);flex-shrink:0}
+.picker-nom{font-size:12px;flex:1}
+.picker-pre{font-size:10px;color:var(--green);font-weight:700;white-space:nowrap}
+.sel-p{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px}
+.sel-det-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.sel-det-input{flex:1;font-size:12px;font-weight:700;background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--dark);font-family:Tahoma,sans-serif}
+.calc-row{display:flex;gap:6px;align-items:center;margin-bottom:7px}
+.calc-row input{flex:1;font-size:12px;padding:8px 9px}
+.calc-row span{color:var(--muted);font-size:12px;flex-shrink:0}
+.calc-res{background:rgba(0,101,126,.1);border:1px solid var(--teal);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--teal);font-weight:700;text-align:center;min-width:62px}
+.sel-row-3{display:flex;gap:7px}
+.sel-row-3 .ig{flex:1;margin-bottom:0}
+.obs-area{display:none;margin-top:7px}
+.obs-toggle{background:none;border:none;cursor:pointer;font-size:15px;padding:2px 4px;flex-shrink:0}
+.tot-disp{font-size:11px;color:var(--green);font-weight:700;text-align:right;margin-top:4px}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--cream2);font-size:13px}
+.res-row:last-child{border:none}
+.res-final{font-size:16px;font-weight:700;color:var(--dark);padding-top:10px}
+.res-label{color:var(--muted)}
+.res-val{font-weight:700}
+.rp-row{display:flex;align-items:flex-start;gap:5px;padding:6px 8px;border-bottom:1px solid var(--cream2);font-size:11px}
+.rp-row:last-child{border:none}
+.rp-det{flex:1}
+.rp-un{color:var(--muted);min-width:26px;text-align:center}
+.rp-qty{color:var(--teal);font-weight:700;min-width:40px;text-align:right}
+.rp-tot{color:var(--green);font-weight:700;min-width:70px;text-align:right}
+.pct-input{width:52px;background:var(--surface2);border:1.5px solid var(--border);border-radius:5px;padding:3px 6px;font-size:12px;text-align:right;font-family:Tahoma,sans-serif;color:var(--teal)}
+.inflate-box{background:rgba(0,101,126,.06);border:1.5px solid var(--border);border-radius:8px;padding:10px 13px;margin-bottom:11px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.inflate-box label{text-transform:none;font-size:12px;color:var(--text);font-weight:700;flex:1;min-width:120px}
+.sin-disp{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.sd-can{background:rgba(0,101,126,.15);color:var(--teal)}
+.sd-sis{background:rgba(139,69,19,.12);color:#8B4513}
+.sd-inc{background:rgba(192,57,43,.12);color:#c0392b}
+.sw{position:relative;margin-bottom:8px}
+.sw input{padding-left:32px}
+.sw-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+.db-row{display:flex;align-items:center;padding:8px 11px;border-bottom:1px solid var(--cream2);gap:6px;font-size:12px}
+.db-row:last-child{border:none}
+.db-cap{font-size:9px;color:var(--teal);font-weight:700;background:rgba(0,101,126,.08);border-radius:4px;padding:2px 6px;white-space:nowrap;flex-shrink:0}
+.db-det{flex:1}
+.db-u{color:var(--muted);min-width:28px;text-align:center;font-size:10px}
+.db-p{color:var(--green);font-weight:700;min-width:72px;text-align:right;font-size:11px}
+.db-actions{display:flex;gap:4px;flex-shrink:0}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--cream)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="hbrand">
+    <svg width="34" height="34" viewBox="0 0 100 115" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff7ee" stop-opacity=".3"/><stop offset="100%" stop-color="#fff7ee" stop-opacity=".05"/></linearGradient></defs>
+      <path d="M50 4 L92 22 L92 58 C92 80 73 98 50 107 C27 98 8 80 8 58 L8 22 Z" fill="url(#hg)" stroke="#fff7ee" stroke-width="2.5"/>
+      <g fill="none" stroke="#fff7ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="28,58 50,35 72,58"/><polyline points="36,58 36,76 64,76 64,56"/>
+        <line x1="44" y1="76" x2="44" y2="63"/><line x1="56" y1="76" x2="56" y2="63"/><line x1="44" y1="63" x2="56" y2="63"/>
+      </g>
+      <polyline points="50,35 54,48 48,54 55,67" fill="none" stroke="#fff7ee" stroke-width="2.2" stroke-linecap="round"/>
+      <text x="50" y="96" text-anchor="middle" font-family="Tahoma,sans-serif" font-size="13" font-weight="700" fill="#fff7ee">CR</text>
+    </svg>
+    <div><div class="htitle">CR Consulting</div><div class="hsub">Presupuestador de Daños</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div id="sin-badge-hdr"></div>
+    <a href="index.html" class="back-btn">&#8592; Volver al dashboard</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('tab-datos')"><span class="tab-icon">&#127968;</span>Datos</div>
+  <div class="tab" onclick="showTab('tab-recintos')"><span class="tab-icon">&#128296;</span>Recintos</div>
+  <div class="tab" onclick="showTab('tab-resumen')"><span class="tab-icon">&#128202;</span>Resumen</div>
+  <div class="tab" onclick="showTab('tab-partidas-db')"><span class="tab-icon">&#128203;</span>Partidas</div>
+  <div class="tab" onclick="showTab('tab-exportar')"><span class="tab-icon">&#128228;</span>Exportar</div>
+</div>
+
+<div id="tab-datos" class="page active">
+  <div class="card">
+    <div class="card-title">Tipo de siniestro</div>
+    <div class="sin-grid">
+      <button class="sin-btn" id="btn-can" onclick="setSiniestro('caneria')"><span class="sin-icon">&#128167;</span>Rotura Caneria</button>
+      <button class="sin-btn" id="btn-vie" onclick="setSiniestro('viento')"><span class="sin-icon">&#127783;&#65039;</span>Viento y Lluvia</button>
+      <button class="sin-btn" id="btn-sis" onclick="setSiniestro('sismo')"><span class="sin-icon">&#127962;</span>Sismo</button>
+      <button class="sin-btn" id="btn-inc" onclick="setSiniestro('incendio')"><span class="sin-icon">&#128293;</span>Incendio</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Datos del asegurado</div>
+    <div class="ig"><label>Nombre completo</label><input type="text" id="d-nombre" placeholder="Ej: Juan Perez Gonzalez" oninput="saveData()"></div>
+    <div class="g2">
+      <div class="ig"><label>RUT</label><input type="text" id="d-rut" placeholder="12.345.678-9" oninput="saveData()"></div>
+      <div class="ig"><label>N Siniestro</label><input type="text" id="d-sin" placeholder="SIN-2024-001" oninput="saveData()"></div>
+    </div>
+    <div class="ig"><label>Direccion</label><input type="text" id="d-dir" placeholder="Calle, numero, ciudad" oninput="saveData()"></div>
+    <div class="ig"><label>Fecha</label><input type="text" id="d-fecha" placeholder="DD/MM/AAAA" oninput="saveData()"></div>
+  </div>
+  <button class="btn btn-teal" onclick="showTab('tab-recintos')">Ir a Recintos</button>
+</div>
+
+<div id="tab-recintos" class="page">
+  <div class="mini-res" id="mini-res">
+    <div><div class="mini-label">Costo Directo</div><div class="mini-val" id="mini-cd">$0</div></div>
+    <div style="text-align:right"><div class="mini-label">Partidas</div><div class="mini-val" id="mini-cnt">0</div></div>
+  </div>
+  <button class="btn btn-teal" onclick="abrirModalRecinto(null)">+ Agregar Recinto</button>
+  <div id="recintos-list"></div>
+</div>
+
+<div id="tab-resumen" class="page"><div id="resumen-content"></div></div>
+
+<div id="tab-partidas-db" class="page">
+  <div class="card">
+    <div class="card-title">Base de datos de partidas</div>
+    <div class="sw"><span class="sw-ico">&#128269;</span><input type="text" id="db-search" placeholder="Buscar partida..." oninput="renderDB()"></div>
+    <div class="cap-tabs" id="db-cap-tabs"></div>
+    <div style="display:flex;gap:8px;margin-bottom:0;">
+      <button class="btn btn-teal" style="margin-bottom:0;flex:1;" onclick="abrirModalNuevaPartida()">+ Nueva partida</button>
+      <button class="btn btn-save" style="margin-bottom:0;flex:1;" onclick="recompilarHTML()">Guardar y descargar app</button>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;"><div id="db-list"></div></div>
+</div>
+
+<div id="tab-exportar" class="page">
+  <div class="card">
+    <div class="card-title">Logo para PDF</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Carga el logo PNG de CR Consulting para que aparezca en el PDF.</p>
+    <button class="btn btn-sec" onclick="document.getElementById('logo-file').click()">Cargar logo PNG</button>
+    <input type="file" id="logo-file" accept=".png,.jpg,.jpeg" style="display:none" onchange="cargarLogoPNG(this)">
+    <div id="logo-preview" style="display:none;margin-top:8px;text-align:center;"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Importar presupuesto</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Carga un Excel exportado previamente para continuar editando.</p>
+    <button class="btn btn-import" onclick="document.getElementById('import-file').click()">Importar Excel (.xlsx)</button>
+    <input type="file" id="import-file" accept=".xlsx" style="display:none" onchange="importarExcel(this)">
+  </div>
+  <div class="card">
+    <div class="card-title">Exportar presupuesto</div>
+    <button class="btn btn-teal" onclick="exportarExcel()">Descargar Excel (.xlsx)</button>
+    <button class="btn btn-sec" onclick="exportarPDF()">Descargar PDF</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Nuevo presupuesto</div>
+    <button class="btn btn-danger" onclick="confirmarNuevo()">Limpiar todo</button>
+  </div>
+</div>
+
+<!-- MODAL RECINTO -->
+<div class="modal-ov" id="modal-recinto">
+  <div class="modal">
+    <div class="modal-title"><span id="modal-recinto-title">Agregar Recinto</span><button class="modal-close" onclick="closeModal('modal-recinto')">X</button></div>
+    <div class="ig">
+      <label>Nombre del recinto</label>
+      <input type="text" id="mr-nombre" placeholder="Ej: Bano, Dormitorio Principal..." list="recintos-dl">
+      <datalist id="recintos-dl">
+        <option value="Antejardin"><option value="Bano"><option value="Bodega"><option value="Cocina">
+        <option value="Comedor"><option value="Cubierta"><option value="Despeje y Limpieza">
+        <option value="Dormitorio 1"><option value="Dormitorio 2"><option value="Dormitorio Principal">
+        <option value="Exterior"><option value="Garage"><option value="General"><option value="Living">
+        <option value="Logistica"><option value="Pasillo"><option value="Proteccion Zona de Trabajo">
+        <option value="Quincho"><option value="Terraza">
+      </datalist>
+    </div>
+    <div class="ig"><label>Categoria</label><div class="cap-tabs" id="cap-tabs"></div></div>
+    <div class="sw"><span class="sw-ico">&#128269;</span><input type="text" id="mr-search" placeholder="Buscar partida..." oninput="filtrarPicker()"></div>
+    <div class="picker-list" id="modal-picker-list"></div>
+    <div id="sel-cont" style="display:none;margin-top:12px;">
+      <div style="font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Partidas seleccionadas</div>
+      <div id="sel-list"></div>
+    </div>
+    <button class="btn btn-teal" style="margin-top:10px;" onclick="confirmarRecinto()">Confirmar Recinto</button>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PARTIDA -->
+<div class="modal-ov" id="modal-edit-partida">
+  <div class="modal">
+    <div class="modal-title">Editar partida<button class="modal-close" onclick="closeModal('modal-edit-partida')">X</button></div>
+    <div class="ig"><label>Descripcion</label><input type="text" id="ep-det"></div>
+    <div class="ig">
+      <label>Calculadora m2</label>
+      <div class="calc-row">
+        <input type="number" id="ep-l" placeholder="Largo" step="0.01" oninput="calcEP()">
+        <span>x</span>
+        <input type="number" id="ep-a" placeholder="Ancho" step="0.01" oninput="calcEP()">
+        <span>=</span>
+        <div class="calc-res" id="ep-r">-- m2</div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="ig"><label>Unidad</label><select id="ep-u"><option>m2</option><option>ml</option><option>gl</option><option>un</option><option>m3</option></select></div>
+      <div class="ig"><label>Cantidad</label><input type="number" id="ep-q" step="0.01" oninput="calcEPTot()"></div>
+    </div>
+    <div class="ig"><label>V. Unitario</label><input type="number" id="ep-p" step="1" oninput="calcEPTot()"></div>
+    <div class="tot-disp" id="ep-tot" style="margin-bottom:8px;font-size:13px;">Total: $0</div>
+    <div class="ig">
+      <label>Observacion</label>
+      <textarea id="ep-obs" rows="2" placeholder="Observacion para PDF/Excel..." style="resize:none;"></textarea>
+    </div>
+    <button class="btn btn-teal" onclick="guardarEditPartida()">Guardar cambios</button>
+  </div>
+</div>
+
+<!-- MODAL NUEVA/EDITAR PARTIDA DB -->
+<div class="modal-ov" id="modal-db-partida">
+  <div class="modal">
+    <div class="modal-title"><span id="modal-db-title">Nueva partida</span><button class="modal-close" onclick="closeModal('modal-db-partida')">X</button></div>
+    <div class="ig">
+      <label>Categoria</label>
+      <select id="dbp-cat">
+        <option>General</option><option>Techumbre</option><option>Cielo</option><option>Cielo - Muro</option>
+        <option>Muro</option><option>Muro - Piso</option><option>Piso</option><option>Caneria</option>
+        <option>Cocina</option><option>Bano</option><option>Otros</option><option>Varios</option>
+        <option>Proteccion / Logistica</option>
+      </select>
+    </div>
+    <div class="ig"><label>Descripcion</label><input type="text" id="dbp-det" placeholder="Nombre de la partida..."></div>
+    <div class="g2">
+      <div class="ig"><label>Unidad</label><select id="dbp-u"><option>m2</option><option>ml</option><option>gl</option><option>un</option><option>m3</option></select></div>
+      <div class="ig"><label>Precio unitario</label><input type="number" id="dbp-p" placeholder="0" step="1"></div>
+    </div>
+    <button class="btn btn-teal" onclick="guardarDBPartida()">Guardar partida</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script id="db-data">
+// DB_START
+let DB=[
+  {c:"General",d:"Retiro de material existente",u:"m2",p:3450},
+  {c:"General",d:"Preparacion de superficie",u:"m2",p:1822},
+  {c:"General",d:"Limpieza de pavimentos y muros",u:"m2",p:1822},
+  {c:"General",d:"Sanitizacion de vivienda",u:"m2",p:4416},
+  {c:"General",d:"Trazado y replanteo terreno",u:"m2",p:3450},
+  {c:"General",d:"Nivelacion de terreno (Base Estabilizada)",u:"m3",p:11730},
+  {c:"General",d:"Reposicion de jardines",u:"m2",p:7452},
+  {c:"Techumbre",d:"Provi. y Reparacion Costaneras",u:"m2",p:7590},
+  {c:"Techumbre",d:"Provi. y Colocacion Cercha",u:"m2",p:30636},
+  {c:"Techumbre",d:"Provi. y Colocacion Cubierta Pizarreno",u:"m2",p:17388},
+  {c:"Techumbre",d:"Provi. y Colocacion Cubierta Zinc",u:"m2",p:17388},
+  {c:"Techumbre",d:"Provi. y Colocacion Cubierta Policarbonato ondulado",u:"m2",p:23184},
+  {c:"Techumbre",d:"Provi. y Colocacion Cubierta Policarbonato alveolar",u:"m2",p:33120},
+  {c:"Techumbre",d:"Provi. y Colocacion Cubierta de Teja Asfaltica",u:"m2",p:23460},
+  {c:"Techumbre",d:"Provi. y Colocacion Fieltro Asfaltico",u:"m2",p:2981},
+  {c:"Techumbre",d:"Provi. y Colocacion Cubierta de Teja Zinc",u:"m2",p:18216},
+  {c:"Techumbre",d:"Provi. y Colocacion Cubierta de Tejas Colonial",u:"m2",p:41400},
+  {c:"Techumbre",d:"Forro Cumbrera",u:"ml",p:9108},
+  {c:"Techumbre",d:"Reclavar Cubierta",u:"m2",p:7452},
+  {c:"Techumbre",d:"Provi. y Colocacion Canal de Aguas Lluvias",u:"ml",p:9108},
+  {c:"Techumbre",d:"Provi. y Colocacion Bajada de Aguas Lluvias",u:"ml",p:9384},
+  {c:"Cielo",d:"Provi. e Instalacion entramado de madera de pino",u:"m2",p:9108},
+  {c:"Cielo",d:"Provi. y colocacion cielo americano",u:"m2",p:21528},
+  {c:"Cielo",d:"Provi. y colocacion Cornisas",u:"ml",p:5299},
+  {c:"Cielo",d:"Provi. y colocacion Cuarto Rodon",u:"ml",p:3643},
+  {c:"Cielo",d:"Aplicacion 2 manos pintura terminaciones",u:"ml",p:3146},
+  {c:"Cielo",d:"Provi. y aplicacion de lana mineral",u:"m2",p:5796},
+  {c:"Cielo - Muro",d:"Provi. y colocacion plancha de yeso carbon",u:"m2",p:14076},
+  {c:"Cielo - Muro",d:"Provi. y colocacion fibrocemento (Internit)",u:"m2",p:14904},
+  {c:"Cielo - Muro",d:"Provi. y colocacion de masisa",u:"m2",p:13386},
+  {c:"Cielo - Muro",d:"Provi. y colocacion de cholguan",u:"m2",p:12006},
+  {c:"Cielo - Muro",d:"Provi. y colocacion de terciado",u:"m2",p:17388},
+  {c:"Cielo - Muro",d:"Revestimiento madera machiembrado",u:"m2",p:19872},
+  {c:"Cielo - Muro",d:"Provi. y colocacion puente de adherencia yeso",u:"m2",p:5796},
+  {c:"Cielo - Muro",d:"Provi. y colocacion de yeso",u:"m2",p:9108},
+  {c:"Cielo - Muro",d:"Provi. y aplicacion Empaste",u:"m2",p:4637},
+  {c:"Cielo - Muro",d:"Provi. y aplicacion Pintura dos manos",u:"m2",p:8611},
+  {c:"Cielo - Muro",d:"Provi. y aplicacion Barniz dos manos",u:"m2",p:9108},
+  {c:"Cielo - Muro",d:"Tratamiento de juntas de terminacion",u:"ml",p:12586},
+  {c:"Cielo - Muro",d:"Provi. y aplicacion empaste y Pintura Tipo 1",u:"m2",p:9108},
+  {c:"Cielo - Muro",d:"Provi. y aplicacion empaste y Pintura Tipo 2",u:"m2",p:9936},
+  {c:"Cielo - Muro",d:"Provi. y Aplicacion martelina-marmolina",u:"m2",p:12282},
+  {c:"Muro",d:"Retiro Tabiques Livianos",u:"m2",p:4416},
+  {c:"Muro",d:"Provi. y Colocacion Estructura tabique madera 2x3",u:"m2",p:17388},
+  {c:"Muro",d:"Provi. y Colocacion Estructura tabique metalcom",u:"m2",p:22356},
+  {c:"Muro",d:"Refianzamiento Estructura tabique",u:"m2",p:9108},
+  {c:"Muro",d:"Provi. y Colocacion Plancha de terciado",u:"m2",p:17388},
+  {c:"Muro",d:"Provi. y Colocacion de muro albanileria ladrillo",u:"m2",p:57270},
+  {c:"Muro",d:"Retiro de Cierro",u:"ml",p:4968},
+  {c:"Muro",d:"Provi. y Colocacion cierre perimetral Pandereta",u:"ml",p:51060},
+  {c:"Muro",d:"Reposicion de Pilares Pandereta",u:"un",p:15864},
+  {c:"Muro",d:"Sellado de Fisuras en Muro Bulldog",u:"ml",p:6210},
+  {c:"Muro",d:"Provi. y Colocacion de estuco",u:"m2",p:12420},
+  {c:"Muro",d:"Provi. y aplicacion de sellado de muros",u:"m2",p:4140},
+  {c:"Muro",d:"Provi. y Colocacion Papel Mural",u:"m2",p:10902},
+  {c:"Muro",d:"Provi. y Colocacion Papel Mural Carpenter",u:"m2",p:12558},
+  {c:"Muro",d:"Provi. y Colocacion Papel Mural c/sellado",u:"m2",p:14352},
+  {c:"Muro",d:"Provi. y colocacion Guardapolvos",u:"ml",p:5796},
+  {c:"Muro",d:"Provi. y colocacion Guardapolvos Tipo 2",u:"ml",p:7452},
+  {c:"Muro",d:"Provi. y colocacion Junquillos",u:"ml",p:3643},
+  {c:"Muro - Piso",d:"Retiro de Ceramicos y adhesivo",u:"m2",p:5299},
+  {c:"Muro - Piso",d:"Preparacion de superficie para ceramicos",u:"m2",p:1822},
+  {c:"Muro - Piso",d:"Provi. y Colocacion de Ceramicos Tipo 1",u:"m2",p:22356},
+  {c:"Muro - Piso",d:"Provi. y Colocacion de Ceramicos Tipo 2",u:"m2",p:24978},
+  {c:"Muro - Piso",d:"Reposicion de frague",u:"ml",p:2567},
+  {c:"Piso",d:"Demolicion y confeccion de radier",u:"m2",p:33672},
+  {c:"Piso",d:"Provi. e Instalacion de envigado de piso",u:"m2",p:20010},
+  {c:"Piso",d:"Provi. e Instalacion de piso machihembrado",u:"m2",p:22356},
+  {c:"Piso",d:"Provi. e Instalacion de parquet",u:"m2",p:57960},
+  {c:"Piso",d:"Pulido y vitrificado",u:"m2",p:19872},
+  {c:"Piso",d:"Alfombra Tipo Boucle Tipo 1",u:"m2",p:16698},
+  {c:"Piso",d:"Alfombra Tipo Boucle Tipo 2",u:"m2",p:21252},
+  {c:"Piso",d:"Alfombra Tipo Cubrepiso",u:"m2",p:13731},
+  {c:"Piso",d:"Lavado y secado de alfombra",u:"m2",p:5796},
+  {c:"Piso",d:"Provi. y Colocacion Piso Flotante",u:"m2",p:25116},
+  {c:"Piso",d:"Provi. y Colocacion Piso Ingenieria",u:"m2",p:57960},
+  {c:"Piso",d:"Provi. y Colocacion Piedra Pizarra",u:"m2",p:28014},
+  {c:"Piso",d:"Provi. y Colocacion Porcelanato",u:"m2",p:30498},
+  {c:"Piso",d:"Provi. y Colocacion Pavimento en Marmol",u:"m2",p:74520},
+  {c:"Caneria",d:"Picado de losa o muro",u:"gl",p:74520},
+  {c:"Caneria",d:"Reparacion de caneria",u:"gl",p:75900},
+  {c:"Caneria",d:"Reparacion de losa o muro",u:"gl",p:57960},
+  {c:"Cocina",d:"Desmontar muebles de cocina",u:"un",p:26220},
+  {c:"Cocina",d:"Retiro y colocacion de griferia",u:"gl",p:33120},
+  {c:"Cocina",d:"Montar muebles de cocina",u:"un",p:26220},
+  {c:"Cocina",d:"Mueble de cocina base/con cubierta",u:"ml",p:314640},
+  {c:"Cocina",d:"Mueble de cocina aereo",u:"ml",p:259440},
+  {c:"Bano",d:"Desmontar Artefactos",u:"un",p:24840},
+  {c:"Bano",d:"Montar Artefactos",u:"un",p:31740},
+  {c:"Bano",d:"Desmontar Tina",u:"un",p:57960},
+  {c:"Bano",d:"Montar Tina",u:"un",p:57960},
+  {c:"Bano",d:"Retiro y prov. WC tipo",u:"un",p:99360},
+  {c:"Bano",d:"Retiro y prov. Lavamanos",u:"un",p:82800},
+  {c:"Bano",d:"Retiro y prov. Tina tipo",u:"un",p:128340},
+  {c:"Bano",d:"Reponer Sellos Artefactos",u:"un",p:19872},
+  {c:"Otros",d:"Provi. y colocacion Puertas Tipo 1",u:"un",p:207000},
+  {c:"Otros",d:"Provi. y colocacion Puertas Tipo 2",u:"un",p:154560},
+  {c:"Otros",d:"Provi. y colocacion Puertas Tipo 3",u:"un",p:80040},
+  {c:"Otros",d:"Provi. y colocacion Chapa 1",u:"un",p:55200},
+  {c:"Otros",d:"Provi. y colocacion Chapa 2",u:"un",p:81420},
+  {c:"Otros",d:"Refianzamiento de Marcos puerta/ventana",u:"un",p:33120},
+  {c:"Otros",d:"Recorrido de puertas",u:"un",p:33120},
+  {c:"Otros",d:"Traslado de mobiliarios y proteccion de pisos",u:"gl",p:1325},
+  {c:"Otros",d:"Retiro de escombros Tipo 1",u:"gl",p:128340},
+  {c:"Otros",d:"Retiro de escombros Tipo 2",u:"gl",p:74520},
+  {c:"Otros",d:"Aseo y entrega Tipo 1",u:"gl",p:95220},
+  {c:"Otros",d:"Aseo y entrega Tipo 2",u:"gl",p:63480},
+  {c:"Otros",d:"Fletes por compra de materiales Tipo 1",u:"gl",p:67620},
+  {c:"Otros",d:"Fletes por compra de materiales Tipo 2",u:"gl",p:42780},
+  {c:"Otros",d:"Provi. y colocacion Reja metalica Tipo 1",u:"ml",p:97152},
+  {c:"Otros",d:"Vidrio 3mm c/instalacion",u:"m2",p:71070},
+  {c:"Otros",d:"Vidrio 4mm c/instalacion",u:"m2",p:80592},
+  {c:"Otros",d:"Vidrio 5mm c/instalacion",u:"m2",p:91080},
+  {c:"Otros",d:"Vidrio Termopanel",u:"m2",p:124200},
+  {c:"Otros",d:"Vidrio Termopanel en aluminio Tipo 1",u:"m2",p:248400},
+  {c:"Otros",d:"Vidrio Termopanel en aluminio Tipo 2",u:"m2",p:331200},
+  {c:"Otros",d:"Vidrio normal en aluminio",u:"m2",p:149040},
+  {c:"Otros",d:"Fisura en albanileria",u:"ml",p:49680},
+  {c:"Otros",d:"Fisura en hormigon min 4ml",u:"ml",p:80730},
+  {c:"Otros",d:"Punto electrico",u:"gl",p:49266},
+  {c:"Otros",d:"Closet fijo melamina",u:"ml",p:142140},
+  {c:"Otros",d:"Puerta de closet",u:"un",p:51060},
+  {c:"Varios",d:"Arriendo de andamios",u:"gl",p:4692},
+  {c:"Varios",d:"Alzaprimas segun cantidad",u:"gl",p:3588},
+  {c:"Proteccion / Logistica",d:"Proteccion zona de trabajo",u:"gl",p:45000},
+  {c:"Proteccion / Logistica",d:"Retiro de escombros y traslado a botadero autorizado",u:"gl",p:50000},
+  {c:"Proteccion / Logistica",d:"Aseo diario y entrega final",u:"gl",p:50000},
+  {c:"Proteccion / Logistica",d:"Logistica general",u:"gl",p:30000}
+];
+// DB_END
+</script>
+<script>
+const CAPS=()=>[...new Set(DB.map(x=>x.c))];
+let S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0};
+let chk={},cachedDet={},cachedU={},cachedQ={},cachedP={},cachedL={},cachedA={},cachedObs={};
+let editRid=null,editPid=null,pidCtr=1,ridCtr=1,activeCap='Todos';
+let dbActiveCap='Todos',dbEditIdx=null,logoPngB64=null;
+
+const fmt=n=>'$ '+Math.round(n).toLocaleString('es-CL');
+const fmtN=n=>Math.round(n).toLocaleString('es-CL');
+const UNITS=['m2','ml','gl','un','m3'];
+
+function showTab(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx=['tab-datos','tab-recintos','tab-resumen','tab-partidas-db','tab-exportar'].indexOf(id);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  if(id==='tab-resumen') renderResumen();
+  if(id==='tab-recintos') renderRecintos();
+  if(id==='tab-partidas-db') renderDB();
+}
+
+const SIN_CFG={
+  caneria:{btn:'btn-can',cls:'ac',label:'Canerias',disp:'sd-can'},
+  viento:{btn:'btn-vie',cls:'ac',label:'Viento y Lluvia',disp:'sd-can'},
+  sismo:{btn:'btn-sis',cls:'ac-sismo',label:'Sismo',disp:'sd-sis'},
+  incendio:{btn:'btn-inc',cls:'ac-incendio',label:'Incendio',disp:'sd-inc'}
+};
+function setSiniestro(t){
+  S.siniestro=t;
+  Object.keys(SIN_CFG).forEach(k=>{document.getElementById(SIN_CFG[k].btn).className='sin-btn'+(k===t?' '+SIN_CFG[k].cls:'');});
+  const cfg=SIN_CFG[t];
+  document.getElementById('sin-badge-hdr').innerHTML='<span class="sin-disp '+cfg.disp+'">'+cfg.label+'</span>';
+}
+function saveData(){
+  S.datos={nombre:document.getElementById('d-nombre').value,rut:document.getElementById('d-rut').value,
+    siniestro:document.getElementById('d-sin').value,direccion:document.getElementById('d-dir').value,
+    fecha:document.getElementById('d-fecha').value};
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+['modal-recinto','modal-edit-partida','modal-db-partida'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeModal(id);});
+});
+
+function renderCapTabs(){
+  const el=document.getElementById('cap-tabs');
+  el.innerHTML=['Todos',...CAPS()].map(c=>'<div class="cap-tab'+(c===activeCap?' active':'')+'" onclick="selectCap(\''+c.replace(/'/g,"\\'")+'\')">' +c+'</div>').join('');
+}
+function selectCap(c){savePickerState();activeCap=c;renderCapTabs();renderPicker(document.getElementById('mr-search').value);}
+function filtrarPicker(){savePickerState();renderPicker(document.getElementById('mr-search').value);}
+function savePickerState(){
+  Object.keys(chk).forEach(idx=>{
+    const map={det:cachedDet,u:cachedU,q:cachedQ,p:cachedP,l:cachedL,a:cachedA,obs:cachedObs};
+    Object.entries(map).forEach(function(e){const el=document.getElementById('sp-'+idx+'-'+e[0]);if(el)e[1][idx]=el.value;});
+  });
+}
+function renderPicker(q){
+  const el=document.getElementById('modal-picker-list');
+  const ql=q.toLowerCase();
+  const filtered=DB.filter(p=>(activeCap==='Todos'||p.c===activeCap)&&(p.d.toLowerCase().includes(ql)||p.c.toLowerCase().includes(ql)));
+  if(!filtered.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px;">Sin resultados</div>';return;}
+  el.innerHTML=filtered.map(p=>{
+    const idx=DB.indexOf(p);
+    return'<label class="picker-item" for="chk-'+idx+'"><input class="picker-chk" type="checkbox" id="chk-'+idx+'" '+(chk[idx]?'checked':'')+' onchange="toggleChk('+idx+')"><span class="picker-nom">'+p.d+'</span><span class="picker-pre">'+fmt(p.p)+'/'+p.u+'</span></label>';
+  }).join('');
+}
+function toggleChk(idx){chk[idx]=!chk[idx];if(!chk[idx])delete chk[idx];renderSelPartidas();}
+function renderSelPartidas(){
+  const keys=Object.keys(chk).map(Number);
+  const cont=document.getElementById('sel-cont'),lst=document.getElementById('sel-list');
+  if(!keys.length){cont.style.display='none';return;}
+  cont.style.display='block';
+  lst.innerHTML=keys.map(function(idx){
+    const p=DB[idx];
+    const det=cachedDet[idx]!==undefined?cachedDet[idx]:p.d;
+    const u=cachedU[idx]||p.u,q=cachedQ[idx]||'',precio=cachedP[idx]!==undefined?cachedP[idx]:p.p;
+    const l=cachedL[idx]||'',a=cachedA[idx]||'',obs=cachedObs[idx]||'';
+    const uOpts=UNITS.map(uu=>'<option'+(uu===u?' selected':'')+'>'+uu+'</option>').join('');
+    const tot=parseFloat(q)&&parseFloat(precio)?parseFloat(q)*parseFloat(precio):0;
+    return'<div class="sel-p" id="sp-'+idx+'">'+
+      '<div class="sel-det-row"><input class="sel-det-input" id="sp-'+idx+'-det" type="text" value="'+det.replace(/"/g,'&quot;')+'" oninput="cacheField('+idx+',\'det\',this.value)"><button class="obs-toggle" onclick="toggleObs('+idx+')" title="Obs">+obs</button></div>'+
+      '<div class="calc-row"><input type="number" id="sp-'+idx+'-l" placeholder="Largo" step="0.01" value="'+l+'" oninput="calcSpM2('+idx+')" style="font-size:12px;padding:7px 8px;"><span>x</span><input type="number" id="sp-'+idx+'-a" placeholder="Ancho" step="0.01" value="'+a+'" oninput="calcSpM2('+idx+')" style="font-size:12px;padding:7px 8px;"><span>=</span><div class="calc-res" id="sp-'+idx+'-r">'+(l&&a?(parseFloat(l)*parseFloat(a)).toFixed(2)+' '+u:'-- '+u)+'</div></div>'+
+      '<div class="sel-row-3"><div class="ig"><label>Unidad</label><select id="sp-'+idx+'-u" onchange="cacheField('+idx+',\'u\',this.value)">'+uOpts+'</select></div><div class="ig"><label>Cantidad</label><input type="number" id="sp-'+idx+'-q" placeholder="0.00" step="0.01" value="'+q+'" oninput="updateSpTot('+idx+');cacheField('+idx+',\'q\',this.value)" style="font-size:13px;"></div><div class="ig"><label>V. Unitario</label><input type="number" id="sp-'+idx+'-p" value="'+precio+'" step="1" oninput="updateSpTot('+idx+');cacheField('+idx+',\'p\',this.value)" style="font-size:13px;"></div></div>'+
+      '<div class="tot-disp" id="sp-'+idx+'-tot">Total: '+(tot>0?fmt(tot):'$0')+'</div>'+
+      '<div class="obs-area" id="sp-'+idx+'-obs-wrap"'+(obs?' style="display:block"':'')+'>'+
+        '<label style="margin-top:6px;">Observacion</label>'+
+        '<textarea id="sp-'+idx+'-obs" rows="2" style="resize:none;font-size:12px;" oninput="cacheField('+idx+',\'obs\',this.value)">'+obs+'</textarea>'+
+      '</div></div>';
+  }).join('');
+}
+function cacheField(idx,f,v){({det:cachedDet,u:cachedU,q:cachedQ,p:cachedP,l:cachedL,a:cachedA,obs:cachedObs})[f][idx]=v;}
+function toggleObs(idx){const w=document.getElementById('sp-'+idx+'-obs-wrap');w.style.display=w.style.display==='block'?'none':'block';}
+function calcSpM2(idx){
+  const l=parseFloat(document.getElementById('sp-'+idx+'-l').value)||0;
+  const a=parseFloat(document.getElementById('sp-'+idx+'-a').value)||0;
+  cachedL[idx]=l||'';cachedA[idx]=a||'';
+  const u=document.getElementById('sp-'+idx+'-u').value||DB[idx].u;
+  const r=l*a;
+  document.getElementById('sp-'+idx+'-r').textContent=r>0?r.toFixed(2)+' '+u:'-- '+u;
+  if(r>0){document.getElementById('sp-'+idx+'-q').value=r.toFixed(2);cachedQ[idx]=r.toFixed(2);updateSpTot(idx);}
+}
+function updateSpTot(idx){
+  const q=parseFloat(document.getElementById('sp-'+idx+'-q').value)||0;
+  const p=parseFloat(document.getElementById('sp-'+idx+'-p').value)||0;
+  document.getElementById('sp-'+idx+'-tot').textContent='Total: '+fmt(q*p);
+}
+function abrirModalRecinto(rid){
+  editRid=rid;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};
+  if(rid===null){document.getElementById('modal-recinto-title').textContent='Agregar Recinto';document.getElementById('mr-nombre').value='';}
+  else{const r=S.recintos.find(x=>x.id===rid);document.getElementById('modal-recinto-title').textContent='Anadir a: '+r.nombre;document.getElementById('mr-nombre').value=r.nombre;}
+  document.getElementById('mr-search').value='';
+  document.getElementById('sel-cont').style.display='none';
+  document.getElementById('sel-list').innerHTML='';
+  activeCap='Todos';renderCapTabs();renderPicker('');
+  document.getElementById('modal-recinto').classList.add('open');
+}
+function confirmarRecinto(){
+  const nombre=document.getElementById('mr-nombre').value.trim();
+  if(!nombre) return alert('Ingresa el nombre del recinto.');
+  savePickerState();
+  const keys=Object.keys(chk).map(Number);
+  if(!keys.length) return alert('Selecciona al menos una partida.');
+  const nuevas=[];
+  for(const idx of keys){
+    const p=DB[idx];
+    const det=(cachedDet[idx]||p.d).trim();
+    const u=cachedU[idx]||p.u;
+    const qty=parseFloat(cachedQ[idx]||'');
+    if(!qty||qty<=0){alert('Ingresa cantidad para: '+det);return;}
+    const precio=parseFloat(cachedP[idx]||p.p)||p.p;
+    const obs=(cachedObs[idx]||'').trim();
+    nuevas.push({id:pidCtr++,capitulo:p.c,detalle:det,unidad:u,cantidad:qty,precioUnit:precio,total:qty*precio,obs});
+  }
+  if(editRid===null){S.recintos.push({id:ridCtr++,nombre,partidas:nuevas});}
+  else{const r=S.recintos.find(x=>x.id===editRid);r.nombre=nombre;r.partidas=[...r.partidas,...nuevas];}
+  closeModal('modal-recinto');renderRecintos();updateMini();
+}
+function renderRecintos(){
+  const c=document.getElementById('recintos-list');
+  if(!S.recintos.length){c.innerHTML='<div class="empty"><div class="empty-icon">&#128295;</div><div class="empty-txt">No hay recintos aun.<br>Pulsa Agregar Recinto para comenzar.</div></div>';return;}
+  c.innerHTML=S.recintos.map(r=>{
+    const sub=r.partidas.reduce((s,p)=>s+p.total,0);
+    return'<div class="rc-card"><div class="rc-hdr"><div><div class="rc-name">'+r.nombre.toUpperCase()+'</div><div class="rc-meta">'+r.partidas.length+' partida'+(r.partidas.length!==1?'s':'')+' - '+fmt(sub)+'</div></div><div class="rc-actions"><button class="btn-sm btn-sm-sec" onclick="abrirModalRecinto('+r.id+')">+ Anadir</button><button class="btn-sm btn-sm-red" onclick="eliminarRecinto('+r.id+')">X</button></div></div><div class="rc-body">'+
+      r.partidas.map(p=>'<div class="prow"><div style="flex:1"><div class="prow-det">'+p.detalle+'</div>'+(p.obs?'<div class="prow-obs">'+p.obs+'</div>':'')+'</div><span class="prow-un">'+p.unidad.toUpperCase()+'</span><span class="prow-qty">'+p.cantidad+'</span><span class="prow-tot">'+fmt(p.total)+'</span><div class="prow-btns"><button class="btn-sm btn-sm-sec" onclick="abrirEditPartida('+r.id+','+p.id+')" style="padding:5px 7px;">Ed</button><button class="btn-sm btn-sm-red" onclick="eliminarPartida('+r.id+','+p.id+')" style="padding:5px 7px;">X</button></div></div>').join('')+
+      '</div><div class="rc-sub">Subtotal: <strong style="margin-left:8px;color:var(--dark);">'+fmt(sub)+'</strong></div></div>';
+  }).join('');
+  updateMini();
+}
+function eliminarRecinto(rid){if(confirm('Eliminar este recinto?')){S.recintos=S.recintos.filter(r=>r.id!==rid);renderRecintos();}}
+function eliminarPartida(rid,pid){
+  const r=S.recintos.find(r=>r.id===rid);if(!r)return;
+  r.partidas=r.partidas.filter(p=>p.id!==pid);
+  if(!r.partidas.length)S.recintos=S.recintos.filter(x=>x.id!==rid);
+  renderRecintos();
+}
+function updateMini(){
+  const all=S.recintos.flatMap(r=>r.partidas);
+  const cd=all.reduce((s,p)=>s+p.total,0);
+  const mini=document.getElementById('mini-res');
+  mini.style.display=all.length?'flex':'none';
+  document.getElementById('mini-cd').textContent=fmt(cd);
+  document.getElementById('mini-cnt').textContent=all.length;
+}
+function abrirEditPartida(rid,pid){
+  editRid=rid;editPid=pid;
+  const p=S.recintos.find(x=>x.id===rid).partidas.find(x=>x.id===pid);
+  document.getElementById('ep-det').value=p.detalle;
+  const uSel=document.getElementById('ep-u');
+  [...uSel.options].forEach((o,i)=>{if(o.value===p.unidad)uSel.selectedIndex=i;});
+  document.getElementById('ep-q').value=p.cantidad;
+  document.getElementById('ep-p').value=p.precioUnit;
+  document.getElementById('ep-obs').value=p.obs||'';
+  document.getElementById('ep-l').value='';document.getElementById('ep-a').value='';
+  document.getElementById('ep-r').textContent='-- m2';calcEPTot();
+  document.getElementById('modal-edit-partida').classList.add('open');
+}
+function calcEP(){
+  const l=parseFloat(document.getElementById('ep-l').value)||0,a=parseFloat(document.getElementById('ep-a').value)||0,r=l*a;
+  document.getElementById('ep-r').textContent=r>0?r.toFixed(2)+' m2':'-- m2';
+  if(r>0){document.getElementById('ep-q').value=r.toFixed(2);calcEPTot();}
+}
+function calcEPTot(){
+  const q=parseFloat(document.getElementById('ep-q').value)||0,p=parseFloat(document.getElementById('ep-p').value)||0;
+  document.getElementById('ep-tot').textContent='Total: '+fmt(q*p);
+}
+function guardarEditPartida(){
+  const r=S.recintos.find(x=>x.id===editRid),p=r.partidas.find(x=>x.id===editPid);
+  p.detalle=document.getElementById('ep-det').value.trim()||p.detalle;
+  p.unidad=document.getElementById('ep-u').value;
+  p.cantidad=parseFloat(document.getElementById('ep-q').value)||p.cantidad;
+  p.precioUnit=parseFloat(document.getElementById('ep-p').value)||p.precioUnit;
+  p.total=p.cantidad*p.precioUnit;p.obs=document.getElementById('ep-obs').value.trim();
+  closeModal('modal-edit-partida');renderRecintos();
+}
+function renderDB(){
+  const capEl=document.getElementById('db-cap-tabs');
+  capEl.innerHTML=['Todos',...CAPS()].map(c=>'<div class="cap-tab'+(c===dbActiveCap?' active':'')+'" onclick="dbSelectCap(\''+c.replace(/'/g,"\\'")+'\')">' +c+'</div>').join('');
+  const q=(document.getElementById('db-search').value||'').toLowerCase();
+  const filtered=DB.filter(p=>(dbActiveCap==='Todos'||p.c===dbActiveCap)&&(p.d.toLowerCase().includes(q)||p.c.toLowerCase().includes(q)));
+  const listEl=document.getElementById('db-list');
+  if(!filtered.length){listEl.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">Sin resultados</div>';return;}
+  listEl.innerHTML=filtered.map(p=>{
+    const idx=DB.indexOf(p);
+    return'<div class="db-row"><span class="db-cap">'+p.c+'</span><span class="db-det">'+p.d+'</span><span class="db-u">'+p.u+'</span><span class="db-p">'+fmt(p.p)+'</span><div class="db-actions"><button class="btn-sm btn-sm-sec" onclick="abrirEditDBPartida('+idx+')" style="padding:5px 7px;">Ed</button><button class="btn-sm btn-sm-red" onclick="eliminarDBPartida('+idx+')" style="padding:5px 7px;">X</button></div></div>';
+  }).join('');
+}
+function dbSelectCap(c){dbActiveCap=c;renderDB();}
+function abrirModalNuevaPartida(){
+  dbEditIdx=null;
+  document.getElementById('modal-db-title').textContent='Nueva partida';
+  document.getElementById('dbp-det').value='';document.getElementById('dbp-p').value='';
+  document.getElementById('dbp-u').selectedIndex=0;
+  document.getElementById('modal-db-partida').classList.add('open');
+}
+function abrirEditDBPartida(idx){
+  dbEditIdx=idx;const p=DB[idx];
+  document.getElementById('modal-db-title').textContent='Editar partida';
+  document.getElementById('dbp-det').value=p.d;document.getElementById('dbp-p').value=p.p;
+  const catSel=document.getElementById('dbp-cat');
+  [...catSel.options].forEach((o,i)=>{if(o.value===p.c)catSel.selectedIndex=i;});
+  const uSel=document.getElementById('dbp-u');
+  [...uSel.options].forEach((o,i)=>{if(o.value===p.u)uSel.selectedIndex=i;});
+  document.getElementById('modal-db-partida').classList.add('open');
+}
+function guardarDBPartida(){
+  const cat=document.getElementById('dbp-cat').value,det=document.getElementById('dbp-det').value.trim();
+  const u=document.getElementById('dbp-u').value,p=parseFloat(document.getElementById('dbp-p').value)||0;
+  if(!det) return alert('Ingresa una descripcion.');if(!p) return alert('Ingresa un precio.');
+  if(dbEditIdx===null){DB.push({c:cat,d:det,u,p});}else{DB[dbEditIdx]={c:cat,d:det,u,p};}
+  closeModal('modal-db-partida');renderDB();
+}
+function eliminarDBPartida(idx){if(confirm('Eliminar esta partida?')){DB.splice(idx,1);renderDB();}}
+function recompilarHTML(){
+  const fullHTML=document.documentElement.outerHTML;
+  const dbStr=JSON.stringify(DB,null,2);
+  const newDB='// DB_START\nlet DB='+dbStr+';\n// DB_END';
+  const updated=fullHTML.replace(/\/\/ DB_START[\s\S]*?\/\/ DB_END/,newDB);
+  const blob=new Blob([updated],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='presupuestador.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  const btn=document.querySelector('#tab-partidas-db .btn-save');
+  if(btn){const orig=btn.textContent;btn.textContent='Descargado!';setTimeout(()=>{btn.textContent=orig;},2500);}
+}
+function calcFinales(cdRaw){
+  const factor=1+((S.pctInflar||0)/100);
+  const cd=cdRaw*factor,gguu=cd*(S.pctGG/100),neto=cd+gguu,iva=neto*(S.pctIVA/100),total=neto+iva;
+  return{factor,cd,gguu,neto,iva,total};
+}
+function renderResumen(){
+  const c=document.getElementById('resumen-content');
+  const all=S.recintos.flatMap(r=>r.partidas);
+  if(!all.length){c.innerHTML='<div class="empty"><div class="empty-icon">&#128202;</div><div class="empty-txt">Agrega recintos y partidas para ver el resumen.</div></div>';return;}
+  const cdRaw=all.reduce((s,p)=>s+p.total,0);
+  const{factor,cd,gguu,neto,iva,total}=calcFinales(cdRaw);
+  const infPct=S.pctInflar||0;
+  const sinLabel={caneria:'Roturas de Canerias',viento:'Viento y Lluvia',sismo:'Sismo',incendio:'Incendio'};
+  const sinCls={caneria:'sd-can',viento:'sd-can',sismo:'sd-sis',incendio:'sd-inc'};
+  const sinInfo=S.siniestro?'<div class="sin-disp '+sinCls[S.siniestro]+'" style="margin-bottom:11px;font-size:12px;">'+sinLabel[S.siniestro]+'</div>':'<div style="color:var(--red);font-size:11px;margin-bottom:10px;">No seleccionaste tipo de siniestro</div>';
+  const detRows=S.recintos.map(r=>{
+    const subRaw=r.partidas.reduce((s,p)=>s+p.total,0),sub=subRaw*factor;
+    return'<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px;border-bottom:1.5px solid var(--teal);margin-bottom:4px;display:flex;justify-content:space-between;"><span>'+r.nombre+'</span><span style="color:var(--green);">'+fmt(sub)+'</span></div>'+
+      r.partidas.map(p=>'<div class="rp-row"><div class="rp-det">'+p.detalle+(p.obs?'<div style="font-size:9px;color:var(--muted)">'+p.obs+'</div>':'')+'</div><span class="rp-un">'+p.unidad.toUpperCase()+'</span><span class="rp-qty">'+p.cantidad+'</span><span class="rp-tot">'+fmt(p.total*factor)+'</span><button class="btn-sm btn-sm-sec" onclick="abrirEditPartida('+r.id+','+p.id+')" style="padding:4px 6px;font-size:10px;">Ed</button></div>').join('')+
+      '</div>';
+  }).join('');
+  const recRows=S.recintos.map(r=>{
+    const subRaw=r.partidas.reduce((s,p)=>s+p.total,0),sub=subRaw*factor,pct=((sub/cd)*100).toFixed(1);
+    return'<div class="res-row"><span class="res-label">'+r.nombre+'</span><div style="text-align:right"><div class="res-val">'+fmt(sub)+'</div><div style="font-size:10px;color:var(--muted)">'+pct+'%</div></div></div>';
+  }).join('');
+  c.innerHTML=sinInfo+
+    '<div class="inflate-box"><label>Inflar partidas</label><div style="display:flex;align-items:center;gap:6px;"><input type="number" class="pct-input" value="'+infPct+'" min="0" max="200" step="0.5" oninput="S.pctInflar=parseFloat(this.value)||0;renderResumen()"><span style="font-size:12px;color:var(--muted);">%</span>'+(infPct>0?'<span style="font-size:10px;color:var(--green);font-weight:700;">+'+fmt(cd-cdRaw)+'</span>':'')+'</div></div>'+
+    '<div class="card"><div class="card-title">Detalle por recinto</div>'+detRows+'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn-sm btn-sm-teal" onclick="abrirModalRecinto(null)">+ Recinto</button><button class="btn-sm btn-sm-sec" onclick="abrirModalFinal()">+ Prot./Logistica</button></div></div>'+
+    '<div class="card"><div class="card-title">Por recinto</div>'+recRows+'</div>'+
+    '<div class="card"><div class="card-title">Resumen financiero</div>'+
+      '<div class="res-row"><span class="res-label">Costo Directo'+(infPct>0?' (+'+infPct+'%)':'')+'</span><span class="res-val">'+fmt(cd)+'</span></div>'+
+      '<div class="res-row" style="align-items:center;"><span class="res-label">G. Generales y Utilidades</span><div style="display:flex;align-items:center;gap:5px;"><input type="number" class="pct-input" value="'+S.pctGG+'" min="0" max="100" oninput="S.pctGG=parseFloat(this.value)||0;renderResumen()"><span style="font-size:11px;color:var(--muted)">%</span><span class="res-val">'+fmt(gguu)+'</span></div></div>'+
+      '<div class="res-row"><span class="res-label">Neto</span><span class="res-val">'+fmt(neto)+'</span></div>'+
+      '<div class="res-row" style="align-items:center;"><span class="res-label">IVA</span><div style="display:flex;align-items:center;gap:5px;"><input type="number" class="pct-input" value="'+S.pctIVA+'" min="0" max="100" oninput="S.pctIVA=parseFloat(this.value)||0;renderResumen()"><span style="font-size:11px;color:var(--muted)">%</span><span class="res-val">'+fmt(iva)+'</span></div></div>'+
+      '<div class="res-row res-final"><span>TOTAL</span><span>'+fmt(total)+'</span></div>'+
+    '</div>';
+}
+function abrirModalFinal(){
+  editRid=null;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};
+  document.getElementById('mr-nombre').value='Proteccion / Logistica';
+  document.getElementById('mr-search').value='';
+  document.getElementById('sel-cont').style.display='none';
+  document.getElementById('sel-list').innerHTML='';
+  activeCap='Proteccion / Logistica';
+  document.getElementById('modal-recinto-title').textContent='Agregar partidas finales';
+  renderCapTabs();renderPicker('');
+  document.getElementById('modal-recinto').classList.add('open');
+}
+function getObservaciones(){
+  const obs=[];
+  S.recintos.forEach(r=>r.partidas.forEach(p=>{if(p.obs&&p.obs.trim())obs.push(p.obs.trim());}));
+  return[...new Set(obs)];
+}
+function cargarLogoPNG(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    logoPngB64=e.target.result;
+    const prev=document.getElementById('logo-preview');
+    prev.style.display='block';
+    prev.innerHTML='<img src="'+logoPngB64+'" style="height:50px;border-radius:6px;border:1px solid var(--border);" alt="Logo"><div style="font-size:10px;color:var(--green);margin-top:4px;font-weight:700;">Logo cargado correctamente</div>';
+  };
+  reader.readAsDataURL(file);
+}
+const LOGO_FALLBACK='<svg width="70" height="80" viewBox="0 0 100 115" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00657e"/><stop offset="100%" stop-color="#002b41"/></linearGradient></defs><path d="M50 4 L92 22 L92 58 C92 80 73 98 50 107 C27 98 8 80 8 58 L8 22 Z" fill="url(#lg)" stroke="#fff7ee" stroke-width="1.5"/><g fill="none" stroke="#fff7ee" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="28,58 50,35 72,58"/><polyline points="36,58 36,76 64,76 64,58"/><line x1="44" y1="76" x2="44" y2="63"/><line x1="56" y1="76" x2="56" y2="63"/><line x1="44" y1="63" x2="56" y2="63"/></g><text x="50" y="96" text-anchor="middle" font-family="Tahoma,sans-serif" font-size="12" font-weight="700" fill="#fff7ee">CR</text></svg>';
+
+function exportarExcel(){
+  const all=S.recintos.flatMap(r=>r.partidas);
+  if(!all.length) return alert('No hay partidas para exportar.');
+  const d=S.datos;
+  const sinLabels={caneria:'ROTURA DE CANERIAS',viento:'VIENTO Y LLUVIA',sismo:'SISMO',incendio:'INCENDIO'};
+  const sinTxt=sinLabels[S.siniestro]||'';
+  const cdRaw=all.reduce((s,p)=>s+p.total,0);
+  const{factor,cd,gguu,neto,iva,total}=calcFinales(cdRaw);
+  const obs=getObservaciones();
+  const rows=[];
+  rows.push(['','PRESUPUESTO DE REPARACION','','','','']);
+  rows.push(['TIPO SINIESTRO:',sinTxt,'','','','']);
+  rows.push(['NOMBRE:',d.nombre||'','','N SINIESTRO:',d.siniestro||'','']);
+  rows.push(['RUT:',d.rut||'','','FECHA:',d.fecha||'','']);
+  rows.push(['DIRECCION:',d.direccion||'','','','','']);
+  rows.push(['','','','','','']);
+  rows.push(['ITEM N','Designacion','Un.','Cantidad','Unitario','Total']);
+  let n=1;
+  S.recintos.forEach(r=>{
+    rows.push([r.nombre.toUpperCase(),'','','','','']);
+    r.partidas.forEach(p=>{rows.push([n+++',001',p.detalle,p.unidad.toUpperCase(),p.cantidad,Math.round(p.precioUnit*factor),Math.round(p.total*factor)]);});
+  });
+  rows.push(['','','','','','']);
+  rows.push(['','','','','COSTO DIRECTO',Math.round(cd)]);
+  rows.push(['','','','','G.GENERALES Y UTILIDADES ('+S.pctGG+'%)',Math.round(gguu)]);
+  rows.push(['','','','','NETO',Math.round(neto)]);
+  rows.push(['','','','','IVA ('+S.pctIVA+'%)',Math.round(iva)]);
+  rows.push(['','','','','TOTAL',Math.round(total)]);
+  if(obs.length){rows.push(['','','','','','']);rows.push(['OBSERVACIONES:','','','','','']);obs.forEach((o,i)=>rows.push([(i+1)+':',o,'','','','']));}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:10},{wch:52},{wch:8},{wch:10},{wch:20},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws,'Presupuesto');
+  const backup={version:3,state:JSON.parse(JSON.stringify(S)),db:DB};
+  const wsB=XLSX.utils.aoa_to_sheet([[JSON.stringify(backup)]]);
+  XLSX.utils.book_append_sheet(wb,wsB,'_CR_BACKUP');
+  const fn=(d.nombre||'ppto').replace(/\s+/g,'_').toUpperCase();
+  XLSX.writeFile(wb,'PPTO_'+fn+'_'+(d.fecha||'SINFECHA')+'.xlsx');
+}
+function importarExcel(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const bs=wb.Sheets['_CR_BACKUP'];
+      if(!bs){alert('Este archivo no fue generado por PresupuestApp.');return;}
+      const data=XLSX.utils.sheet_to_json(bs,{header:1});
+      const backup=JSON.parse(data[0][0]);
+      if(!backup.state) throw new Error('Formato invalido');
+      S=backup.state;if(backup.db) DB=backup.db;
+      pidCtr=1;ridCtr=1;
+      S.recintos.forEach(r=>{if(r.id>=ridCtr)ridCtr=r.id+1;r.partidas.forEach(p=>{if(p.id>=pidCtr)pidCtr=p.id+1;});});
+      const campos={nombre:'d-nombre',rut:'d-rut',siniestro:'d-sin',direccion:'d-dir',fecha:'d-fecha'};
+      Object.entries(campos).forEach(function(e){const el=document.getElementById(e[1]);if(el)el.value=S.datos[e[0]]||'';});
+      if(S.siniestro)setSiniestro(S.siniestro);
+      renderRecintos();showTab('tab-datos');alert('Presupuesto importado correctamente.');
+    }catch(err){alert('Error al importar: '+err.message);}
+    input.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+function exportarPDF(){
+  const all=S.recintos.flatMap(r=>r.partidas);
+  if(!all.length) return alert('No hay partidas para exportar.');
+  const d=S.datos;
+  const sinLabels={caneria:'ROTURA DE CANERIAS',viento:'VIENTO Y LLUVIA',sismo:'SISMO',incendio:'INCENDIO'};
+  const sinTxt=sinLabels[S.siniestro]||'NO ESPECIFICADO';
+  const cdRaw=all.reduce((s,p)=>s+p.total,0);
+  const{factor,cd,gguu,neto,iva,total}=calcFinales(cdRaw);
+  const obsArr=getObservaciones();
+  let n=1;
+  const tbody=S.recintos.map(r=>{
+    const rRows=r.partidas.map(p=>'<tr><td>'+n+++',001</td><td>'+p.detalle+'</td><td style="text-align:center;">'+p.unidad.toUpperCase()+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(p.precioUnit*factor))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(p.total*factor))+'</td></tr>').join('');
+    return'<tr><td colspan="6" class="rc-hdr-pdf">'+r.nombre.toUpperCase()+'</td></tr>'+rRows;
+  }).join('');
+  const obsHTML=obsArr.length?'<div class="obs-box"><div class="obs-title">OBSERVACIONES:</div>'+obsArr.map((o,i)=>'<div class="obs-item"><strong>'+(i+1)+':</strong> '+o+'</div>').join('')+'</div>':'';
+  const logoHTML=logoPngB64?'<img src="'+logoPngB64+'" style="width:80px;height:auto;display:block;" alt="CR Consulting">':LOGO_FALLBACK;
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Tahoma,Arial,sans-serif;font-size:11px;color:#111;padding:20px 24px}.hdr{display:flex;align-items:flex-end;gap:20px;margin-bottom:12px}.hdr-logo{flex-shrink:0;padding-bottom:4px}.hdr-main{flex:1;text-align:center;padding-bottom:4px}.hdr-line{border-bottom:3px solid #002b41;margin-bottom:14px}h1{font-size:13px;font-weight:700;color:#002b41;text-transform:uppercase;margin-bottom:5px;letter-spacing:.5px}.sin-badge{display:inline-block;background:#e0f0f4;color:#00657e;padding:3px 14px;border-radius:20px;font-weight:700;font-size:10px;border:1px solid #00657e}.datos{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;background:#f5fbfc;border:1px solid #b8d4dc;padding:9px 13px;border-radius:5px;margin-bottom:14px}.dato{display:flex;gap:6px;font-size:10px;padding:2px 0}.dl{color:#555;min-width:82px;font-weight:700;flex-shrink:0}table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:10px}th{background:#002b41;color:#fff7ee;padding:6px 8px;text-align:left;font-size:10px}td{padding:5px 7px;border-bottom:1px solid #eee;}tr:nth-child(even) td{background:#f5fbfc}.rc-hdr-pdf{background:#002b41;color:#fff7ee;font-weight:700;font-size:11px;}.tots{border-top:2px solid #002b41;padding-top:8px;margin-top:4px}.tr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;font-size:11px}.ttot{font-weight:700;font-size:13px;color:#002b41;border:none;padding-top:7px}.obs-box{border:1.5px solid #002b41;border-radius:4px;padding:10px 12px;margin-top:16px;background:#f9fbfc}.obs-title{font-weight:700;font-size:11px;color:#002b41;margin-bottom:6px;}.obs-item{font-size:10px;margin-bottom:4px;line-height:1.4}<\/style><\/head><body>'+
+    '<div class="hdr"><div class="hdr-logo">'+logoHTML+'<\/div><div class="hdr-main"><h1>Presupuesto de Reparacion<\/h1><span class="sin-badge">'+sinTxt+'<\/span><\/div><\/div>'+
+    '<div class="hdr-line"><\/div>'+
+    '<div class="datos"><div class="dato"><span class="dl">NOMBRE:<\/span><strong>'+( d.nombre||'--')+'<\/strong><\/div><div class="dato"><span class="dl">N SINIESTRO:<\/span><strong>'+(d.siniestro||'--')+'<\/strong><\/div><div class="dato"><span class="dl">RUT:<\/span>'+(d.rut||'--')+'<\/div><div class="dato"><span class="dl">FECHA:<\/span>'+(d.fecha||'--')+'<\/div><div class="dato" style="grid-column:1\/-1"><span class="dl">DIRECCION:<\/span>'+(d.direccion||'--')+'<\/div><\/div>'+
+    '<table><thead><tr><th style="width:55px">ITEM N<\/th><th>Designacion<\/th><th style="width:36px;text-align:center">Un.<\/th><th style="width:58px;text-align:right">Cantidad<\/th><th style="width:88px;text-align:right">Unitario<\/th><th style="width:88px;text-align:right">Total<\/th><\/tr><\/thead><tbody>'+tbody+'<\/tbody><\/table>'+
+    '<div class="tots"><div class="tr"><span>COSTO DIRECTO<\/span><strong>$ '+fmtN(cd)+'<\/strong><\/div><div class="tr"><span>G.GENERALES Y UTILIDADES ('+S.pctGG+'%)<\/span><strong>$ '+fmtN(gguu)+'<\/strong><\/div><div class="tr"><span>NETO<\/span><strong>$ '+fmtN(neto)+'<\/strong><\/div><div class="tr"><span>IVA ('+S.pctIVA+'%)<\/span><strong>$ '+fmtN(iva)+'<\/strong><\/div><div class="tr ttot"><span>TOTAL<\/span><strong>$ '+fmtN(total)+'<\/strong><\/div><\/div>'+
+    obsHTML+'<script>window.onload=function(){window.print();}<\/script><\/body><\/html>';
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+}
+function confirmarNuevo(){
+  if(confirm('Borrar todo y comenzar un nuevo presupuesto?')){
+    S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0};pidCtr=1;ridCtr=1;
+    ['d-nombre','d-rut','d-sin','d-dir','d-fecha'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    ['btn-can','btn-vie','btn-sis','btn-inc'].forEach(id=>{document.getElementById(id).className='sin-btn';});
+    document.getElementById('sin-badge-hdr').innerHTML='';renderRecintos();showTab('tab-datos');
+  }
+}
+renderRecintos();
+</script>
+</body>
+</html>
