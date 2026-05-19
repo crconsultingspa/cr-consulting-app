@@ -485,6 +485,8 @@
         <div class="form-group"><label>RUT</label><input type="text" id="f-rut" placeholder="12.345.678-9"/></div>
         <div class="form-group"><label>Email</label><input type="email" id="f-email" placeholder="correo@ejemplo.com"/></div>
         <div class="form-group full"><label>Dirección</label><input type="text" id="f-dir" placeholder="Calle, número, ciudad"/></div>
+        <div class="form-group"><label>Teléfono</label><input type="text" id="f-telefono" placeholder="+56 9 1234 5678"/></div>
+        <div class="form-group"><label>N° Siniestro</label><input type="text" id="f-nrosin" placeholder="SIN-2024-001"/></div>
         <div class="form-group">
           <label>Banco</label>
           <select id="f-banco">
@@ -536,7 +538,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbww-PetvMg3X9Mj_hkGGocjgGh41MuPbcADcpMWJn1r0eGMsLayrSRUh7oIxvAVDRTT/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzzn7DvR9yKrlTCcMgIAbBkh-EpUuQCDu1_2bxdsOtrIh8h1DUJ6L3zjch0zivz9jai/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -728,6 +730,8 @@ function renderCases() {
             <div><div class="detail-label">Correlativo / Folio</div><div class="detail-value">${c.correlativo||'—'}</div></div>
             <div><div class="detail-label">Responsable</div><div class="detail-value">${c.caso||'—'}</div></div>
             <div><div class="detail-label">Boleta emitida</div><div class="detail-value">${c.boleta||'—'}</div></div>
+            <div><div class="detail-label">Teléfono</div><div class="detail-value">${c.telefono||'—'}</div></div>
+            <div><div class="detail-label">N° Siniestro</div><div class="detail-value">${c.nrosin||'—'}</div></div>
             ${c.obs?`<div style="grid-column:1/-1"><div class="detail-label">Observaciones</div><div class="detail-value">${c.obs}</div></div>`:''}
           </div>
           ${c.monto?`
@@ -768,7 +772,7 @@ function openModal(prefill) {
   editingId = prefill ? String(prefill.id) : null;
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if(prefill) {
-    ['nombre','rut','email','dir','banco','siniestro','liquidador','estado','caso','correlativo','obs']
+    ['nombre','rut','email','dir','banco','siniestro','liquidador','estado','caso','correlativo','obs','telefono','nrosin']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     document.getElementById('f-monto').value = prefill.monto || '';
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
@@ -806,7 +810,9 @@ async function saveCase(e) {
     correlativo: document.getElementById('f-correlativo').value,
     monto, porcentaje:pct, comision, fondo, retiro,
     boleta: 'NO',
-    obs: document.getElementById('f-obs').value,
+    obs:      document.getElementById('f-obs').value,
+    telefono: document.getElementById('f-telefono').value,
+    nrosin:   document.getElementById('f-nrosin').value,
   };
   try {
     if(editingId) {
