@@ -413,7 +413,7 @@
   <!-- TOPBAR MOBILE -->
   <div class="topbar">
     <div class="topbar-brand">
-      <img src="https://i.imgur.com/qwKK2vg.png" alt="CR" onerror="this.style.display='none'">
+      <img src="https://i.imgur.com/hlPOTGu.jpeg" alt="CR" onerror="this.style.display='none'">
       <span class="topbar-name">CR Consulting</span>
     </div>
     <div style="display:flex;gap:8px">
@@ -536,7 +536,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbySRjiG-K0kztxjgCLXtN4BUfb3Sv1p-MJCHVczJKud4gAfKKlhsWhYJ2b_uExBRPdE/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxWyV43v2SNBQw6lqfZ8ElRbcaPAH3-p8vvAJAMhfK62zDG_rUjWrl2MdPECFZ9xGtN/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -578,7 +578,7 @@ function setSyncStatus(s, msg) {
   document.getElementById('sync-text').textContent = msg;
 }
 
-// ── API: JSONP para leer, form-trick para escribir ────────────────────────────
+// ── API: JSONP puro para leer y escribir ─────────────────────────────────────
 function jsonpFetch(url) {
   return new Promise((resolve, reject) => {
     const cb = 'cr_cb_' + Date.now();
@@ -589,51 +589,20 @@ function jsonpFetch(url) {
       resolve(data);
     };
     script.onerror = () => { delete window[cb]; document.head.removeChild(script); reject(new Error('JSONP failed')); };
-    script.src = url + '?callback=' + cb + '&t=' + Date.now();
+    const sep = url.includes('?') ? '&' : '?';
+    script.src = url + sep + 'callback=' + cb + '&t=' + Date.now();
     document.head.appendChild(script);
   });
 }
 
-function formPost(url, data) {
-  return new Promise((resolve) => {
-    const iframe = document.createElement('iframe');
-    iframe.name = 'cr_post_' + Date.now();
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = url;
-    form.target = iframe.name;
-
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'payload';
-    input.value = JSON.stringify(data);
-    form.appendChild(input);
-
-    // Apps Script reads e.postData.contents — send as plain body via fetch with no-cors
-    document.body.appendChild(form);
-
-    // Use no-cors fetch instead — fire and forget, then reload
-    fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(data)
-    }).then(() => {
-      setTimeout(() => {
-        document.body.removeChild(form);
-        document.body.removeChild(iframe);
-        resolve({ ok: true });
-      }, 1200);
-    }).catch(() => {
-      document.body.removeChild(form);
-      document.body.removeChild(iframe);
-      resolve({ ok: true }); // assume ok, reload will confirm
-    });
-  });
+function buildUrl(params) {
+  const qs = Object.entries(params)
+    .filter(([, v]) => v !== null && v !== undefined && v !== '')
+    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+    .join('&');
+  return SHEETS_URL + '?' + qs;
 }
+
 
 // ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
 async function loadFromSheets() {
@@ -661,11 +630,12 @@ async function loadFromSheets() {
   }
 }
 
-async function apiCall(body) {
-  await formPost(SHEETS_URL, body);
-  // Esperar un poco y recargar desde Sheets para confirmar
-  await new Promise(r => setTimeout(r, 1800));
+async function apiCall(params) {
+  const url = buildUrl(params);
+  const json = await jsonpFetch(url);
+  if (!json.ok) throw new Error('La operación falló en el servidor');
   await loadFromSheets();
+  return json;
 }
 
 // ── MÉTRICAS ──────────────────────────────────────────────────────────────────
