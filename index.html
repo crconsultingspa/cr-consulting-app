@@ -473,7 +473,7 @@
 </div>
 
 <!-- MODAL NUEVO/EDITAR CASO -->
-<div class="modal-backdrop" id="modal-backdrop" onclick="closeModalOutside(event)">
+<div class="modal-backdrop" id="modal-backdrop">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title-text" id="modal-title-text">Nuevo caso</div>
@@ -948,7 +948,7 @@ loadFromSheets();
 </script>
 
 <!-- MODAL MANDATO -->
-<div class="modal-backdrop" id="modal-mandato" onclick="if(event.target===this)closeMandato()">
+<div class="modal-backdrop" id="modal-mandato">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title-text">Generar Mandato de Representación</div>
@@ -1029,6 +1029,7 @@ async function generarMandato() {
     await new Promise(r => setTimeout(r, 3000));
     showMandatoStatus('✓ Mandato generado y guardado en la carpeta Drive del asegurado.', 'success');
     btn.innerHTML = '<i class="ti ti-check"></i> Listo';
+    setTimeout(() => closeMandato(), 1500);
   } catch (err) {
     showMandatoStatus('Error al generar el mandato. Intenta nuevamente.', 'error');
     btn.disabled = false;
