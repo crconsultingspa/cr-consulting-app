@@ -45,7 +45,7 @@
 
     /* ── SIDEBAR ─────────────────────────────────────── */
     .sidebar {
-      width: 230px; flex-shrink: 0;
+      width: 270px; flex-shrink: 0;
       background: var(--navy);
       display: flex; flex-direction: column;
       padding: 0;
@@ -54,25 +54,25 @@
     }
 
     .sidebar-brand {
-      display: flex; align-items: center; gap: 12px;
-      padding: 20px 18px 18px;
-      border-bottom: 1px solid rgba(255,247,238,0.1);
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0 0 16px;
+      border-bottom: 1px solid rgba(255,247,238,0.15);
       margin-bottom: 8px;
     }
 
     .brand-logo {
-      width: 42px; height: 42px; flex-shrink: 0;
-      border-radius: 8px;
+      width: 100%; flex-shrink: 0;
       overflow: hidden;
-      background: rgba(255,247,238,0.08);
+      background: rgba(255,247,238,0.05);
       display: flex; align-items: center; justify-content: center;
+      padding: 14px 24px 10px;
     }
 
-    .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .brand-logo img { width: 100%; max-width: 180px; height: auto; object-fit: contain; }
 
-    .brand-text { flex: 1; min-width: 0; }
-    .brand-name { font-size: 13px; font-weight: 600; color: var(--cream); line-height: 1.2; }
-    .brand-desc { font-size: 10px; color: rgba(255,247,238,0.5); margin-top: 2px; }
+    .brand-text { text-align: center; padding: 0 12px; }
+    .brand-name { font-size: 14px; font-weight: 700; color: var(--cream); line-height: 1.2; }
+    .brand-desc { font-size: 10px; color: rgba(255,247,238,0.5); margin-top: 3px; }
 
     .sync-bar {
       display: flex; align-items: center; gap: 7px;
@@ -104,7 +104,7 @@
     }
     .nav-item:hover { background: rgba(255,247,238,0.08); color: var(--cream); }
     .nav-item.active { background: var(--teal); color: var(--cream); font-weight: 500; }
-    .nav-item i { font-size: 18px; opacity: 0.85; }
+    .nav-item i { font-size: 22px; opacity: 0.85; }
 
     .nav-tool {
       background: rgba(0,101,126,0.3);
@@ -144,7 +144,7 @@
 
     /* ── MAIN ────────────────────────────────────────── */
     .main {
-      margin-left: 230px;
+      margin-left: 270px;
       flex: 1; padding: 2rem 2rem 4rem;
       max-width: 1200px;
     }
@@ -361,6 +361,54 @@
     .empty-state i { font-size: 40px; margin-bottom: 10px; display: block; color: var(--teal); opacity: 0.4; }
 
     /* ── RESPONSIVE ──────────────────────────────────── */
+
+    /* ── PERÍODOS ────────────────────────────────────────── */
+    .periodo-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px;
+      margin-bottom: 12px; display: flex; align-items: center;
+      gap: 20px; flex-wrap: wrap;
+      border-left: 4px solid var(--teal);
+    }
+    .periodo-card.warning { border-left-color: var(--amber); }
+    .periodo-card.danger  { border-left-color: var(--red); }
+    .periodo-info { flex: 1; min-width: 200px; }
+    .periodo-nombre { font-size: 15px; font-weight: 600; color: var(--navy); }
+    .periodo-fecha  { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+    .periodo-obs    { font-size: 12px; color: var(--text-2); margin-top:6px; }
+    .periodo-dias {
+      text-align: center; min-width: 90px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 16px;
+    }
+    .periodo-dias-num { font-size: 28px; font-weight: 700; color: var(--teal); line-height: 1; }
+    .periodo-dias-lbl { font-size: 10px; color: var(--text-3); margin-top: 3px; }
+    .periodo-actions  { display: flex; gap: 8px; }
+
+    /* ── CHART TOGGLE ────────────────────────────────────── */
+    .chart-toggle {
+      display: flex; gap: 6px; margin-bottom: 14px;
+    }
+    .chart-toggle-btn {
+      padding: 4px 12px; border-radius: 20px; font-size: 11px;
+      font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
+      background: var(--surface2); color: var(--text-3);
+      font-family: inherit; transition: all .15s;
+    }
+    .chart-toggle-btn.active {
+      background: var(--teal); color: #fff; border-color: var(--teal);
+    }
+
+    /* ── PIE CHART ───────────────────────────────────────── */
+    .pie-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .pie-svg { flex-shrink: 0; }
+    .pie-legend { flex: 1; min-width: 120px; }
+    .pie-legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 12px; }
+    .pie-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+    .chart-anim { animation: fadeIn .35s ease; }
+
     @media (max-width: 720px) {
       .sidebar { display: none; }
       .topbar { display: flex; }
@@ -377,11 +425,11 @@
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-logo">
-        <img src="https://i.imgur.com/qwKK2vg.png" alt="CR Consulting" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'color:#fff7ee;font-size:13px;font-weight:700\'>CR</span>'">
+        <img src="https://i.imgur.com/j4xk2Lu.png" alt="CR Consulting" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'color:#fff7ee;font-size:13px;font-weight:700\'>CR</span>'">
       </div>
       <div class="brand-text">
         <div class="brand-name">CR Consulting</div>
-        <div class="brand-desc">Seguros hipotecarios</div>
+        <div class="brand-desc">Asesoría de Seguros</div>
       </div>
     </div>
 
@@ -395,6 +443,7 @@
       <button class="nav-item active" onclick="showSection('casos')"><i class="ti ti-folder-open"></i> Casos</button>
       <button class="nav-item" onclick="showSection('resumen')"><i class="ti ti-chart-bar"></i> Estadísticas</button>
       <button class="nav-item" onclick="showSection('plazos')"><i class="ti ti-clock"></i> Plazos bancarios</button>
+      <button class="nav-item" onclick="showSection('periodos')"><i class="ti ti-calendar-event"></i> Períodos</button>
     </div>
 
     <div class="nav-section" style="margin-top:8px">
@@ -413,7 +462,7 @@
   <!-- TOPBAR MOBILE -->
   <div class="topbar">
     <div class="topbar-brand">
-      <img src="https://i.imgur.com/qwKK2vg.png" alt="CR" onerror="this.style.display='none'">
+      <img src="https://i.imgur.com/j4xk2Lu.png" alt="CR" onerror="this.style.display='none'">
       <span class="topbar-name">CR Consulting</span>
     </div>
     <div style="display:flex;gap:8px">
@@ -469,6 +518,15 @@
       <div class="plazos-grid" id="plazos-grid"></div>
     </div>
 
+
+    <!-- PERÍODOS -->
+    <div id="sec-periodos" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Períodos de siniestros</div><div class="page-sub">Registro de eventos y días transcurridos</div></div>
+        <button class="btn btn-primary" onclick="openModalPeriodo()"><i class="ti ti-plus"></i> Nuevo período</button>
+      </div>
+      <div id="periodos-list"></div>
+    </div>
   </main>
 </div>
 
@@ -878,18 +936,36 @@ function buildResumen() {
   const C2 = ['#002b41','#00657e','#1a7a52','#a05c00','#c0392b','#2980b9'];
   const CEST = {'Pagado':'#1a7a52','Rechazado':'#c0392b','Espera de informe final':'#00657e','Pendiente denuncio':'#a05c00','Pendiente antecedentes':'#a05c00','Pendiente firma':'#a05c00','Pendiente PPTO':'#a05c00'};
 
-  document.getElementById('analytics-grid').innerHTML = `
-    <div class="chart-card"><div class="chart-title">Tipo de siniestro</div>${bar(sinTypes,C1)}</div>
-    <div class="chart-card"><div class="chart-title">Estado de casos</div>${
-      Object.entries(estados).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
-        const max=Math.max(...Object.values(estados),1);
-        return `<div class="bar-row"><div class="bar-label">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max*100)}%;background:${CEST[k]||'#888'}"></div></div><div class="bar-n">${v}</div></div>`;
-      }).join('')}
-    </div>
-    <div class="chart-card"><div class="chart-title">Casos por banco</div>${bar(bancos,C2)}</div>
-    <div class="chart-card"><div class="chart-title">Distribución por ciudad</div>${bar(ciudades,C1)}</div>
-    <div class="chart-card"><div class="chart-title">Casos por responsable</div>${bar(responsables,C2)}</div>
-    <div class="chart-card"><div class="chart-title">Liquidadores (casos pagados)</div>${bar(liquidadores,C2)}</div>`;
+  const toggleHTML = chartToggleHTML();
+
+  if (chartMode === 'pie') {
+    document.getElementById('analytics-grid').innerHTML = `
+      <div class="chart-card"><div class="chart-title">Tipo de siniestro</div>${toggleHTML}<div id="pie-sin"></div></div>
+      <div class="chart-card"><div class="chart-title">Estado de casos</div>${toggleHTML}<div id="pie-est"></div></div>
+      <div class="chart-card"><div class="chart-title">Casos por banco</div>${toggleHTML}<div id="pie-ban"></div></div>
+      <div class="chart-card"><div class="chart-title">Distribución por ciudad</div>${toggleHTML}<div id="pie-ciu"></div></div>
+      <div class="chart-card"><div class="chart-title">Casos por responsable</div>${toggleHTML}<div id="pie-res"></div></div>
+      <div class="chart-card"><div class="chart-title">Liquidadores (casos pagados)</div>${toggleHTML}<div id="pie-liq"></div></div>`;
+    buildPieChart(sinTypes,   'pie-sin');
+    buildPieChart(estados,    'pie-est');
+    buildPieChart(bancos,     'pie-ban');
+    buildPieChart(ciudades,   'pie-ciu');
+    buildPieChart(responsables,'pie-res');
+    buildPieChart(liquidadores,'pie-liq');
+  } else {
+    document.getElementById('analytics-grid').innerHTML = `
+      <div class="chart-card"><div class="chart-title">Tipo de siniestro</div>${toggleHTML}${bar(sinTypes,C1)}</div>
+      <div class="chart-card"><div class="chart-title">Estado de casos</div>${toggleHTML}${
+        Object.entries(estados).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+          const max=Math.max(...Object.values(estados),1);
+          return \`<div class="bar-row"><div class="bar-label">\${k}</div><div class="bar-track"><div class="bar-fill" style="width:\${Math.round(v/max*100)}%;background:\${CEST[k]||'#888'}"></div></div><div class="bar-n">\${v}</div></div>\`;
+        }).join('')}
+      </div>
+      <div class="chart-card"><div class="chart-title">Casos por banco</div>${toggleHTML}${bar(bancos,C2)}</div>
+      <div class="chart-card"><div class="chart-title">Distribución por ciudad</div>${toggleHTML}${bar(ciudades,C1)}</div>
+      <div class="chart-card"><div class="chart-title">Casos por responsable</div>${toggleHTML}${bar(responsables,C2)}</div>
+      <div class="chart-card"><div class="chart-title">Liquidadores (casos pagados)</div>${toggleHTML}${bar(liquidadores,C2)}</div>`;
+  }
 
   const montoBanco = {};
   pagados.forEach(c=>{montoBanco[c.banco||'Otro']=(montoBanco[c.banco||'Otro']||0)+(c.monto||0);});
@@ -937,15 +1013,177 @@ function showSection(sec) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('sec-'+sec).classList.add('active');
-  const idx = ['casos','resumen','plazos'].indexOf(sec);
+  const idx = ['casos','resumen','plazos','periodos'].indexOf(sec);
   document.querySelectorAll('.nav-item')[idx]?.classList.add('active');
   if(sec==='resumen') buildResumen();
+  if(sec==='periodos') renderPeriodos();
+}
+
+
+// ── PERÍODOS ──────────────────────────────────────────────────────────────────
+let periodos = JSON.parse(localStorage.getItem('cr_periodos') || '[]');
+let editingPeriodoId = null;
+
+function savePeriodosLocal() {
+  localStorage.setItem('cr_periodos', JSON.stringify(periodos));
+}
+
+function openModalPeriodo(id) {
+  editingPeriodoId = id || null;
+  const p = id ? periodos.find(x => x.id === id) : null;
+  document.getElementById('modal-periodo-title').textContent = p ? 'Editar período' : 'Nuevo período';
+  document.getElementById('p-nombre').value = p ? p.nombre : '';
+  document.getElementById('p-fecha').value  = p ? p.fecha  : '';
+  document.getElementById('p-obs').value    = p ? p.obs    : '';
+  document.getElementById('modal-periodo').classList.add('open');
+}
+
+function closeModalPeriodo() {
+  document.getElementById('modal-periodo').classList.remove('open');
+  editingPeriodoId = null;
+}
+
+function savePeriodo() {
+  const nombre = document.getElementById('p-nombre').value.trim();
+  const fecha  = document.getElementById('p-fecha').value;
+  const obs    = document.getElementById('p-obs').value.trim();
+  if (!nombre) return showToast('Ingresa el nombre del período', 'error');
+  if (!fecha)  return showToast('Ingresa la fecha del evento', 'error');
+  if (editingPeriodoId) {
+    const p = periodos.find(x => x.id === editingPeriodoId);
+    if (p) { p.nombre = nombre; p.fecha = fecha; p.obs = obs; }
+  } else {
+    periodos.push({ id: 'P-' + Date.now(), nombre, fecha, obs });
+  }
+  periodos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  savePeriodosLocal();
+  closeModalPeriodo();
+  renderPeriodos();
+  showToast('Período guardado ✓');
+}
+
+function deletePeriodo(id) {
+  if (!confirm('¿Eliminar este período?')) return;
+  periodos = periodos.filter(x => x.id !== id);
+  savePeriodosLocal();
+  renderPeriodos();
+}
+
+function diasDesde(fechaStr) {
+  const hoy   = new Date(); hoy.setHours(0,0,0,0);
+  const fecha = new Date(fechaStr + 'T00:00:00');
+  return Math.floor((hoy - fecha) / (1000 * 60 * 60 * 24));
+}
+
+function renderPeriodos() {
+  const el = document.getElementById('periodos-list');
+  if (!periodos.length) {
+    el.innerHTML = '<div class="empty-state"><i class="ti ti-calendar-off"></i><p>No hay períodos registrados. Agrega el primero.</p></div>';
+    return;
+  }
+  el.innerHTML = periodos.map(p => {
+    const dias = diasDesde(p.fecha);
+    const cls  = dias > 90 ? 'danger' : dias > 30 ? 'warning' : '';
+    const [y, m, d] = p.fecha.split('-');
+    const fechaFmt  = d + '/' + m + '/' + y;
+    return `<div class="periodo-card ${cls}">
+      <div class="periodo-info">
+        <div class="periodo-nombre">${p.nombre}</div>
+        <div class="periodo-fecha"><i class="ti ti-calendar" style="font-size:12px"></i> ${fechaFmt}</div>
+        ${p.obs ? '<div class="periodo-obs">' + p.obs + '</div>' : ''}
+      </div>
+      <div class="periodo-dias">
+        <div class="periodo-dias-num" style="color:${dias>90?'var(--red)':dias>30?'var(--amber)':'var(--teal)'}">${dias}</div>
+        <div class="periodo-dias-lbl">días transcurridos</div>
+      </div>
+      <div class="periodo-actions">
+        <button class="btn" onclick="openModalPeriodo('${p.id}')"><i class="ti ti-edit"></i></button>
+        <button class="btn" onclick="deletePeriodo('${p.id}')" style="color:var(--red)"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── GRÁFICO TORTA ─────────────────────────────────────────────────────────────
+const PIE_COLORS = ['#00657e','#1a7a52','#e67e22','#c0392b','#2980b9','#8e44ad','#002b41','#a05c00'];
+
+function buildPieChart(data, containerId) {
+  const entries = Object.entries(data).sort((a,b) => b[1]-a[1]);
+  const total   = entries.reduce((s,[,v]) => s+v, 0);
+  if (!total) return;
+
+  const size = 160, cx = 80, cy = 80, r = 70;
+  let startAngle = -Math.PI / 2;
+  let paths = '';
+
+  entries.forEach(([label, val], i) => {
+    const slice = (val / total) * 2 * Math.PI;
+    const end   = startAngle + slice;
+    const x1 = cx + r * Math.cos(startAngle);
+    const y1 = cy + r * Math.sin(startAngle);
+    const x2 = cx + r * Math.cos(end);
+    const y2 = cy + r * Math.sin(end);
+    const large = slice > Math.PI ? 1 : 0;
+    const color = PIE_COLORS[i % PIE_COLORS.length];
+    paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z" fill="${color}" stroke="#fff" stroke-width="1.5">
+      <title>${label}: ${val}</title></path>`;
+    startAngle = end;
+  });
+
+  const legend = entries.map(([label, val], i) => {
+    const pct = Math.round(val/total*100);
+    return `<div class="pie-legend-item">
+      <div class="pie-dot" style="background:${PIE_COLORS[i%PIE_COLORS.length]}"></div>
+      <span style="flex:1;color:var(--text-2)">${label}</span>
+      <strong style="color:var(--navy)">${val}</strong>
+      <span style="color:var(--text-3);margin-left:4px">${pct}%</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById(containerId).innerHTML =
+    `<div class="pie-wrap chart-anim">
+      <svg class="pie-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg>
+      <div class="pie-legend">${legend}</div>
+    </div>`;
+}
+
+let chartMode = 'bar'; // 'bar' | 'pie'
+
+function toggleChartMode() {
+  chartMode = chartMode === 'bar' ? 'pie' : 'bar';
+  buildResumen();
+}
+
+function chartToggleHTML() {
+  return `<div class="chart-toggle">
+    <button class="chart-toggle-btn ${chartMode==='bar'?'active':''}" onclick="chartMode='bar';buildResumen()"><i class="ti ti-chart-bar"></i> Barras</button>
+    <button class="chart-toggle-btn ${chartMode==='pie'?'active':''}" onclick="chartMode='pie';buildResumen()"><i class="ti ti-chart-pie"></i> Torta</button>
+  </div>`;
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildPlazos();
 loadFromSheets();
 </script>
+
+<!-- MODAL PERÍODO -->
+<div class="modal-backdrop" id="modal-periodo">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title-text" id="modal-periodo-title">Nuevo período</div>
+      <button class="btn" onclick="closeModalPeriodo()" style="padding:4px 8px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Nombre del período</label><input type="text" id="p-nombre" placeholder="Ej: Temporal Mayo 2026"/></div>
+      <div class="form-group"><label>Fecha del evento</label><input type="date" id="p-fecha"/></div>
+      <div class="form-group full"><label>Observaciones</label><textarea id="p-obs" placeholder="Detalles del evento..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" onclick="closeModalPeriodo()">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="savePeriodo()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL MANDATO -->
 <div class="modal-backdrop" id="modal-mandato">
