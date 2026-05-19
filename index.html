@@ -5,163 +5,365 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CR Consulting — Gestión de Casos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Tahoma&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg: #f5f4f0; --surface: #ffffff; --surface2: #f0efe9;
-      --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.2);
-      --text: #1a1a18; --text-2: #5a5a56; --text-3: #8a8a84;
-      --blue: #185FA5; --blue-bg: #E6F1FB;
-      --green: #3B6D11; --green-bg: #EAF3DE;
-      --red: #A32D2D; --red-bg: #FCEBEB;
-      --amber: #854F0B; --amber-bg: #FAEEDA;
-      --teal: #0F6E56; --teal-bg: #E1F5EE;
-      --radius: 10px; --radius-sm: 6px;
+      --navy:    #002b41;
+      --teal:    #00657e;
+      --cream:   #fff7ee;
+      --cream2:  #ffecd5;
+      --surface: #ffffff;
+      --surface2:#f0f8fb;
+      --border:  rgba(0,43,65,0.12);
+      --border-strong: rgba(0,43,65,0.25);
+      --text:    #002b41;
+      --text-2:  #2d5a72;
+      --text-3:  #4a7a8a;
+      --green:   #1a7a52;
+      --green-bg:#e1f5ee;
+      --red:     #c0392b;
+      --red-bg:  #fceaea;
+      --amber:   #a05c00;
+      --amber-bg:#faeeda;
+      --blue-bg: #e0f0f4;
+      --radius:  10px;
+      --radius-sm: 6px;
     }
-    body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+
+    body {
+      font-family: 'IBM Plex Sans', Tahoma, sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
     .layout { display: flex; min-height: 100vh; }
 
-    .sidebar { width: 220px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.25rem 1rem; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; }
-    .logo-icon { width: 34px; height: 34px; background: var(--blue-bg); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--blue); font-size: 17px; }
-    .logo-name { font-weight: 600; font-size: 14px; line-height: 1.2; }
-    .logo-desc { font-size: 10px; color: var(--text-3); }
-    .nav-label { font-size: 10px; color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; padding: 0 8px; }
-    .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-2); font-size: 13px; transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
-    .nav-item:hover { background: var(--surface2); color: var(--text); }
-    .nav-item.active { background: var(--blue-bg); color: var(--blue); font-weight: 500; }
-    .nav-item i { font-size: 17px; }
-    .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); text-align: center; }
+    /* ── SIDEBAR ─────────────────────────────────────── */
+    .sidebar {
+      width: 230px; flex-shrink: 0;
+      background: var(--navy);
+      display: flex; flex-direction: column;
+      padding: 0;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
 
-    .sync-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-    .sync-ok { background: #3B6D11; }
-    .sync-loading { background: #854F0B; animation: blink 1s infinite; }
-    .sync-error { background: #A32D2D; }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px;
+      padding: 20px 18px 18px;
+      border-bottom: 1px solid rgba(255,247,238,0.1);
+      margin-bottom: 8px;
+    }
+
+    .brand-logo {
+      width: 42px; height: 42px; flex-shrink: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255,247,238,0.08);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+
+    .brand-text { flex: 1; min-width: 0; }
+    .brand-name { font-size: 13px; font-weight: 600; color: var(--cream); line-height: 1.2; }
+    .brand-desc { font-size: 10px; color: rgba(255,247,238,0.5); margin-top: 2px; }
+
+    .sync-bar {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; color: rgba(255,247,238,0.5);
+      padding: 6px 18px 10px;
+    }
+    .sync-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .sync-ok      { background: #2ecc71; }
+    .sync-loading { background: #f39c12; animation: blink 1s infinite; }
+    .sync-error   { background: #e74c3c; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .sync-bar { display: flex; align-items: center; font-size: 11px; color: var(--text-3); padding: 6px 8px; margin-bottom: 8px; border-radius: var(--radius-sm); background: var(--surface2); }
 
-    .main { margin-left: 220px; flex: 1; padding: 2rem 2rem 4rem; max-width: 1200px; }
-    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; gap: 1rem; }
-    .page-title { font-size: 20px; font-weight: 600; }
-    .page-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+    .nav-section { padding: 0 10px; margin-bottom: 6px; }
+    .nav-label {
+      font-size: 9px; color: rgba(255,247,238,0.35);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 4px 8px 6px;
+    }
 
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font-size: 13px; font-family: inherit; cursor: pointer; transition: all 0.15s; font-weight: 500; text-decoration: none; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer; color: rgba(255,247,238,0.6);
+      font-size: 13px; transition: all 0.15s;
+      margin-bottom: 1px; border: none;
+      background: none; width: 100%; text-align: left;
+      font-family: inherit;
+    }
+    .nav-item:hover { background: rgba(255,247,238,0.08); color: var(--cream); }
+    .nav-item.active { background: var(--teal); color: var(--cream); font-weight: 500; }
+    .nav-item i { font-size: 18px; opacity: 0.85; }
+
+    .nav-tool {
+      background: rgba(0,101,126,0.3);
+      color: rgba(255,247,238,0.8);
+      border: 1px solid rgba(0,101,126,0.5);
+    }
+    .nav-tool:hover { background: rgba(0,101,126,0.5); color: var(--cream); }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255,247,238,0.08);
+      font-size: 10px; color: rgba(255,247,238,0.3);
+      text-align: center;
+    }
+    .sidebar-footer button {
+      background: none; border: none;
+      color: rgba(255,247,238,0.5);
+      font-size: 11px; cursor: pointer;
+      font-family: inherit; margin-top: 6px;
+      display: flex; align-items: center; gap: 4px;
+      margin: 6px auto 0;
+    }
+    .sidebar-footer button:hover { color: var(--cream); }
+
+    /* ── TOPBAR (mobile) ─────────────────────────────── */
+    .topbar {
+      display: none;
+      background: var(--navy);
+      padding: 10px 16px;
+      align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 99;
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; }
+    .topbar img { width: 32px; height: 32px; border-radius: 6px; }
+    .topbar-name { font-size: 13px; font-weight: 600; color: var(--cream); }
+
+    /* ── MAIN ────────────────────────────────────────── */
+    .main {
+      margin-left: 230px;
+      flex: 1; padding: 2rem 2rem 4rem;
+      max-width: 1200px;
+    }
+
+    .page-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.75rem; gap: 1rem;
+    }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--navy); }
+    .page-sub { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+
+    /* ── BUTTONS ─────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface); color: var(--text);
+      font-size: 13px; font-family: inherit;
+      cursor: pointer; transition: all 0.15s; font-weight: 500;
+      text-decoration: none;
+    }
     .btn:hover { background: var(--surface2); }
-    .btn-primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-    .btn-primary:hover { opacity: 0.9; background: var(--blue); }
+    .btn-primary { background: var(--teal); color: var(--cream); border-color: var(--teal); }
+    .btn-primary:hover { background: var(--navy); border-color: var(--navy); }
 
-    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 1.75rem; }
-    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    /* ── METRICS ─────────────────────────────────────── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px; margin-bottom: 1.75rem;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      border-top: 3px solid var(--teal);
+    }
     .metric-label { font-size: 11px; color: var(--text-3); margin-bottom: 6px; }
-    .metric-value { font-size: 24px; font-weight: 600; }
+    .metric-value { font-size: 22px; font-weight: 600; color: var(--navy); }
     .metric-sub { font-size: 10px; color: var(--text-3); margin-top: 3px; }
 
+    /* ── TOOLBAR ─────────────────────────────────────── */
     .toolbar { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
-    .search-box { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 12px; }
+    .search-box {
+      flex: 1; min-width: 200px;
+      display: flex; align-items: center; gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+    }
     .search-box i { color: var(--text-3); font-size: 16px; }
-    .search-box input { border: none; background: none; outline: none; font-family: inherit; font-size: 13px; color: var(--text); flex: 1; }
+    .search-box input {
+      border: none; background: none; outline: none;
+      font-family: inherit; font-size: 13px;
+      color: var(--text); flex: 1;
+    }
 
-    .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.75rem; }
-    .tab { padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--text-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
-    .tab:hover { color: var(--text); }
-    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    /* ── TABS ────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .tab {
+      padding: 10px 18px; font-size: 13px; font-weight: 500;
+      color: var(--text-3); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: all 0.15s;
+      background: none; border-top: none; border-left: none; border-right: none;
+      font-family: inherit;
+    }
+    .tab:hover { color: var(--teal); }
+    .tab.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 600; }
 
+    /* ── CASE CARDS ──────────────────────────────────── */
     .case-list { display: flex; flex-direction: column; gap: 8px; }
-    .case-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.15s; cursor: pointer; }
-    .case-card:hover { border-color: var(--border-strong); }
-    .case-card.open { border-color: var(--blue); }
+    .case-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden; transition: border-color 0.15s; cursor: pointer;
+    }
+    .case-card:hover { border-color: var(--teal); }
+    .case-card.open { border-color: var(--teal); border-width: 1.5px; }
     .case-top { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
-    .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
     .case-info { flex: 1; min-width: 0; }
-    .case-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .case-name { font-size: 13px; font-weight: 600; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .case-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
     .case-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .case-monto { font-size: 13px; font-weight: 600; }
+    .case-monto { font-size: 13px; font-weight: 600; color: var(--navy); }
     .badge { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
     .badge-pagado    { background: var(--green-bg); color: var(--green); }
     .badge-rechazado { background: var(--red-bg);   color: var(--red); }
-    .badge-espera    { background: var(--blue-bg);  color: var(--blue); }
+    .badge-espera    { background: var(--blue-bg);  color: var(--teal); }
     .badge-pendiente { background: var(--amber-bg); color: var(--amber); }
     .chevron { font-size: 14px; color: var(--text-3); transition: transform 0.2s; }
     .case-card.open .chevron { transform: rotate(180deg); }
     .case-detail { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
     .case-card.open .case-detail { display: block; }
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; padding-top: 14px; margin-bottom: 12px; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; padding-top: 14px; margin-bottom: 12px; }
     .detail-label { font-size: 10px; color: var(--text-3); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .detail-value { font-size: 13px; font-weight: 500; color: var(--text); word-break: break-word; }
-    .commission-row { display: flex; flex-wrap: wrap; gap: 8px; background: var(--surface2); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 12px; }
-    .comm-item { min-width: 120px; }
+    .detail-value { font-size: 13px; font-weight: 500; color: var(--navy); word-break: break-word; }
+    .commission-row {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px; margin-bottom: 12px;
+    }
+    .comm-item { min-width: 110px; }
     .comm-label { font-size: 10px; color: var(--text-3); margin-bottom: 3px; }
-    .comm-value { font-size: 14px; font-weight: 600; }
+    .comm-value { font-size: 14px; font-weight: 600; color: var(--navy); }
     .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
+    /* ── VIEWS ───────────────────────────────────────── */
     .view { display: none; }
     .view.active { display: block; }
 
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
-    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden; }
-    .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-    .kpi-blue::before  { background: var(--blue); }
-    .kpi-green::before { background: var(--green); }
-    .kpi-amber::before { background: var(--amber); }
-    .kpi-red::before   { background: var(--red); }
-    .kpi-teal::before  { background: var(--teal); }
+    /* ── ESTADÍSTICAS ────────────────────────────────── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px; margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px; position: relative; overflow: hidden;
+    }
+    .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: var(--teal); }
+    .kpi-card.kpi-green::before { background: var(--green); }
+    .kpi-card.kpi-amber::before { background: var(--amber); }
+    .kpi-card.kpi-red::before   { background: var(--red); }
+    .kpi-card.kpi-navy::before  { background: var(--navy); }
     .kpi-label { font-size: 11px; color: var(--text-3); margin-bottom: 6px; }
-    .kpi-value { font-size: 22px; font-weight: 600; }
+    .kpi-value { font-size: 20px; font-weight: 600; color: var(--navy); }
     .kpi-sub { font-size: 10px; color: var(--text-3); margin-top: 4px; }
-    .kpi-icon { position:absolute; right:14px; top:14px; font-size:22px; opacity:0.1; }
+    .kpi-icon { position:absolute; right:14px; top:14px; font-size:22px; opacity:0.07; color: var(--navy); }
 
-    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 1.5rem; }
-    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
-    .chart-title { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px; margin-bottom: 1.5rem;
+    }
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+    .chart-title {
+      font-size: 11px; font-weight: 600; color: var(--teal);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px;
+    }
     .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .bar-label { font-size: 11px; color: var(--text-2); width: 120px; flex-shrink: 0; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+    .bar-track { flex: 1; height: 8px; background: var(--cream2); border-radius: 4px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
     .bar-n { font-size: 11px; color: var(--text-3); width: 24px; text-align: right; }
     .bar-val { font-size: 10px; color: var(--text-3); width: 90px; text-align: right; flex-shrink: 0; }
 
     .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .data-table th { text-align: left; padding: 8px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); border-bottom: 1px solid var(--border); font-weight: 600; }
+    .data-table th { text-align: left; padding: 8px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); border-bottom: 2px solid var(--border); font-weight: 600; }
     .data-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text-2); }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tr:hover td { background: var(--surface2); }
 
     .tables-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
 
+    /* ── PLAZOS ──────────────────────────────────────── */
     .plazos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-    .plazo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; }
-    .plazo-banco { font-size: 13px; font-weight: 600; }
+    .plazo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; border-left: 3px solid var(--teal); }
+    .plazo-banco { font-size: 13px; font-weight: 600; color: var(--navy); }
     .plazo-comp { font-size: 11px; color: var(--text-3); margin-top: 1px; }
-    .plazo-dias { font-size: 22px; font-weight: 600; margin-top: 8px; }
+    .plazo-dias { font-size: 22px; font-weight: 700; margin-top: 8px; }
     .plazo-dias span { font-size: 11px; font-weight: 400; color: var(--text-3); }
 
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+    /* ── MODAL ───────────────────────────────────────── */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,43,65,0.4); z-index: 200; align-items: center; justify-content: center; }
     .modal-backdrop.open { display: flex; }
-    .modal { background: var(--surface); border-radius: var(--radius); padding: 24px 28px; width: 90%; max-width: 580px; max-height: 90vh; overflow-y: auto; }
+    .modal { background: var(--surface); border-radius: var(--radius); padding: 24px 28px; width: 90%; max-width: 580px; max-height: 90vh; overflow-y: auto; border-top: 3px solid var(--teal); }
     .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .modal-title-text { font-size: 16px; font-weight: 600; }
+    .modal-title-text { font-size: 16px; font-weight: 600; color: var(--navy); }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group.full { grid-column: 1 / -1; }
     label { font-size: 11px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; }
-    input, select, textarea { font-family: inherit; font-size: 13px; padding: 8px 11px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
-    input:focus, select:focus, textarea:focus { border-color: var(--blue); }
+    input, select, textarea {
+      font-family: inherit; font-size: 13px; padding: 8px 11px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface2); color: var(--navy);
+      outline: none; transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--teal); }
     textarea { resize: vertical; min-height: 70px; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
 
-    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a18; color: #fff; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+    /* ── TOAST ───────────────────────────────────────── */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: var(--cream); padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
     .toast.show { opacity: 1; transform: translateY(0); }
     .toast.success { background: var(--green); }
     .toast.error { background: var(--red); }
 
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-3); }
-    .empty-state i { font-size: 40px; margin-bottom: 10px; display: block; }
+    .empty-state i { font-size: 40px; margin-bottom: 10px; display: block; color: var(--teal); opacity: 0.4; }
 
-    @media (max-width: 680px) {
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 720px) {
       .sidebar { display: none; }
+      .topbar { display: flex; }
       .main { margin-left: 0; padding: 1rem; }
       .detail-grid, .form-grid, .tables-row { grid-template-columns: 1fr; }
       .analytics-grid { grid-template-columns: 1fr; }
@@ -171,10 +373,16 @@
 <body>
 <div class="layout">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon"><i class="ti ti-shield-check"></i></div>
-      <div><div class="logo-name">CR Consulting</div><div class="logo-desc">Seguros hipotecarios</div></div>
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <img src="https://i.imgur.com/qwKK2vg.png" alt="CR Consulting" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'color:#fff7ee;font-size:13px;font-weight:700\'>CR</span>'">
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">CR Consulting</div>
+        <div class="brand-desc">Seguros hipotecarios</div>
+      </div>
     </div>
 
     <div class="sync-bar">
@@ -182,31 +390,48 @@
       <span id="sync-text">Conectando…</span>
     </div>
 
-    <div class="nav-label">Módulos</div>
-    <button class="nav-item active" onclick="showSection('casos')"><i class="ti ti-folder-open"></i> Casos</button>
-    <button class="nav-item" onclick="showSection('resumen')"><i class="ti ti-chart-bar"></i> Estadísticas</button>
-    <button class="nav-item" onclick="showSection('plazos')"><i class="ti ti-clock"></i> Plazos bancarios</button>
+    <div class="nav-section">
+      <div class="nav-label">Gestión</div>
+      <button class="nav-item active" onclick="showSection('casos')"><i class="ti ti-folder-open"></i> Casos</button>
+      <button class="nav-item" onclick="showSection('resumen')"><i class="ti ti-chart-bar"></i> Estadísticas</button>
+      <button class="nav-item" onclick="showSection('plazos')"><i class="ti ti-clock"></i> Plazos bancarios</button>
+    </div>
 
-    <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+    <div class="nav-section" style="margin-top:8px">
       <div class="nav-label">Herramientas</div>
-      <button class="nav-item" onclick="window.open('presupuestador.html','_blank')" style="background:var(--blue-bg);color:var(--blue)">
+      <button class="nav-item nav-tool" onclick="window.open('presupuestador.html','_blank')">
         <i class="ti ti-calculator"></i> Presupuestador
       </button>
     </div>
 
     <div class="sidebar-footer">
-      CR Consulting &copy; 2025<br>
-      <button onclick="loadFromSheets()" style="margin-top:6px;background:none;border:none;color:var(--blue);font-size:11px;cursor:pointer;font-family:inherit">
-        <i class="ti ti-refresh"></i> Sincronizar
-      </button>
+      CR Consulting &copy; 2025
+      <button onclick="loadFromSheets()"><i class="ti ti-refresh"></i> Sincronizar</button>
     </div>
   </aside>
 
+  <!-- TOPBAR MOBILE -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <img src="https://i.imgur.com/qwKK2vg.png" alt="CR" onerror="this.style.display='none'">
+      <span class="topbar-name">CR Consulting</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="showSection('casos')" style="padding:6px 10px;font-size:12px"><i class="ti ti-folders"></i></button>
+      <button class="btn btn-primary" onclick="openModal()" style="padding:6px 10px;font-size:12px"><i class="ti ti-plus"></i></button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
   <main class="main">
 
+    <!-- CASOS -->
     <div id="sec-casos" class="view active">
       <div class="page-header">
-        <div><div class="page-title">Gestión de casos</div><div class="page-sub" id="casos-count">Cargando…</div></div>
+        <div>
+          <div class="page-title">Gestión de casos</div>
+          <div class="page-sub" id="casos-count">Cargando…</div>
+        </div>
         <button class="btn btn-primary" onclick="openModal()"><i class="ti ti-plus"></i> Nuevo caso</button>
       </div>
       <div class="metrics" id="metrics"></div>
@@ -225,9 +450,10 @@
       <div class="case-list" id="case-list"></div>
     </div>
 
+    <!-- ESTADÍSTICAS -->
     <div id="sec-resumen" class="view">
       <div class="page-header">
-        <div><div class="page-title">Estadísticas</div><div class="page-sub">Análisis completo de casos CR Consulting</div></div>
+        <div><div class="page-title">Estadísticas</div><div class="page-sub">Análisis completo — CR Consulting</div></div>
       </div>
       <div class="kpi-row" id="kpi-row"></div>
       <div class="analytics-grid" id="analytics-grid"></div>
@@ -235,6 +461,7 @@
       <div class="chart-card" id="top5-table" style="margin-bottom:1.5rem"></div>
     </div>
 
+    <!-- PLAZOS -->
     <div id="sec-plazos" class="view">
       <div class="page-header">
         <div><div class="page-title">Plazos bancarios</div><div class="page-sub">Días hábiles estimados por banco y aseguradora</div></div>
@@ -245,6 +472,7 @@
   </main>
 </div>
 
+<!-- MODAL NUEVO/EDITAR CASO -->
 <div class="modal-backdrop" id="modal-backdrop" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-header">
@@ -286,7 +514,7 @@
         </div>
         <div class="form-group"><label>Responsable</label><input type="text" id="f-caso" placeholder="Caso Camilo / René…"/></div>
         <div class="form-group"><label>Correlativo / Folio</label><input type="text" id="f-correlativo" placeholder="FOLIO 00000"/></div>
-        <div class="form-group"><label>Monto indemnizado ($)</label><input type="number" id="f-monto" placeholder="0"/></div>
+        <div class="form-group"><label>Monto indemnizado ($)</label><input type="number" id="f-monto" placeholder="0" min="0"/></div>
         <div class="form-group">
           <label>% Comisión CR</label>
           <select id="f-porcentaje">
@@ -307,7 +535,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzopNjEalFZe6KKIne3zmZP2qY5emeMwltvoC2NXeNxTCmHUqg88IPyxHQN8TMfBrlB/exec';
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbySRjiG-K0kztxjgCLXtN4BUfb3Sv1p-MJCHVczJKud4gAfKKlhsWhYJ2b_uExBRPdE/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -319,13 +548,16 @@ const PLAZOS = [
   {banco:'Itaú',comp:'FID',dias:90},
 ];
 
+// ── ESTADO ────────────────────────────────────────────────────────────────────
 let cases = [], activeFilter = 'todos', expandedId = null, editingId = null;
 
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 const fmtCLP = n => n ? '$' + Math.round(n).toLocaleString('es-CL') : '—';
 const initials = n => (n||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const AVCOLORS = [
-  {bg:'#E6F1FB',tc:'#185FA5'},{bg:'#E1F5EE',tc:'#0F6E56'},
-  {bg:'#FAEEDA',tc:'#854F0B'},{bg:'#FBEAF0',tc:'#993556'},{bg:'#EAF3DE',tc:'#3B6D11'}
+  {bg:'#e0f0f4',tc:'#00657e'},{bg:'#e1f5ee',tc:'#1a7a52'},
+  {bg:'#faeeda',tc:'#a05c00'},{bg:'#fceaea',tc:'#c0392b'},
+  {bg:'#e8f0f4',tc:'#002b41'}
 ];
 
 function badgeClass(e) {
@@ -334,47 +566,109 @@ function badgeClass(e) {
   if((e||'').toLowerCase().includes('espera')) return 'badge-espera';
   return 'badge-pendiente';
 }
-function diasColor(d) { return d<=30?'var(--green)':d<=60?'var(--amber)':'var(--red)'; }
+function diasColor(d){ return d<=30?'var(--green)':d<=60?'var(--amber)':'var(--red)'; }
 
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast show ' + type;
   setTimeout(()=>t.className='toast', 2800);
 }
-
 function setSyncStatus(s, msg) {
   document.getElementById('sync-dot').className = 'sync-dot sync-' + s;
   document.getElementById('sync-text').textContent = msg;
 }
 
-// ── SHEETS ──────────────────────────────────────────────────────────────────
+// ── API: JSONP para leer, form-trick para escribir ────────────────────────────
+function jsonpFetch(url) {
+  return new Promise((resolve, reject) => {
+    const cb = 'cr_cb_' + Date.now();
+    const script = document.createElement('script');
+    window[cb] = (data) => {
+      delete window[cb];
+      document.head.removeChild(script);
+      resolve(data);
+    };
+    script.onerror = () => { delete window[cb]; document.head.removeChild(script); reject(new Error('JSONP failed')); };
+    script.src = url + '?callback=' + cb + '&t=' + Date.now();
+    document.head.appendChild(script);
+  });
+}
+
+function formPost(url, data) {
+  return new Promise((resolve) => {
+    const iframe = document.createElement('iframe');
+    iframe.name = 'cr_post_' + Date.now();
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    form.target = iframe.name;
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = JSON.stringify(data);
+    form.appendChild(input);
+
+    // Apps Script reads e.postData.contents — send as plain body via fetch with no-cors
+    document.body.appendChild(form);
+
+    // Use no-cors fetch instead — fire and forget, then reload
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(data)
+    }).then(() => {
+      setTimeout(() => {
+        document.body.removeChild(form);
+        document.body.removeChild(iframe);
+        resolve({ ok: true });
+      }, 1200);
+    }).catch(() => {
+      document.body.removeChild(form);
+      document.body.removeChild(iframe);
+      resolve({ ok: true }); // assume ok, reload will confirm
+    });
+  });
+}
+
+// ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
 async function loadFromSheets() {
-  setSyncStatus('loading','Sincronizando…');
+  setSyncStatus('loading', 'Sincronizando…');
   try {
-    const res = await fetch(SHEETS_URL + '?t=' + Date.now());
-    const json = await res.json();
+    const json = await jsonpFetch(SHEETS_URL);
     if(json.ok && Array.isArray(json.data)) {
       cases = json.data.map(r => ({
         ...r,
         id: String(r.id),
-        monto:     r.monto     ? parseFloat(r.monto)     : null,
-        porcentaje:r.porcentaje? parseFloat(r.porcentaje): 0.25,
-        comision:  r.comision  ? parseFloat(r.comision)  : null,
-        fondo:     r.fondo     ? parseFloat(r.fondo)     : null,
-        retiro:    r.retiro    ? parseFloat(r.retiro)    : null,
+        monto:      r.monto      ? parseFloat(r.monto)      : null,
+        porcentaje: r.porcentaje ? parseFloat(r.porcentaje) : 0.25,
+        comision:   r.comision   ? parseFloat(r.comision)   : null,
+        fondo:      r.fondo      ? parseFloat(r.fondo)      : null,
+        retiro:     r.retiro     ? parseFloat(r.retiro)     : null,
       }));
       setSyncStatus('ok', `${cases.length} casos · sync ✓`);
       buildMetrics(); renderCases(); buildResumen();
-    } else { setSyncStatus('error','Error al cargar'); }
-  } catch(e) { setSyncStatus('error','Sin conexión'); }
+    } else {
+      setSyncStatus('error', 'Error al cargar');
+    }
+  } catch(e) {
+    setSyncStatus('error', 'Sin conexión');
+    console.error(e);
+  }
 }
 
 async function apiCall(body) {
-  const res = await fetch(SHEETS_URL, { method:'POST', body: JSON.stringify(body) });
-  return res.json();
+  await formPost(SHEETS_URL, body);
+  // Esperar un poco y recargar desde Sheets para confirmar
+  await new Promise(r => setTimeout(r, 1800));
+  await loadFromSheets();
 }
 
-// ── MÉTRICAS ────────────────────────────────────────────────────────────────
+// ── MÉTRICAS ──────────────────────────────────────────────────────────────────
 function buildMetrics() {
   const p = cases.filter(c=>c.estado==='Pagado').length;
   const r = cases.filter(c=>c.estado==='Rechazado').length;
@@ -382,13 +676,13 @@ function buildMetrics() {
   const tc= cases.reduce((a,c)=>a+(c.comision||0),0);
   document.getElementById('metrics').innerHTML = `
     <div class="metric-card"><div class="metric-label">Total casos</div><div class="metric-value">${cases.length}</div></div>
-    <div class="metric-card"><div class="metric-label">Pagados</div><div class="metric-value" style="color:var(--green)">${p}</div></div>
-    <div class="metric-card"><div class="metric-label">En gestión</div><div class="metric-value" style="color:var(--amber)">${g}</div></div>
-    <div class="metric-card"><div class="metric-label">Rechazados</div><div class="metric-value" style="color:var(--red)">${r}</div></div>
+    <div class="metric-card kpi-green" style="border-top-color:var(--green)"><div class="metric-label">Pagados</div><div class="metric-value" style="color:var(--green)">${p}</div></div>
+    <div class="metric-card" style="border-top-color:var(--amber)"><div class="metric-label">En gestión</div><div class="metric-value" style="color:var(--amber)">${g}</div></div>
+    <div class="metric-card" style="border-top-color:var(--red)"><div class="metric-label">Rechazados</div><div class="metric-value" style="color:var(--red)">${r}</div></div>
     <div class="metric-card"><div class="metric-label">Comisión total CR</div><div class="metric-value" style="font-size:16px">${fmtCLP(tc)}</div><div class="metric-sub">en casos pagados</div></div>`;
 }
 
-// ── CASOS ────────────────────────────────────────────────────────────────────
+// ── CASOS ─────────────────────────────────────────────────────────────────────
 function setFilter(f, el) {
   activeFilter = f;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -418,7 +712,7 @@ function renderCases() {
           <div class="avatar" style="background:${av.bg};color:${av.tc}">${initials(c.nombre)}</div>
           <div class="case-info">
             <div class="case-name">${c.nombre}</div>
-            <div class="case-meta">${c.banco||'—'} · ${c.siniestro||'—'} · ${c.dir||'—'}</div>
+            <div class="case-meta">${c.banco||'—'} &nbsp;·&nbsp; ${c.siniestro||'—'} &nbsp;·&nbsp; ${c.dir||'—'}</div>
           </div>
           <div class="case-right">
             <span class="badge ${badgeClass(c.estado)}">${c.estado}</span>
@@ -447,7 +741,7 @@ function renderCases() {
           <div class="action-row" onclick="event.stopPropagation()">
             <button class="btn" onclick="editCase('${c.id}')"><i class="ti ti-edit"></i> Editar</button>
             <button class="btn" onclick="deleteCase('${c.id}')" style="color:var(--red)"><i class="ti ti-trash"></i> Eliminar</button>
-            ${c.email?`<a href="mailto:${c.email}?subject=Actualización de su caso&body=Estimado/a ${(c.nombre||'').split(' ')[0]},%0A%0ALe informamos que su caso se encuentra actualmente en estado: ${c.estado}.%0A%0ASaludos,%0ACR Consulting" class="btn" style="text-decoration:none"><i class="ti ti-mail"></i> Enviar correo</a>`:''}
+            ${c.email?`<a href="mailto:${c.email}?subject=Actualización de su caso&body=Estimado/a ${(c.nombre||'').split(' ')[0]},%0A%0ALe informamos que su caso se encuentra en estado: ${c.estado}.%0A%0ASaludos,%0ACR Consulting" class="btn" style="text-decoration:none"><i class="ti ti-mail"></i> Enviar correo</a>`:''}
           </div>
         </div>
       </div>`;
@@ -462,17 +756,21 @@ function toggleCard(id) {
 async function deleteCase(id) {
   if(!confirm('¿Eliminar este caso? No se puede deshacer.')) return;
   setSyncStatus('loading','Eliminando…');
-  try { await apiCall({action:'delete',id}); showToast('Caso eliminado'); await loadFromSheets(); }
-  catch(e) { showToast('Error al eliminar','error'); setSyncStatus('error','Error'); }
+  try {
+    await apiCall({action:'delete', id});
+    showToast('Caso eliminado');
+  } catch(e) { showToast('Error al eliminar','error'); setSyncStatus('error','Error'); }
 }
 
-// ── MODAL ────────────────────────────────────────────────────────────────────
+// ── MODAL ─────────────────────────────────────────────────────────────────────
 function openModal(prefill) {
   editingId = prefill ? String(prefill.id) : null;
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if(prefill) {
-    ['nombre','rut','email','dir','banco','siniestro','liquidador','estado','caso','correlativo','monto','porcentaje','obs']
+    ['nombre','rut','email','dir','banco','siniestro','liquidador','estado','caso','correlativo','obs']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
+    document.getElementById('f-monto').value = prefill.monto || '';
+    document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
   } else {
     document.querySelectorAll('#modal-backdrop input,#modal-backdrop textarea').forEach(i=>i.value='');
     document.getElementById('f-estado').value='Pendiente denuncio';
@@ -488,35 +786,44 @@ function closeModalOutside(e) { if(e.target===document.getElementById('modal-bac
 async function saveCase(e) {
   e.preventDefault();
   const btn = document.getElementById('save-btn');
-  btn.disabled=true; btn.textContent='Guardando…';
+  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Guardando…';
   const monto    = parseFloat(document.getElementById('f-monto').value)||null;
   const pct      = parseFloat(document.getElementById('f-porcentaje').value)||0.25;
   const comision = monto ? monto*pct : null;
   const fondo    = comision ? comision*0.9 : null;
   const retiro   = fondo ? fondo*0.25 : null;
   const data = {
-    nombre: document.getElementById('f-nombre').value,
-    rut:    document.getElementById('f-rut').value,
-    email:  document.getElementById('f-email').value,
-    dir:    document.getElementById('f-dir').value,
-    banco:  document.getElementById('f-banco').value,
-    siniestro:  document.getElementById('f-siniestro').value,
-    liquidador: document.getElementById('f-liquidador').value,
-    estado:     document.getElementById('f-estado').value,
-    caso:       document.getElementById('f-caso').value,
-    correlativo:document.getElementById('f-correlativo').value,
-    monto, porcentaje:pct, comision, fondo, retiro, boleta:'NO',
+    nombre:      document.getElementById('f-nombre').value,
+    rut:         document.getElementById('f-rut').value,
+    email:       document.getElementById('f-email').value,
+    dir:         document.getElementById('f-dir').value,
+    banco:       document.getElementById('f-banco').value,
+    siniestro:   document.getElementById('f-siniestro').value,
+    liquidador:  document.getElementById('f-liquidador').value,
+    estado:      document.getElementById('f-estado').value,
+    caso:        document.getElementById('f-caso').value,
+    correlativo: document.getElementById('f-correlativo').value,
+    monto, porcentaje:pct, comision, fondo, retiro,
+    boleta: 'NO',
     obs: document.getElementById('f-obs').value,
   };
   try {
-    if(editingId) { await apiCall({action:'update',id:editingId,...data}); showToast('Caso actualizado ✓'); }
-    else          { await apiCall({action:'add',...data}); showToast('Caso agregado ✓'); }
-    closeModal(); await loadFromSheets();
-  } catch(err) { showToast('Error al guardar','error'); }
-  finally { btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Guardar'; }
+    if(editingId) {
+      await apiCall({action:'update', id:editingId, ...data});
+      showToast('Caso actualizado ✓');
+    } else {
+      await apiCall({action:'add', ...data});
+      showToast('Caso agregado ✓');
+    }
+    closeModal();
+  } catch(err) {
+    showToast('Error al guardar','error');
+  } finally {
+    btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Guardar';
+  }
 }
 
-// ── ESTADÍSTICAS ─────────────────────────────────────────────────────────────
+// ── ESTADÍSTICAS ──────────────────────────────────────────────────────────────
 function buildResumen() {
   const pagados    = cases.filter(c=>c.estado==='Pagado');
   const rechazados = cases.filter(c=>c.estado==='Rechazado');
@@ -528,11 +835,11 @@ function buildResumen() {
   const tasaExito  = cases.length ? Math.round(pagados.length/cases.length*100) : 0;
 
   document.getElementById('kpi-row').innerHTML = `
-    <div class="kpi-card kpi-blue"><i class="ti ti-folders kpi-icon"></i><div class="kpi-label">Total casos</div><div class="kpi-value">${cases.length}</div><div class="kpi-sub">${pagados.length} pagados · ${gestion.length} en gestión</div></div>
+    <div class="kpi-card"><i class="ti ti-folders kpi-icon"></i><div class="kpi-label">Total casos</div><div class="kpi-value">${cases.length}</div><div class="kpi-sub">${pagados.length} pagados · ${gestion.length} en gestión</div></div>
     <div class="kpi-card kpi-green"><i class="ti ti-coin kpi-icon"></i><div class="kpi-label">Monto total gestionado</div><div class="kpi-value" style="font-size:17px">${fmtCLP(totalMonto)}</div><div class="kpi-sub">${pagados.length} casos pagados</div></div>
-    <div class="kpi-card kpi-teal"><i class="ti ti-receipt kpi-icon"></i><div class="kpi-label">Comisión total CR</div><div class="kpi-value" style="font-size:17px">${fmtCLP(totalCom)}</div><div class="kpi-sub">Fondo: ${fmtCLP(totalFondo)}</div></div>
+    <div class="kpi-card"><i class="ti ti-receipt kpi-icon"></i><div class="kpi-label">Comisión total CR</div><div class="kpi-value" style="font-size:17px">${fmtCLP(totalCom)}</div><div class="kpi-sub">Fondo: ${fmtCLP(totalFondo)}</div></div>
     <div class="kpi-card kpi-amber"><i class="ti ti-chart-line kpi-icon"></i><div class="kpi-label">Promedio por caso</div><div class="kpi-value" style="font-size:17px">${fmtCLP(avgMonto)}</div><div class="kpi-sub">en casos pagados</div></div>
-    <div class="kpi-card kpi-${tasaExito>=60?'green':'amber'}"><i class="ti ti-target kpi-icon"></i><div class="kpi-label">Tasa de éxito</div><div class="kpi-value">${tasaExito}%</div><div class="kpi-sub">${rechazados.length} rechazados</div></div>`;
+    <div class="kpi-card ${tasaExito>=60?'kpi-green':'kpi-amber'}"><i class="ti ti-target kpi-icon"></i><div class="kpi-label">Tasa de éxito</div><div class="kpi-value">${tasaExito}%</div><div class="kpi-sub">${rechazados.length} rechazados</div></div>`;
 
   const count = arr => arr.reduce((a,c)=>{a[c]=(a[c]||0)+1;return a;},{});
   const sinTypes     = count(cases.map(c=>c.siniestro||'Otro'));
@@ -540,8 +847,7 @@ function buildResumen() {
   const estados      = count(cases.map(c=>c.estado||'—'));
   const responsables = count(cases.map(c=>c.caso||'Sin asignar'));
   const liquidadores = count(pagados.map(c=>c.liquidador||'—'));
-
-  const ciudades = count(cases.map(c=>{
+  const ciudades     = count(cases.map(c=>{
     const d=(c.dir||'').toLowerCase();
     if(d.includes('hualpen')||d.includes('hualpén')) return 'Hualpén';
     if(d.includes('chiguayante')) return 'Chiguayante';
@@ -561,9 +867,9 @@ function buildResumen() {
       </div>`).join('');
   };
 
-  const C1 = ['#378ADD','#1D9E75','#D85A30','#7F77DD','#D4537E','#999'];
-  const C2 = ['#185FA5','#1D9E75','#D85A30','#854F0B','#993556','#0F6E56'];
-  const CEST = {'Pagado':'#3B6D11','Rechazado':'#A32D2D','Espera de informe final':'#185FA5','Pendiente denuncio':'#854F0B','Pendiente antecedentes':'#854F0B','Pendiente firma':'#854F0B','Pendiente PPTO':'#854F0B'};
+  const C1 = ['#00657e','#1a7a52','#e67e22','#c0392b','#2980b9','#8e44ad'];
+  const C2 = ['#002b41','#00657e','#1a7a52','#a05c00','#c0392b','#2980b9'];
+  const CEST = {'Pagado':'#1a7a52','Rechazado':'#c0392b','Espera de informe final':'#00657e','Pendiente denuncio':'#a05c00','Pendiente antecedentes':'#a05c00','Pendiente firma':'#a05c00','Pendiente PPTO':'#a05c00'};
 
   document.getElementById('analytics-grid').innerHTML = `
     <div class="chart-card"><div class="chart-title">Tipo de siniestro</div>${bar(sinTypes,C1)}</div>
@@ -574,32 +880,22 @@ function buildResumen() {
       }).join('')}
     </div>
     <div class="chart-card"><div class="chart-title">Casos por banco</div>${bar(bancos,C2)}</div>
-    <div class="chart-card"><div class="chart-title">Distribución por ciudad</div>${bar(ciudades,C2)}</div>
+    <div class="chart-card"><div class="chart-title">Distribución por ciudad</div>${bar(ciudades,C1)}</div>
     <div class="chart-card"><div class="chart-title">Casos por responsable</div>${bar(responsables,C2)}</div>
     <div class="chart-card"><div class="chart-title">Liquidadores (casos pagados)</div>${bar(liquidadores,C2)}</div>`;
 
-  // Monto por banco
   const montoBanco = {};
   pagados.forEach(c=>{montoBanco[c.banco||'Otro']=(montoBanco[c.banco||'Otro']||0)+(c.monto||0);});
   const maxMB = Math.max(...Object.values(montoBanco),1);
   const montoBancoBar = Object.entries(montoBanco).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>`
-    <div class="bar-row">
-      <div class="bar-label">${k}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxMB*100)}%;background:${C2[i%C2.length]}"></div></div>
-      <div class="bar-val">${fmtCLP(v)}</div>
-    </div>`).join('');
+    <div class="bar-row"><div class="bar-label">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxMB*100)}%;background:${C2[i%C2.length]}"></div></div><div class="bar-val">${fmtCLP(v)}</div></div>`).join('');
 
-  // Comisión pendiente en gestión
   const gestConMonto = gestion.filter(c=>c.comision);
   const maxGC = Math.max(...gestConMonto.map(c=>c.comision||0),1);
   const gestBar = gestConMonto.length
     ? gestConMonto.sort((a,b)=>(b.comision||0)-(a.comision||0)).slice(0,6).map(c=>`
-        <div class="bar-row">
-          <div class="bar-label">${(c.nombre||'').split(' ').slice(0,2).join(' ')}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round((c.comision||0)/maxGC*100)}%;background:var(--amber)"></div></div>
-          <div class="bar-val">${fmtCLP(c.comision)}</div>
-        </div>`).join('')
-    : '<p style="font-size:12px;color:var(--text-3)">Sin casos en gestión con monto estimado.</p>';
+        <div class="bar-row"><div class="bar-label">${(c.nombre||'').split(' ').slice(0,2).join(' ')}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round((c.comision||0)/maxGC*100)}%;background:var(--amber)"></div></div><div class="bar-val">${fmtCLP(c.comision)}</div></div>`).join('')
+    : '<p style="font-size:12px;color:var(--text-3);padding:8px 0">Sin casos en gestión con monto estimado.</p>';
 
   document.getElementById('tables-row').innerHTML = `
     <div class="chart-card"><div class="chart-title">Monto gestionado por banco</div>${montoBancoBar}</div>
@@ -611,15 +907,15 @@ function buildResumen() {
     <table class="data-table">
       <thead><tr><th>Asegurado</th><th>Banco</th><th>Siniestro</th><th>Monto</th><th>Comisión CR</th></tr></thead>
       <tbody>${top5.map(c=>`<tr>
-        <td style="font-weight:600;color:var(--text)">${c.nombre}</td>
+        <td style="font-weight:600;color:var(--navy)">${c.nombre}</td>
         <td>${c.banco||'—'}</td><td>${c.siniestro||'—'}</td>
         <td style="color:var(--green);font-weight:600">${fmtCLP(c.monto)}</td>
-        <td style="color:var(--blue);font-weight:600">${fmtCLP(c.comision)}</td>
+        <td style="color:var(--teal);font-weight:600">${fmtCLP(c.comision)}</td>
       </tr>`).join('')}</tbody>
     </table>`;
 }
 
-// ── PLAZOS ───────────────────────────────────────────────────────────────────
+// ── PLAZOS ────────────────────────────────────────────────────────────────────
 function buildPlazos() {
   document.getElementById('plazos-grid').innerHTML = PLAZOS.map(p=>`
     <div class="plazo-card">
@@ -629,7 +925,7 @@ function buildPlazos() {
     </div>`).join('');
 }
 
-// ── NAVEGACIÓN ───────────────────────────────────────────────────────────────
+// ── NAVEGACIÓN ────────────────────────────────────────────────────────────────
 function showSection(sec) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -639,6 +935,7 @@ function showSection(sec) {
   if(sec==='resumen') buildResumen();
 }
 
+// ── INIT ──────────────────────────────────────────────────────────────────────
 buildPlazos();
 loadFromSheets();
 </script>
