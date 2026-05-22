@@ -747,7 +747,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx8dUZQvjPvPBNcpYLlG4CIW7jHFUSlfFrWc-EHnagta6yVxsQS7A3KFyfAql0OoCsL/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbysHjkvH3hryGvquiNHp9U51EH6B_IcTJLs65nH9qJotiH2-DPfZ7Y0M1Khb3PHU7d1/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1069,6 +1069,7 @@ function renderCases() {
           <div class="action-row" onclick="event.stopPropagation()">
             <button class="btn" onclick="editCase('${c.id}')"><i class="ti ti-edit"></i> Editar</button>
             <button class="btn" onclick="openMandato('${c.id}')" style="color:var(--teal);border-color:var(--teal)"><i class="ti ti-file-text"></i> Mandato</button>
+            <button class="btn" onclick="openContrato('${c.id}')" style="color:var(--navy);border-color:var(--navy)"><i class="ti ti-file-description"></i> Contrato</button>
             <button class="btn" onclick="deleteCase('${c.id}')" style="color:var(--red)"><i class="ti ti-trash"></i> Eliminar</button>
             ${c.email?`<a href="mailto:${c.email}?subject=Actualización de su caso&body=Estimado/a ${(c.nombre||'').split(' ')[0]},%0A%0ALe informamos que su caso se encuentra en estado: ${c.estado}.%0A%0ASaludos,%0ACR Consulting" class="btn" style="text-decoration:none"><i class="ti ti-mail"></i> Enviar correo</a>`:''}
           </div>
@@ -1619,6 +1620,182 @@ async function generarMandato() {
 
 function showMandatoStatus(msg, type) {
   const el = document.getElementById('mandato-status');
+  el.style.display = 'block';
+  el.textContent   = msg;
+  el.style.background = type==='success' ? 'var(--green-bg)' : type==='error' ? 'var(--red-bg)' : 'var(--blue-bg)';
+  el.style.color      = type==='success' ? 'var(--green)'    : type==='error' ? 'var(--red)'    : 'var(--teal)';
+  el.style.border     = type==='success' ? '1px solid var(--green)' : type==='error' ? '1px solid var(--red)' : '1px solid var(--teal)';
+}
+</script>
+
+
+<!-- MODAL CONTRATO -->
+<div class="modal-backdrop" id="modal-contrato">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title-text"><i class="ti ti-file-description" style="margin-right:6px;font-size:16px;vertical-align:-2px"></i>Generar Contrato de Prestación de Servicios</div>
+      <button class="btn" onclick="closeContrato()" style="padding:4px 8px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:18px;">
+      <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;font-weight:600;">Asegurado</div>
+      <div id="contrato-nombre" style="font-size:14px;font-weight:600;color:var(--navy);">—</div>
+      <div id="contrato-rut" style="font-size:12px;color:var(--text-3);margin-top:2px;">—</div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Dirección</label>
+        <input type="text" id="ct-dir" placeholder="Calle Los Ebanos Norte 290"/>
+      </div>
+      <div class="form-group"><label>Comuna</label>
+        <input type="text" id="ct-comuna" placeholder="San Pedro de la Paz"/>
+      </div>
+      <div class="form-group"><label>Ciudad</label>
+        <input type="text" id="ct-ciudad" placeholder="San Pedro de la Paz"/>
+      </div>
+      <div class="form-group"><label>Teléfono</label>
+        <input type="text" id="ct-telefono" placeholder="+56977213938"/>
+      </div>
+      <div class="form-group"><label>Correo electrónico</label>
+        <input type="email" id="ct-email" placeholder="correo@ejemplo.com"/>
+      </div>
+      <div class="form-group"><label>Banco</label>
+        <select id="ct-banco">
+          <option value="">Seleccionar…</option>
+          <option>Banco Estado</option><option>BCI</option><option>Banco de Chile</option>
+          <option>Banco de Crédito e Inversiones</option><option>Banco Itaú Chile</option>
+          <option>Scotiabank</option><option>Coopeuch</option><option>Consorcio</option>
+          <option>MetLife</option><option>Caja los Andes</option><option>Renta Nacional</option><option>Otro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Tipo de siniestro</label>
+        <select id="ct-siniestro">
+          <option value="">Seleccionar…</option>
+          <option>Viento y Lluvia</option><option>Rotura de Cañerías</option>
+          <option>Incendio</option><option>Inundación</option><option>Sismo</option><option>Otro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Tipo de propiedad</label>
+        <select id="ct-tipoprop">
+          <option value="Habitacional">Habitacional</option>
+          <option value="Comercial">Comercial</option>
+          <option value="Industrial">Industrial</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Fecha del contrato</label>
+        <input type="text" id="ct-fecha" placeholder="15 de Abril de 2026"/>
+        <span style="font-size:10px;color:var(--text-3)">Ej: 15 de Abril de 2026</span>
+      </div>
+      <div class="form-group"><label>% Comisión CR Consulting</label>
+        <select id="ct-porcentaje">
+          <option value="25">25%</option>
+          <option value="20">20%</option>
+          <option value="15">15%</option>
+        </select>
+      </div>
+    </div>
+    <div id="contrato-status" style="display:none;margin-top:14px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn" onclick="closeContrato()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="contrato-btn" onclick="generarContrato()"><i class="ti ti-file-description"></i> Generar y guardar en Drive</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONTRATO ──────────────────────────────────────────────────────────────────
+let contratoCaseId = null;
+
+function openContrato(id) {
+  contratoCaseId = String(id);
+  const c = cases.find(x => String(x.id) === String(id));
+  if (!c) return;
+
+  document.getElementById('contrato-nombre').textContent = c.nombre || '—';
+  document.getElementById('contrato-rut').textContent    = c.rut    || '—';
+
+  // Precargar con datos del caso
+  document.getElementById('ct-dir').value      = c.dir      || '';
+  document.getElementById('ct-telefono').value = c.telefono || '';
+  document.getElementById('ct-email').value    = c.email    || '';
+
+  // Banco
+  const bancoSel = document.getElementById('ct-banco');
+  const bancoMatch = Array.from(bancoSel.options).find(o => o.value === c.banco || o.text === c.banco);
+  bancoSel.value = bancoMatch ? bancoMatch.value : '';
+
+  // Siniestro
+  const sinSel = document.getElementById('ct-siniestro');
+  const sinMatch = Array.from(sinSel.options).find(o => o.value === c.siniestro || o.text === c.siniestro);
+  sinSel.value = sinMatch ? sinMatch.value : '';
+
+  // % comisión desde el caso (porcentaje está guardado como 0.25, 0.20, 0.15)
+  const pct = Math.round((parseFloat(c.porcentaje) || 0.25) * 100);
+  const pctSel = document.getElementById('ct-porcentaje');
+  pctSel.value = [25, 20, 15].includes(pct) ? String(pct) : '25';
+
+  // Limpiar campos que no vienen del caso
+  document.getElementById('ct-fecha').value  = '';
+  document.getElementById('ct-comuna').value = '';
+  document.getElementById('ct-ciudad').value = '';
+
+  // Reset status y botón
+  const st = document.getElementById('contrato-status');
+  st.style.display = 'none'; st.textContent = '';
+  const btn = document.getElementById('contrato-btn');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-file-description"></i> Generar y guardar en Drive';
+
+  document.getElementById('modal-contrato').classList.add('open');
+}
+
+function closeContrato() {
+  document.getElementById('modal-contrato').classList.remove('open');
+  contratoCaseId = null;
+}
+
+async function generarContrato() {
+  const fecha       = document.getElementById('ct-fecha').value.trim();
+  const dir         = document.getElementById('ct-dir').value.trim();
+  const comuna      = document.getElementById('ct-comuna').value.trim();
+  const ciudad      = document.getElementById('ct-ciudad').value.trim();
+  const telefono    = document.getElementById('ct-telefono').value.trim();
+  const email       = document.getElementById('ct-email').value.trim();
+  const banco       = document.getElementById('ct-banco').value;
+  const siniestro   = document.getElementById('ct-siniestro').value;
+  const tipoprop    = document.getElementById('ct-tipoprop').value;
+  const porcentaje  = document.getElementById('ct-porcentaje').value;
+
+  if (!fecha)  return showContratoStatus('Ingresa la fecha del contrato.', 'error');
+  if (!comuna) return showContratoStatus('Ingresa la comuna.', 'error');
+  if (!ciudad) return showContratoStatus('Ingresa la ciudad.', 'error');
+
+  const btn = document.getElementById('contrato-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Generando…';
+  showContratoStatus('Generando contrato y guardando en Drive…', 'loading');
+
+  try {
+    await formPost(SHEETS_URL, {
+      action: 'generateContrato',
+      id: contratoCaseId,
+      fecha, direccion: dir, comuna, ciudad,
+      telefono, email, banco,
+      tipoSiniestro: siniestro,
+      tipoPropiedad: tipoprop,
+      porcentaje
+    });
+    await new Promise(r => setTimeout(r, 3000));
+    showContratoStatus('✓ Contrato generado y guardado en la carpeta Drive del asegurado.', 'success');
+    btn.innerHTML = '<i class="ti ti-check"></i> Listo';
+    setTimeout(() => closeContrato(), 1500);
+  } catch (err) {
+    showContratoStatus('Error al generar el contrato. Intenta nuevamente.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-file-description"></i> Generar y guardar en Drive';
+  }
+}
+
+function showContratoStatus(msg, type) {
+  const el = document.getElementById('contrato-status');
   el.style.display = 'block';
   el.textContent   = msg;
   el.style.background = type==='success' ? 'var(--green-bg)' : type==='error' ? 'var(--red-bg)' : 'var(--blue-bg)';
