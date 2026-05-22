@@ -409,39 +409,84 @@
     @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
     .chart-anim { animation: fadeIn .35s ease; }
 
-    /* ── DOCS DRIVE ──────────────────────────────────── */
-    .docs-section {
-      border-top: 1px solid var(--border);
-      padding-top: 12px; margin-top: 4px; margin-bottom: 12px;
+    /* ── PANEL FILTROS AVANZADOS ────────────────────────── */
+    .filter-toggle-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface); color: var(--text);
+      font-size: 13px; font-family: inherit;
+      cursor: pointer; transition: all 0.15s; font-weight: 500;
+      position: relative;
     }
-    .docs-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 8px;
+    .filter-toggle-btn:hover { background: var(--surface2); }
+    .filter-toggle-btn.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .filter-badge {
+      position: absolute; top: -5px; right: -5px;
+      background: var(--red); color: #fff;
+      font-size: 9px; font-weight: 700; border-radius: 10px;
+      padding: 1px 5px; min-width: 16px; text-align: center;
     }
-    .docs-header-label {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 10px; font-weight: 700; color: var(--teal);
-      text-transform: uppercase; letter-spacing: .07em;
-    }
-    .docs-header-label i { font-size: 14px; }
-    .docs-list { display: flex; flex-direction: column; gap: 5px; }
-    .doc-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 11px;
-      background: var(--surface2);
+    .filter-panel {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 12px; color: var(--navy);
-      transition: border-color .15s, background .15s;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      display: none;
     }
-    .doc-item:hover { border-color: var(--teal); background: var(--blue-bg); }
-    .doc-item-ico { font-size: 18px; flex-shrink: 0; color: var(--teal); opacity: .75; }
-    .doc-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
-    .doc-item-date { font-size: 10px; color: var(--text-3); flex-shrink: 0; }
-    .docs-empty { font-size: 12px; color: var(--text-3); padding: 10px 2px; font-style: italic; }
-    .docs-loading { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); padding: 8px 2px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spin { display: inline-block; animation: spin .8s linear infinite; }
+    .filter-panel.open { display: block; }
+    .filter-panel-title {
+      font-size: 10px; font-weight: 700; color: var(--teal);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 14px;
+    }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label {
+      font-size: 10px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .filter-group select, .filter-group input[type=number] {
+      font-size: 12px; padding: 6px 9px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface2); color: var(--navy);
+      font-family: inherit;
+    }
+    .filter-sort-row {
+      display: flex; align-items: center; gap: 10px;
+      padding-top: 12px; border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .filter-sort-row label {
+      font-size: 10px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .sort-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 11px; border-radius: 20px; font-size: 11px;
+      font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
+      background: var(--surface2); color: var(--text-3);
+      font-family: inherit; transition: all .15s;
+    }
+    .sort-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .filter-actions {
+      display: flex; justify-content: flex-end; gap: 8px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .sidebar { display: none; }
+      .topbar { display: flex; }
+      .main { margin-left: 0; padding: 1rem; }
+      .detail-grid, .form-grid, .tables-row { grid-template-columns: 1fr; }
+      .analytics-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -521,7 +566,84 @@
           <i class="ti ti-search"></i>
           <input type="text" id="search" placeholder="Buscar por nombre, RUT, banco, ciudad…" oninput="renderCases()"/>
         </div>
+        <button class="filter-toggle-btn" id="filter-toggle-btn" onclick="toggleFilterPanel()">
+          <i class="ti ti-adjustments-horizontal"></i> Filtros
+          <span class="filter-badge" id="filter-badge" style="display:none">0</span>
+        </button>
       </div>
+
+      <!-- PANEL FILTROS AVANZADOS -->
+      <div class="filter-panel" id="filter-panel">
+        <div class="filter-panel-title"><i class="ti ti-filter" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Filtros avanzados</div>
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label>Tipo de siniestro</label>
+            <select id="flt-siniestro" onchange="renderCases()">
+              <option value="">Todos</option>
+              <option>Viento y Lluvia</option><option>Rotura de Cañerías</option>
+              <option>Incendio</option><option>Inundación</option><option>Sismo</option><option>Otro</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Estado de caso</label>
+            <select id="flt-estado" onchange="renderCases()">
+              <option value="">Todos</option>
+              <option>Pendiente denuncio</option><option>Espera de informe final</option>
+              <option>Pendiente antecedentes</option><option>Pendiente firma</option>
+              <option>Pendiente PPTO</option><option>Pagado</option><option>Rechazado</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Banco</label>
+            <select id="flt-banco" onchange="renderCases()">
+              <option value="">Todos</option>
+              <option>Banco Estado</option><option>BCI</option><option>Banco de Chile</option>
+              <option>Banco Itáu</option><option>Scotiabank</option><option>Coopeuch</option>
+              <option>Consorcio</option><option>MetLife</option><option>Caja los Andes</option>
+              <option>Renta Nacional</option><option>Otro</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Responsable</label>
+            <select id="flt-responsable" onchange="renderCases()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Ciudad</label>
+            <select id="flt-ciudad" onchange="renderCases()">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Antigüedad mínima (días)</label>
+            <input type="number" id="flt-antiguedad" min="0" placeholder="Ej: 30" oninput="renderCases()"/>
+          </div>
+          <div class="filter-group">
+            <label>Monto mínimo ($)</label>
+            <input type="number" id="flt-monto-min" min="0" placeholder="0" oninput="renderCases()"/>
+          </div>
+          <div class="filter-group">
+            <label>Monto máximo ($)</label>
+            <input type="number" id="flt-monto-max" min="0" placeholder="Sin límite" oninput="renderCases()"/>
+          </div>
+        </div>
+        <div class="filter-sort-row">
+          <label>Ordenar por:</label>
+          <select id="sort-field" onchange="renderCases()" style="font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--navy);font-family:inherit">
+            <option value="fechaCreacion">Antigüedad</option>
+            <option value="monto">Monto indemnizado</option>
+            <option value="nombre">Nombre</option>
+            <option value="estado">Estado</option>
+          </select>
+          <button class="sort-btn active" id="sort-asc" onclick="setSortDir('asc')"><i class="ti ti-sort-ascending"></i> Menor a mayor</button>
+          <button class="sort-btn" id="sort-desc" onclick="setSortDir('desc')"><i class="ti ti-sort-descending"></i> Mayor a menor</button>
+        </div>
+        <div class="filter-actions">
+          <button class="btn" onclick="clearFilters()"><i class="ti ti-x"></i> Limpiar filtros</button>
+        </div>
+      </div>
+
       <div class="case-list" id="case-list"></div>
     </div>
 
@@ -592,11 +714,14 @@
         <div class="form-group"><label>Liquidador</label><input type="text" id="f-liquidador" placeholder="Nombre de la liquidadora"/></div>
         <div class="form-group">
           <label>Estado</label>
-          <select id="f-estado">
-            <option>Pendiente denuncio</option><option>Espera de informe final</option>
-            <option>Pendiente antecedentes</option><option>Pendiente firma</option>
-            <option>Pendiente PPTO</option><option>Pagado</option><option>Rechazado</option>
-          </select>
+          <div style="display:flex;gap:6px">
+            <select id="f-estado" style="flex:1">
+              <option>Pendiente denuncio</option><option>Espera de informe final</option>
+              <option>Pendiente antecedentes</option><option>Pendiente firma</option>
+              <option>Pendiente PPTO</option><option>Pagado</option><option>Rechazado</option>
+            </select>
+            <button type="button" onclick="openNuevoEstado()" title="Agregar estado personalizado" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);cursor:pointer;font-size:16px;color:var(--teal);flex-shrink:0">+</button>
+          </div>
         </div>
         <div class="form-group"><label>Responsable</label><input type="text" id="f-caso" placeholder="Caso Camilo / René…"/></div>
         <div class="form-group"><label>Correlativo / Folio</label><input type="text" id="f-correlativo" placeholder="FOLIO 00000"/></div>
@@ -622,7 +747,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx0cWgr42cSjl-gUKH8DhsOJ_SRGZp-CjK6elqHNda_zPZRgQxxBupyazRDpzpPyDgY/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbysHjkvH3hryGvquiNHp9U51EH6B_IcTJLs65nH9qJotiH2-DPfZ7Y0M1Khb3PHU7d1/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -636,6 +761,7 @@ const PLAZOS = [
 
 // ── ESTADO ────────────────────────────────────────────────────────────────────
 let cases = [], activeFilter = 'todos', expandedId = null, editingId = null;
+let sortDir = 'asc', customEstados = JSON.parse(localStorage.getItem('cr_estados')||'[]');
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const fmtCLP = n => n ? '$' + Math.round(n).toLocaleString('es-CL') : '—';
@@ -776,15 +902,129 @@ function setFilter(f, el) {
   renderCases();
 }
 
+function getExtractCity(dir) {
+  // Extrae ciudad/comuna de la dirección si existe
+  if(!dir) return '';
+  const parts = dir.split(',');
+  return parts[parts.length-1].trim().toLowerCase();
+}
+
+function getDaysOld(fechaCreacion) {
+  if(!fechaCreacion) return 0;
+  const parts = String(fechaCreacion).split('/');
+  if(parts.length!==3) return 0;
+  const d = new Date(parts[2], parts[1]-1, parts[0]);
+  return Math.floor((Date.now()-d.getTime())/(1000*60*60*24));
+}
+
+function countActiveFilters() {
+  let n = 0;
+  if((document.getElementById('flt-siniestro')?.value||'')!=='') n++;
+  if((document.getElementById('flt-estado')?.value||'')!=='') n++;
+  if((document.getElementById('flt-banco')?.value||'')!=='') n++;
+  if((document.getElementById('flt-responsable')?.value||'')!=='') n++;
+  if((document.getElementById('flt-ciudad')?.value||'')!=='') n++;
+  if((document.getElementById('flt-antiguedad')?.value||'')!=='') n++;
+  if((document.getElementById('flt-monto-min')?.value||'')!=='') n++;
+  if((document.getElementById('flt-monto-max')?.value||'')!=='') n++;
+  return n;
+}
+
+function updateFilterBadge() {
+  const n = countActiveFilters();
+  const badge = document.getElementById('filter-badge');
+  if(!badge) return;
+  if(n>0){ badge.textContent=n; badge.style.display='block'; }
+  else { badge.style.display='none'; }
+  const btn = document.getElementById('filter-toggle-btn');
+  if(btn) btn.classList.toggle('active', n>0 || document.getElementById('filter-panel')?.classList.contains('open'));
+}
+
+function toggleFilterPanel() {
+  const p = document.getElementById('filter-panel');
+  const btn = document.getElementById('filter-toggle-btn');
+  p.classList.toggle('open');
+  updateFilterBadge();
+}
+
+function setSortDir(dir) {
+  sortDir = dir;
+  document.getElementById('sort-asc').classList.toggle('active', dir==='asc');
+  document.getElementById('sort-desc').classList.toggle('active', dir==='desc');
+  renderCases();
+}
+
+function clearFilters() {
+  ['flt-siniestro','flt-estado','flt-banco','flt-responsable','flt-ciudad'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  ['flt-antiguedad','flt-monto-min','flt-monto-max'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  sortDir='asc';
+  document.getElementById('sort-asc')?.classList.add('active');
+  document.getElementById('sort-desc')?.classList.remove('active');
+  document.getElementById('sort-field').value='fechaCreacion';
+  updateFilterBadge();
+  renderCases();
+}
+
+function populateDynamicFilters() {
+  const responsables = [...new Set(cases.map(c=>c.caso).filter(Boolean))].sort();
+  const ciudades = [...new Set(cases.map(c=>{
+    const d = (c.dir||''); const parts=d.split(','); return parts[parts.length-1].trim();
+  }).filter(Boolean))].sort();
+  const rSel = document.getElementById('flt-responsable');
+  const cSel = document.getElementById('flt-ciudad');
+  if(rSel){ const cur=rSel.value; rSel.innerHTML='<option value="">Todos</option>'+responsables.map(r=>`<option>${r}</option>`).join(''); rSel.value=cur; }
+  if(cSel){ const cur=cSel.value; cSel.innerHTML='<option value="">Todas</option>'+ciudades.map(c=>`<option>${c}</option>`).join(''); cSel.value=cur; }
+}
+
 function renderCases() {
-  const q = (document.getElementById('search')?.value||'').toLowerCase();
-  const filtered = cases.filter(c => {
+  populateDynamicFilters();
+  updateFilterBadge();
+  const q          = (document.getElementById('search')?.value||'').toLowerCase();
+  const fSin       = document.getElementById('flt-siniestro')?.value||'';
+  const fEstado    = document.getElementById('flt-estado')?.value||'';
+  const fBanco     = document.getElementById('flt-banco')?.value||'';
+  const fResp      = document.getElementById('flt-responsable')?.value||'';
+  const fCiudad    = document.getElementById('flt-ciudad')?.value||'';
+  const fAntMin    = parseInt(document.getElementById('flt-antiguedad')?.value||'0')||0;
+  const fMontoMin  = parseFloat(document.getElementById('flt-monto-min')?.value||'0')||0;
+  const fMontoMax  = parseFloat(document.getElementById('flt-monto-max')?.value||'0')||0;
+  const sortField  = document.getElementById('sort-field')?.value||'fechaCreacion';
+
+  let filtered = cases.filter(c => {
     const mq = !q || [c.nombre,c.rut,c.banco,c.dir,c.caso,c.siniestro].some(v=>(v||'').toLowerCase().includes(q));
     if(!mq) return false;
-    if(activeFilter==='todos') return true;
-    if(activeFilter==='pendiente') return c.estado!=='Pagado'&&c.estado!=='Rechazado';
-    return c.estado===activeFilter;
+    if(activeFilter==='pendiente' && (c.estado==='Pagado'||c.estado==='Rechazado')) return false;
+    if(activeFilter!=='todos' && activeFilter!=='pendiente' && c.estado!==activeFilter) return false;
+    if(fSin    && (c.siniestro||'')!==fSin) return false;
+    if(fEstado && (c.estado||'')!==fEstado) return false;
+    if(fBanco  && (c.banco||'')!==fBanco) return false;
+    if(fResp   && (c.caso||'')!==fResp) return false;
+    if(fCiudad) {
+      const lastPart = (c.dir||'').split(',').pop().trim();
+      if(lastPart!==fCiudad) return false;
+    }
+    if(fAntMin>0 && getDaysOld(c.fechaCreacion)<fAntMin) return false;
+    if(fMontoMin>0 && (c.monto||0)<fMontoMin) return false;
+    if(fMontoMax>0 && (c.monto||0)>fMontoMax) return false;
+    return true;
   });
+
+  // Ordenar
+  filtered.sort((a,b) => {
+    let va, vb;
+    if(sortField==='monto')   { va=a.monto||0; vb=b.monto||0; }
+    else if(sortField==='nombre') { va=(a.nombre||'').toLowerCase(); vb=(b.nombre||'').toLowerCase(); }
+    else if(sortField==='estado') { va=(a.estado||'').toLowerCase(); vb=(b.estado||'').toLowerCase(); }
+    else { va=getDaysOld(a.fechaCreacion); vb=getDaysOld(b.fechaCreacion); }
+    if(va<vb) return sortDir==='asc'?-1:1;
+    if(va>vb) return sortDir==='asc'?1:-1;
+    return 0;
+  });
+
   document.getElementById('casos-count').textContent = `${filtered.length} caso${filtered.length!==1?'s':''} encontrado${filtered.length!==1?'s':''}`;
   const el = document.getElementById('case-list');
   if(!filtered.length){ el.innerHTML=`<div class="empty-state"><i class="ti ti-folder-off"></i><p>Sin casos que coincidan.</p></div>`; return; }
@@ -826,27 +1066,11 @@ function renderCases() {
             <div class="comm-item"><div class="comm-label">Fondo CR</div><div class="comm-value">${fmtCLP(c.fondo)}</div></div>
             <div class="comm-item"><div class="comm-label">Retiro c/u</div><div class="comm-value">${fmtCLP(c.retiro)}</div></div>
           </div>`:''}
-          <!-- DOCUMENTOS DRIVE -->
-          <div class="docs-section">
-            <div class="docs-header">
-              <div class="docs-header-label">
-                <i class="ti ti-folder-open"></i> Documentos en Drive
-              </div>
-              <button class="btn" style="padding:3px 8px;font-size:11px" onclick="event.stopPropagation();recargarDocs('${c.id}')">
-                <i class="ti ti-refresh"></i> Actualizar
-              </button>
-            </div>
-            <div class="docs-list" id="docs-${c.id}">
-              <div class="docs-loading"><i class="ti ti-loader spin"></i> Cargando documentos…</div>
-            </div>
-          </div>
-
           <div class="action-row" onclick="event.stopPropagation()">
             <button class="btn" onclick="editCase('${c.id}')"><i class="ti ti-edit"></i> Editar</button>
             <button class="btn" onclick="openMandato('${c.id}')" style="color:var(--teal);border-color:var(--teal)"><i class="ti ti-file-text"></i> Mandato</button>
-            <button class="btn" onclick="openSubirDoc('${c.id}')" style="color:var(--green);border-color:var(--green)"><i class="ti ti-upload"></i> Subir doc.</button>
             <button class="btn" onclick="deleteCase('${c.id}')" style="color:var(--red)"><i class="ti ti-trash"></i> Eliminar</button>
-            ${c.email?`<a href="mailto:${c.email}?subject=Actualización de su caso&body=Estimado/a ${(c.nombre||'').split(' ')[0]},%0A%0ALe informamos que su caso se encuentra en estado: ${c.estado}.%0A%0ASaludos,%0ACR Consulting" class="btn" style="text-decoration:none"><i class="ti ti-mail"></i> Correo</a>`:''}
+            ${c.email?`<a href="mailto:${c.email}?subject=Actualización de su caso&body=Estimado/a ${(c.nombre||'').split(' ')[0]},%0A%0ALe informamos que su caso se encuentra en estado: ${c.estado}.%0A%0ASaludos,%0ACR Consulting" class="btn" style="text-decoration:none"><i class="ti ti-mail"></i> Enviar correo</a>`:''}
           </div>
         </div>
       </div>`;
@@ -856,10 +1080,6 @@ function renderCases() {
 function toggleCard(id) {
   expandedId = expandedId===String(id)?null:String(id);
   renderCases();
-  if (expandedId) {
-    // pequeño delay para que el DOM se renderice
-    setTimeout(() => loadDriveDocs(expandedId), 50);
-  }
 }
 
 async function deleteCase(id) {
@@ -932,6 +1152,61 @@ async function saveCase(e) {
   } finally {
     btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Guardar';
   }
+}
+
+// ── ESTADOS PERSONALIZADOS ────────────────────────────────────────────────────
+function syncEstadoSelects() {
+  const selects = ['f-estado','flt-estado'];
+  selects.forEach(id => {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const cur = sel.value;
+    const baseOpts = ['Pendiente denuncio','Espera de informe final','Pendiente antecedentes',
+      'Pendiente firma','Pendiente PPTO','Pagado','Rechazado'];
+    const allOpts = [...baseOpts, ...customEstados];
+    sel.innerHTML = (id==='flt-estado'?'<option value="">Todos</option>':'') +
+      allOpts.map(o=>`<option value="${o}">${o}</option>`).join('');
+    if(cur) sel.value = cur;
+  });
+  // También renderizar lista en modal
+  const listEl = document.getElementById('estados-custom-list');
+  if(listEl) {
+    listEl.innerHTML = customEstados.map(e =>
+      `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--amber-bg);color:var(--amber);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">
+        ${e}
+        <button onclick="eliminarEstado('${e}')" style="background:none;border:none;cursor:pointer;color:var(--amber);padding:0 2px;font-size:13px;line-height:1">×</button>
+      </span>`
+    ).join('');
+  }
+}
+
+function openNuevoEstado() {
+  document.getElementById('nuevo-estado-input').value = '';
+  syncEstadoSelects();
+  document.getElementById('modal-nuevo-estado').classList.add('open');
+}
+
+function closeNuevoEstado() {
+  document.getElementById('modal-nuevo-estado').classList.remove('open');
+}
+
+function agregarNuevoEstado() {
+  const val = document.getElementById('nuevo-estado-input').value.trim();
+  if(!val) return;
+  if(!customEstados.includes(val)) {
+    customEstados.push(val);
+    localStorage.setItem('cr_estados', JSON.stringify(customEstados));
+  }
+  syncEstadoSelects();
+  document.getElementById('f-estado').value = val;
+  document.getElementById('nuevo-estado-input').value = '';
+  closeNuevoEstado();
+}
+
+function eliminarEstado(nombre) {
+  customEstados = customEstados.filter(e=>e!==nombre);
+  localStorage.setItem('cr_estados', JSON.stringify(customEstados));
+  syncEstadoSelects();
 }
 
 // ── ESTADÍSTICAS ──────────────────────────────────────────────────────────────
@@ -1210,6 +1485,7 @@ function chartToggleHTML() {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildPlazos();
+syncEstadoSelects();
 loadFromSheets();
 </script>
 
@@ -1264,6 +1540,25 @@ loadFromSheets();
     <div class="modal-footer">
       <button type="button" class="btn" onclick="closeMandato()">Cancelar</button>
       <button type="button" class="btn btn-primary" id="mandato-btn" onclick="generarMandato()"><i class="ti ti-file-text"></i> Generar y guardar en Drive</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO ESTADO -->
+<div class="modal-backdrop" id="modal-nuevo-estado">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title-text">Agregar estado personalizado</div>
+      <button class="btn" onclick="closeNuevoEstado()" style="padding:4px 8px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
+    </div>
+    <div style="margin-bottom:18px">
+      <label style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Nombre del nuevo estado</label>
+      <input type="text" id="nuevo-estado-input" placeholder="Ej: En revisión legal" style="width:100%;font-size:13px;padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--navy);font-family:inherit"/>
+      <div id="estados-custom-list" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" onclick="closeNuevoEstado()">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="agregarNuevoEstado()"><i class="ti ti-plus"></i> Agregar</button>
     </div>
   </div>
 </div>
@@ -1329,365 +1624,6 @@ function showMandatoStatus(msg, type) {
   el.style.background = type==='success' ? 'var(--green-bg)' : type==='error' ? 'var(--red-bg)' : 'var(--blue-bg)';
   el.style.color      = type==='success' ? 'var(--green)'    : type==='error' ? 'var(--red)'    : 'var(--teal)';
   el.style.border     = type==='success' ? '1px solid var(--green)' : type==='error' ? '1px solid var(--red)' : '1px solid var(--teal)';
-}
-</script>
-
-<!-- ══ MODAL SUBIR DOCUMENTO ══════════════════════════════════════════════ -->
-<style>
-  .upload-drop {
-    border: 2px dashed var(--border-strong);
-    border-radius: var(--radius);
-    padding: 28px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .2s;
-    background: var(--surface2);
-    position: relative;
-  }
-  .upload-drop:hover, .upload-drop.drag-over {
-    border-color: var(--teal);
-    background: var(--blue-bg);
-  }
-  .upload-drop input[type=file] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  }
-  .upload-drop-icon { font-size: 32px; color: var(--teal); opacity: .5; margin-bottom: 8px; display: block; }
-  .upload-drop-txt  { font-size: 13px; color: var(--text-3); }
-  .upload-drop-sub  { font-size: 11px; color: var(--text-3); margin-top: 4px; }
-  .upload-file-preview {
-    display: none;
-    align-items: center; gap: 12px;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px; margin-top: 10px;
-  }
-  .upload-file-preview.show { display: flex; }
-  .upload-file-icon { font-size: 24px; color: var(--teal); flex-shrink: 0; }
-  .upload-file-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--navy); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .upload-file-size { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
-  .upload-file-rm   { background: none; border: none; cursor: pointer; color: var(--red); font-size: 16px; flex-shrink: 0; padding: 0 2px; }
-  .upload-progress  {
-    display: none; margin-top: 14px;
-    background: var(--cream2); border-radius: 20px; height: 8px; overflow: hidden;
-  }
-  .upload-progress.show { display: block; }
-  .upload-progress-bar {
-    height: 100%; width: 0%;
-    background: linear-gradient(90deg, var(--teal), var(--green));
-    border-radius: 20px;
-    transition: width .3s ease;
-  }
-  .doc-tipo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-  .doc-tipo-btn {
-    padding: 10px 8px; border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border); background: var(--surface2);
-    color: var(--text-3); font-family: inherit; font-size: 12px; font-weight: 600;
-    cursor: pointer; text-align: center; transition: all .15s;
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-  }
-  .doc-tipo-btn i { font-size: 18px; }
-  .doc-tipo-btn.selected {
-    border-color: var(--teal); background: var(--blue-bg); color: var(--teal);
-  }
-
-  /* (estilos de docs-section ya definidos arriba) */
-
-</style>
-
-<div class="modal-backdrop" id="modal-subir-doc">
-  <div class="modal" style="max-width:520px">
-    <div class="modal-header">
-      <div class="modal-title-text">Subir documento al Drive</div>
-      <button class="btn" onclick="closeSubirDoc()" style="padding:4px 8px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
-    </div>
-
-    <!-- Asegurado info -->
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:18px;display:flex;align-items:center;gap:12px;">
-      <i class="ti ti-user-circle" style="font-size:24px;color:var(--teal);flex-shrink:0"></i>
-      <div>
-        <div id="sdoc-nombre" style="font-size:14px;font-weight:600;color:var(--navy);">—</div>
-        <div id="sdoc-meta" style="font-size:11px;color:var(--text-3);margin-top:2px;">—</div>
-      </div>
-    </div>
-
-    <!-- Tipo de documento -->
-    <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Tipo de documento</div>
-    <div class="doc-tipo-grid">
-      <button class="doc-tipo-btn selected" id="tipo-poliza"    onclick="selectTipoDoc('poliza')">   <i class="ti ti-shield-check"></i>Póliza</button>
-      <button class="doc-tipo-btn"          id="tipo-informe"   onclick="selectTipoDoc('informe')">  <i class="ti ti-clipboard-list"></i>Informe liquidador</button>
-      <button class="doc-tipo-btn"          id="tipo-presupuesto" onclick="selectTipoDoc('presupuesto')"><i class="ti ti-calculator"></i>Presupuesto</button>
-      <button class="doc-tipo-btn"          id="tipo-otro"      onclick="selectTipoDoc('otro')">     <i class="ti ti-file"></i>Otro documento</button>
-    </div>
-
-    <!-- Nombre personalizado (solo "otro") -->
-    <div id="sdoc-nombre-custom-wrap" style="display:none;margin-bottom:12px;">
-      <label>Nombre del documento</label>
-      <input type="text" id="sdoc-nombre-custom" placeholder="Ej: Carta de rechazo, Acta de inspección…" style="margin-top:4px"/>
-    </div>
-
-    <!-- Drop zone -->
-    <div class="upload-drop" id="sdoc-drop"
-         ondragover="sdocDragOver(event)" ondragleave="sdocDragLeave(event)" ondrop="sdocDrop(event)">
-      <input type="file" id="sdoc-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-             onchange="sdocFileSelected(this.files[0])">
-      <i class="ti ti-cloud-upload upload-drop-icon"></i>
-      <div class="upload-drop-txt">Arrastra el archivo aquí o haz clic para seleccionar</div>
-      <div class="upload-drop-sub">PDF, Word, Excel, imágenes — máx. 10 MB</div>
-    </div>
-
-    <!-- Preview del archivo -->
-    <div class="upload-file-preview" id="sdoc-preview">
-      <i class="ti ti-file upload-file-icon" id="sdoc-preview-ico"></i>
-      <div class="upload-file-name" id="sdoc-preview-name"></div>
-      <div class="upload-file-size" id="sdoc-preview-size"></div>
-      <button class="upload-file-rm" onclick="sdocClearFile()" title="Quitar"><i class="ti ti-x"></i></button>
-    </div>
-
-    <!-- Barra de progreso -->
-    <div class="upload-progress" id="sdoc-progress">
-      <div class="upload-progress-bar" id="sdoc-progress-bar"></div>
-    </div>
-
-    <!-- Status -->
-    <div id="sdoc-status" style="display:none;margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;"></div>
-
-    <div class="modal-footer">
-      <button type="button" class="btn" onclick="closeSubirDoc()">Cancelar</button>
-      <button type="button" class="btn btn-primary" id="sdoc-btn" onclick="subirDocumento()">
-        <i class="ti ti-upload"></i> Subir a Drive
-      </button>
-    </div>
-  </div>
-</div>
-
-<script>
-// ── SUBIR DOCUMENTO ───────────────────────────────────────────────────────────
-let sdocCaseId   = null;
-let sdocTipo     = 'poliza';
-let sdocFile     = null;
-
-const TIPO_LABELS = {
-  poliza:       'Póliza',
-  informe:      'Informe Liquidador',
-  presupuesto:  'Presupuesto',
-  otro:         'Documento'
-};
-const TIPO_ICONS = {
-  poliza: 'ti-shield-check', informe: 'ti-clipboard-list',
-  presupuesto: 'ti-calculator', otro: 'ti-file'
-};
-
-function openSubirDoc(id) {
-  sdocCaseId = String(id);
-  sdocTipo   = 'poliza';
-  sdocFile   = null;
-  const c    = cases.find(x => String(x.id) === String(id));
-  if (!c) return;
-  document.getElementById('sdoc-nombre').textContent = c.nombre || '—';
-  document.getElementById('sdoc-meta').textContent   = (c.banco || '—') + '  ·  ' + (c.nrosin || 'Sin N° siniestro');
-  // reset tipo buttons
-  ['poliza','informe','presupuesto','otro'].forEach(t => {
-    document.getElementById('tipo-'+t).classList.toggle('selected', t === 'poliza');
-  });
-  document.getElementById('sdoc-nombre-custom-wrap').style.display = 'none';
-  document.getElementById('sdoc-nombre-custom').value = '';
-  sdocClearFile();
-  sdocSetStatus('', '');
-  const btn = document.getElementById('sdoc-btn');
-  btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-upload"></i> Subir a Drive';
-  document.getElementById('modal-subir-doc').classList.add('open');
-}
-
-function closeSubirDoc() {
-  document.getElementById('modal-subir-doc').classList.remove('open');
-  sdocCaseId = null; sdocFile = null;
-}
-
-function selectTipoDoc(tipo) {
-  sdocTipo = tipo;
-  ['poliza','informe','presupuesto','otro'].forEach(t => {
-    document.getElementById('tipo-'+t).classList.toggle('selected', t === tipo);
-  });
-  document.getElementById('sdoc-nombre-custom-wrap').style.display = tipo === 'otro' ? 'block' : 'none';
-}
-
-function sdocDragOver(e)  { e.preventDefault(); document.getElementById('sdoc-drop').classList.add('drag-over'); }
-function sdocDragLeave(e) { document.getElementById('sdoc-drop').classList.remove('drag-over'); }
-function sdocDrop(e)      { e.preventDefault(); document.getElementById('sdoc-drop').classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if(f) sdocFileSelected(f); }
-
-function sdocFileSelected(file) {
-  if (!file) return;
-  if (file.size > 10 * 1024 * 1024) {
-    sdocSetStatus('El archivo supera los 10 MB.', 'error'); return;
-  }
-  sdocFile = file;
-  const prev = document.getElementById('sdoc-preview');
-  const ext  = file.name.split('.').pop().toLowerCase();
-  const ico  = ['pdf'].includes(ext) ? 'ti-file-type-pdf' :
-               ['doc','docx'].includes(ext) ? 'ti-file-type-doc' :
-               ['xls','xlsx'].includes(ext) ? 'ti-file-spreadsheet' :
-               ['jpg','jpeg','png'].includes(ext) ? 'ti-photo' : 'ti-file';
-  document.getElementById('sdoc-preview-ico').className = 'ti '+ico+' upload-file-icon';
-  document.getElementById('sdoc-preview-name').textContent = file.name;
-  document.getElementById('sdoc-preview-size').textContent = (file.size/1024 < 1000 ? (file.size/1024).toFixed(0)+' KB' : (file.size/1024/1024).toFixed(1)+' MB');
-  prev.classList.add('show');
-  sdocSetStatus('', '');
-}
-
-function sdocClearFile() {
-  sdocFile = null;
-  document.getElementById('sdoc-preview').classList.remove('show');
-  document.getElementById('sdoc-file').value = '';
-  document.getElementById('sdoc-progress').classList.remove('show');
-  document.getElementById('sdoc-progress-bar').style.width = '0%';
-}
-
-function sdocSetStatus(msg, type) {
-  const el = document.getElementById('sdoc-status');
-  if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
-  el.style.display    = 'block';
-  el.textContent      = msg;
-  el.style.background = type==='success' ? 'var(--green-bg)' : type==='error' ? 'var(--red-bg)' : 'var(--blue-bg)';
-  el.style.color      = type==='success' ? 'var(--green)'    : type==='error' ? 'var(--red)'    : 'var(--teal)';
-  el.style.border     = type==='success' ? '1px solid var(--green)' : type==='error' ? '1px solid var(--red)' : '1px solid var(--teal)';
-}
-
-function sdocAnimProgress(targetPct, durationMs) {
-  const bar  = document.getElementById('sdoc-progress-bar');
-  const prog = document.getElementById('sdoc-progress');
-  prog.classList.add('show');
-  let current = parseFloat(bar.style.width) || 0;
-  const steps = 30;
-  const step  = (targetPct - current) / steps;
-  let i = 0;
-  const iv = setInterval(() => {
-    current += step;
-    bar.style.width = Math.min(current, targetPct) + '%';
-    if (++i >= steps) clearInterval(iv);
-  }, durationMs / steps);
-}
-
-async function subirDocumento() {
-  if (!sdocFile) { sdocSetStatus('Selecciona un archivo para subir.', 'error'); return; }
-  if (sdocTipo === 'otro' && !document.getElementById('sdoc-nombre-custom').value.trim()) {
-    sdocSetStatus('Ingresa el nombre del documento.', 'error'); return;
-  }
-  const btn = document.getElementById('sdoc-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader"></i> Subiendo…';
-  sdocSetStatus('Leyendo archivo…', 'loading');
-  sdocAnimProgress(30, 800);
-
-  try {
-    // Convertir a base64
-    const base64 = await new Promise((res, rej) => {
-      const reader = new FileReader();
-      reader.onload  = e => res(e.target.result.split(',')[1]);
-      reader.onerror = () => rej(new Error('Error al leer el archivo'));
-      reader.readAsDataURL(sdocFile);
-    });
-
-    sdocAnimProgress(60, 600);
-    sdocSetStatus('Subiendo a Google Drive…', 'loading');
-
-    const nombreCustom = sdocTipo === 'otro'
-      ? document.getElementById('sdoc-nombre-custom').value.trim()
-      : TIPO_LABELS[sdocTipo];
-
-    await formPost(SHEETS_URL, {
-      action:      'uploadDoc',
-      id:          sdocCaseId,
-      tipoDoc:     sdocTipo,
-      nombreDoc:   nombreCustom,
-      fileName:    sdocFile.name,
-      mimeType:    sdocFile.type || 'application/octet-stream',
-      fileData:    base64
-    });
-
-    sdocAnimProgress(100, 400);
-    await new Promise(r => setTimeout(r, 500));
-    sdocSetStatus('✓ Documento subido correctamente a la carpeta Drive del asegurado.', 'success');
-    btn.innerHTML = '<i class="ti ti-check"></i> Subido';
-    showToast('Documento subido a Drive ✓');
-    setTimeout(() => closeSubirDoc(), 2000);
-
-  } catch(err) {
-    sdocSetStatus('Error al subir el documento. Intenta nuevamente.', 'error');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ti ti-upload"></i> Subir a Drive';
-  }
-}
-</script>
-
-<script>
-// ── DOCUMENTOS EN DRIVE ───────────────────────────────────────────────────────
-const EXT_ICON = {
-  pdf:  'ti-file-type-pdf',
-  doc:  'ti-file-type-doc', docx: 'ti-file-type-doc',
-  xls:  'ti-file-spreadsheet', xlsx: 'ti-file-spreadsheet',
-  jpg:  'ti-photo', jpeg: 'ti-photo', png: 'ti-photo',
-  txt:  'ti-file-text',
-  zip:  'ti-file-zip',
-};
-function extIcon(name) {
-  const ext = (name || '').split('.').pop().toLowerCase();
-  return EXT_ICON[ext] || 'ti-file';
-}
-
-function renderDocsList(containerId, docs) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  if (!docs || docs.length === 0) {
-    el.innerHTML = '<div class="docs-empty"><i class="ti ti-folder-off" style="margin-right:5px"></i>Sin documentos en Drive para este caso.</div>';
-    return;
-  }
-  el.innerHTML = docs.map(d => `
-    <div class="doc-item">
-      <i class="ti ${extIcon(d.name)} doc-item-ico"></i>
-      <span class="doc-item-name" title="${d.name}">${d.name}</span>
-      <span class="doc-item-date">${d.date || ''}</span>
-    </div>
-  `).join('');
-}
-
-function loadDriveDocs(caseId) {
-  const el = document.getElementById('docs-' + caseId);
-  if (!el) return;
-  const c = cases.find(x => String(x.id) === String(caseId));
-  if (!c || !c.folderId) {
-    el.innerHTML = '<div class="docs-empty">Este caso no tiene carpeta Drive asignada.</div>';
-    return;
-  }
-  el.innerHTML = '<div class="docs-loading"><i class="ti ti-loader spin"></i> Cargando documentos…</div>';
-
-  const cb = 'docs_cb_' + Date.now();
-  const script = document.createElement('script');
-  window[cb] = function(data) {
-    delete window[cb];
-    try { document.head.removeChild(script); } catch(e) {}
-    if (data && data.ok && Array.isArray(data.files)) {
-      renderDocsList('docs-' + caseId, data.files);
-    } else {
-      const el2 = document.getElementById('docs-' + caseId);
-      if (el2) el2.innerHTML = '<div class="docs-empty">No se pudieron cargar los documentos.</div>';
-    }
-  };
-  script.onerror = function() {
-    delete window[cb];
-    try { document.head.removeChild(script); } catch(e) {}
-    const el2 = document.getElementById('docs-' + caseId);
-    if (el2) el2.innerHTML = '<div class="docs-empty">Error al conectar con Drive.</div>';
-  };
-  script.src = SHEETS_URL + '?action=listDocs&folderId=' + encodeURIComponent(c.folderId) + '&callback=' + cb + '&t=' + Date.now();
-  document.head.appendChild(script);
-}
-
-function recargarDocs(caseId) {
-  const el = document.getElementById('docs-' + caseId);
-  if (el) el.innerHTML = '<div class="docs-loading"><i class="ti ti-loader spin"></i> Actualizando…</div>';
-  loadDriveDocs(caseId);
 }
 </script>
 
