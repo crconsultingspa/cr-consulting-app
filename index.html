@@ -747,7 +747,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyyS3u6RXyJBEKU6D7iu9VFAdJI6EYIUKrwP8PYUO_z2YmPMZL5YODUakN37phs2qQl/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbysHjkvH3hryGvquiNHp9U51EH6B_IcTJLs65nH9qJotiH2-DPfZ7Y0M1Khb3PHU7d1/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1773,10 +1773,12 @@ async function generarContrato() {
   btn.innerHTML = '<i class="ti ti-loader"></i> Generando…';
   showContratoStatus('Generando contrato y guardando en Drive…', 'loading');
 
+  if (!contratoCaseId) return showContratoStatus('Error: ID del caso no encontrado. Cierra y vuelve a abrir el modal.', 'error');
+
   try {
     await formPost(SHEETS_URL, {
       action: 'generateContrato',
-      id: contratoCaseId,
+      id: String(contratoCaseId),
       fecha, direccion: dir, comuna, ciudad,
       telefono, email, banco,
       tipoSiniestro: siniestro,
