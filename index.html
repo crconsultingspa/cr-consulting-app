@@ -1591,10 +1591,10 @@ function renderPendientes() {
     }
     el.innerHTML = items.map(function(item, i) {
       return '<div class="pendiente-item' + (item.done?' done':'') + '">' +
-        '<input type="checkbox"' + (item.done?' checked':'') + ' onchange="togglePendiente(''+quien+'','+i+')">' +
-        '<span style="flex:1">'+escapeHtml(item.texto)+'</span>' +
-        '<button onclick="deletePendiente(''+quien+'','+i+')">×</button>' +
-      '</div>';
+        '<input type="checkbox"' + (item.done?' checked':'') + ' onchange="togglePendiente(\'' + quien + '\''+ ',' + i + ')">' +
+        '<span style="flex:1">' + escapeHtml(item.texto) + '</span>' +
+        '<button onclick="deletePendiente(\'' + quien + '\',' + i + ')">&#x00D7;</button>' +
+        '</div>';
     }).join('');
   });
 }
