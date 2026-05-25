@@ -827,7 +827,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx4UZr2azIgg_EeBOe7stAtKSLC1abn9XP4OSYDiyNoe95wgGEEK0jrlnkkOiQZZEpB/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwpvDrQg9JyLt5qjTw3XlZPhFJDgcKGDULFQimSM9y0J7HPSHGmG3xp-X0rP3fPHYTX/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1881,10 +1881,8 @@ function openContrato(id) {
   const pctSel = document.getElementById('ct-porcentaje');
   pctSel.value = [25, 20, 15].includes(pct) ? String(pct) : '25';
 
-  // Limpiar campos que no vienen del caso
+  // Solo limpiar fecha
   document.getElementById('ct-fecha').value  = '';
-  document.getElementById('ct-comuna').value = '';
-  document.getElementById('ct-ciudad').value = '';
 
   // Reset status y botón
   const st = document.getElementById('contrato-status');
