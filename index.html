@@ -480,6 +480,62 @@
       margin-top: 14px;
     }
 
+    /* ── PENDIENTES ─────────────────────────────────── */
+    .pendientes-bar {
+      background: var(--navy);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 1.5rem;
+      display: flex; gap: 20px; flex-wrap: wrap;
+    }
+    .pendientes-bar-title {
+      font-size: 11px; font-weight: 700; color: var(--cream);
+      text-transform: uppercase; letter-spacing: .08em;
+      white-space: nowrap; padding-top: 2px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pendientes-cols { display: flex; gap: 16px; flex: 1; flex-wrap: wrap; }
+    .pendiente-col { flex: 1; min-width: 200px; }
+    .pendiente-col-title {
+      font-size: 10px; font-weight: 700;
+      color: rgba(255,247,238,0.5);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 6px;
+    }
+    .pendiente-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
+    .pendiente-item {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,247,238,0.07);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      font-size: 12px; color: var(--cream);
+    }
+    .pendiente-item.done { opacity: 0.45; text-decoration: line-through; }
+    .pendiente-item input[type=checkbox] { accent-color: var(--teal); flex-shrink: 0; cursor: pointer; }
+    .pendiente-item button { background: none; border: none; cursor: pointer; color: rgba(255,247,238,0.3); font-size: 13px; padding: 0 2px; line-height: 1; }
+    .pendiente-item button:hover { color: var(--red); }
+    .pendiente-add { display: flex; gap: 6px; }
+    .pendiente-add input {
+      flex: 1; font-size: 12px; padding: 5px 9px;
+      border: 1px solid rgba(255,247,238,0.2);
+      border-radius: var(--radius-sm);
+      background: rgba(255,247,238,0.08); color: var(--cream);
+      font-family: inherit;
+    }
+    .pendiente-add input::placeholder { color: rgba(255,247,238,0.3); }
+    .pendiente-add input:focus { outline: none; border-color: var(--teal); }
+    .pendiente-add button {
+      padding: 5px 10px; border-radius: var(--radius-sm);
+      background: var(--teal); color: var(--cream);
+      border: none; cursor: pointer; font-size: 12px;
+      font-family: inherit; font-weight: 600;
+    }
+    .pendiente-add button:hover { background: #00819e; }
+    .pendientes-fecha {
+      font-size: 10px; color: rgba(255,247,238,0.35);
+      margin-top: 4px;
+    }
+
     @media (max-width: 720px) {
       .sidebar { display: none; }
       .topbar { display: flex; }
@@ -554,6 +610,28 @@
         </div>
         <button class="btn btn-primary" onclick="openModal()"><i class="ti ti-plus"></i> Nuevo caso</button>
       </div>
+      <div class="pendientes-bar" id="pendientes-bar">
+        <div class="pendientes-bar-title"><i class="ti ti-checkbox" style="font-size:16px"></i> Pendientes hoy</div>
+        <div class="pendientes-cols">
+          <div class="pendiente-col">
+            <div class="pendiente-col-title">René</div>
+            <div class="pendiente-list" id="pend-rene"></div>
+            <div class="pendiente-add">
+              <input type="text" id="pend-rene-input" placeholder="Agregar pendiente…" onkeydown="if(event.key==='Enter') addPendiente('rene')"/>
+              <button onclick="addPendiente('rene')">+</button>
+            </div>
+          </div>
+          <div class="pendiente-col">
+            <div class="pendiente-col-title">Camilo</div>
+            <div class="pendiente-list" id="pend-camilo"></div>
+            <div class="pendiente-add">
+              <input type="text" id="pend-camilo-input" placeholder="Agregar pendiente…" onkeydown="if(event.key==='Enter') addPendiente('camilo')"/>
+              <button onclick="addPendiente('camilo')">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="metrics" id="metrics"></div>
       <div class="tabs">
         <button class="tab active" onclick="setFilter('todos',this)">Todos</button>
@@ -690,7 +768,9 @@
         <div class="form-group full"><label>Nombre completo</label><input type="text" id="f-nombre" required placeholder="Nombre y apellidos"/></div>
         <div class="form-group"><label>RUT</label><input type="text" id="f-rut" placeholder="12.345.678-9"/></div>
         <div class="form-group"><label>Email</label><input type="email" id="f-email" placeholder="correo@ejemplo.com"/></div>
-        <div class="form-group full"><label>Dirección</label><input type="text" id="f-dir" placeholder="Calle, número, ciudad"/></div>
+        <div class="form-group full"><label>Dirección</label><input type="text" id="f-dir" placeholder="Calle, número"/></div>
+        <div class="form-group"><label>Comuna</label><input type="text" id="f-comuna" placeholder="San Pedro de la Paz"/></div>
+        <div class="form-group"><label>Ciudad</label><input type="text" id="f-ciudad" placeholder="Concepción"/></div>
         <div class="form-group"><label>Teléfono</label><input type="text" id="f-telefono" placeholder="+56 9 1234 5678"/></div>
         <div class="form-group"><label>N° Siniestro</label><input type="text" id="f-nrosin" placeholder="SIN-2024-001"/></div>
         <div class="form-group">
@@ -747,7 +827,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyMIV-_mg4PnzCew4ExAuDmsr97YPR73Q8m2p6wEErsLdX3BTfvkCP8o2BGA73OZ7Q8/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzEUg9Px90dad7ySjrPHjfbthWdDN1UarQVyHZz_6tNMvSl_hQdEeQJ3ksgNzKpRaPB/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1050,6 +1130,8 @@ function renderCases() {
           <div class="detail-grid">
             <div><div class="detail-label">RUT</div><div class="detail-value">${c.rut||'—'}</div></div>
             <div><div class="detail-label">Email</div><div class="detail-value">${c.email||'—'}</div></div>
+            <div><div class="detail-label">Comuna</div><div class="detail-value">${c.comuna||'—'}</div></div>
+            <div><div class="detail-label">Ciudad</div><div class="detail-value">${c.ciudad||'—'}</div></div>
             <div><div class="detail-label">Liquidador</div><div class="detail-value">${c.liquidador||'—'}</div></div>
             <div><div class="detail-label">Correlativo / Folio</div><div class="detail-value">${c.correlativo||'—'}</div></div>
             <div><div class="detail-label">Responsable</div><div class="detail-value">${c.caso||'—'}</div></div>
@@ -1097,7 +1179,7 @@ function openModal(prefill) {
   editingId = prefill ? String(prefill.id) : null;
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if(prefill) {
-    ['nombre','rut','email','dir','banco','siniestro','liquidador','estado','caso','correlativo','obs','telefono','nrosin']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','telefono','nrosin']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     document.getElementById('f-monto').value = prefill.monto || '';
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
@@ -1127,6 +1209,8 @@ async function saveCase(e) {
     rut:         document.getElementById('f-rut').value,
     email:       document.getElementById('f-email').value,
     dir:         document.getElementById('f-dir').value,
+        comuna:      document.getElementById('f-comuna')?.value || '',
+        ciudad:      document.getElementById('f-ciudad')?.value || '',
     banco:       document.getElementById('f-banco').value,
     siniestro:   document.getElementById('f-siniestro').value,
     liquidador:  document.getElementById('f-liquidador').value,
@@ -1484,9 +1568,72 @@ function chartToggleHTML() {
   </div>`;
 }
 
+// ── PENDIENTES DEL DÍA ───────────────────────────────────────────────────────
+var pendientesData = JSON.parse(localStorage.getItem('cr_pendientes') || '{"rene":[],"camilo":[]}');
+
+function savePendientes() {
+  localStorage.setItem('cr_pendientes', JSON.stringify(pendientesData));
+}
+
+function getTodayKey() {
+  var d = new Date();
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+
+function renderPendientes() {
+  ['rene','camilo'].forEach(function(quien) {
+    var el = document.getElementById('pend-'+quien);
+    if (!el) return;
+    var items = pendientesData[quien] || [];
+    if (!items.length) {
+      el.innerHTML = '<div style="font-size:11px;color:rgba(255,247,238,0.3);padding:4px 0">Sin pendientes hoy</div>';
+      return;
+    }
+    el.innerHTML = items.map(function(item, i) {
+      return '<div class="pendiente-item' + (item.done?' done':'') + '">' +
+        '<input type="checkbox"' + (item.done?' checked':'') + ' onchange="togglePendiente(''+quien+'','+i+')">' +
+        '<span style="flex:1">'+escapeHtml(item.texto)+'</span>' +
+        '<button onclick="deletePendiente(''+quien+'','+i+')">×</button>' +
+      '</div>';
+    }).join('');
+  });
+}
+
+function escapeHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function addPendiente(quien) {
+  var input = document.getElementById('pend-'+quien+'-input');
+  var texto = input.value.trim();
+  if (!texto) return;
+  if (!pendientesData[quien]) pendientesData[quien] = [];
+  pendientesData[quien].push({ texto: texto, done: false, fecha: getTodayKey() });
+  savePendientes();
+  input.value = '';
+  renderPendientes();
+}
+
+function togglePendiente(quien, idx) {
+  if (pendientesData[quien] && pendientesData[quien][idx] !== undefined) {
+    pendientesData[quien][idx].done = !pendientesData[quien][idx].done;
+    savePendientes();
+    renderPendientes();
+  }
+}
+
+function deletePendiente(quien, idx) {
+  if (pendientesData[quien]) {
+    pendientesData[quien].splice(idx, 1);
+    savePendientes();
+    renderPendientes();
+  }
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildPlazos();
 syncEstadoSelects();
+renderPendientes();
 loadFromSheets();
 </script>
 
@@ -1714,6 +1861,8 @@ function openContrato(id) {
 
   // Precargar con datos del caso
   document.getElementById('ct-dir').value      = c.dir      || '';
+  document.getElementById('ct-comuna').value   = c.comuna   || '';
+  document.getElementById('ct-ciudad').value   = c.ciudad   || '';
   document.getElementById('ct-telefono').value = c.telefono || '';
   document.getElementById('ct-email').value    = c.email    || '';
 
