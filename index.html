@@ -1591,12 +1591,33 @@ function getTodayKey() {
 
 async function loadPendientes() {
   try {
-    const json = await Promise.race([
-      jsonpFetch(SHEETS_URL + '&action=getPendientes'),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
-    ]);
-    if (json && json.ok && json.data) {
-      pendientesData = json.data;
+    // Usar URL base sin parámetros para que jsonpFetch agregue ?callback=... correctamente
+    const url = SHEETS_URL.replace('/exec', '/exec') + '?action=getPendientes';
+    const cb = 'cr_pend_' + Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      const timeout = setTimeout(() => {
+        delete window[cb];
+        document.head.removeChild(script);
+        reject(new Error('timeout'));
+      }, 6000);
+      window[cb] = (data) => {
+        clearTimeout(timeout);
+        delete window[cb];
+        document.head.removeChild(script);
+        resolve(data);
+      };
+      script.onerror = () => {
+        clearTimeout(timeout);
+        delete window[cb];
+        document.head.removeChild(script);
+        reject(new Error('JSONP failed'));
+      };
+      script.src = SHEETS_URL + '?action=getPendientes&callback=' + cb + '&t=' + Date.now();
+      document.head.appendChild(script);
+    });
+    if (result && result.ok && result.data) {
+      pendientesData = result.data;
       renderPendientes();
     }
   } catch(e) {
