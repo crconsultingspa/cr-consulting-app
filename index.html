@@ -1591,13 +1591,17 @@ function getTodayKey() {
 
 async function loadPendientes() {
   try {
-    const json = await jsonpFetch(SHEETS_URL + '&action=getPendientes');
-    if (json.ok && json.data) {
+    const json = await Promise.race([
+      jsonpFetch(SHEETS_URL + '&action=getPendientes'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+    ]);
+    if (json && json.ok && json.data) {
       pendientesData = json.data;
       renderPendientes();
     }
   } catch(e) {
-    console.log('Error cargando pendientes:', e);
+    console.log('Error cargando pendientes (no crítico):', e);
+    renderPendientes();
   }
 }
 
@@ -1662,7 +1666,7 @@ function deletePendiente(quien, idx) {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildPlazos();
 syncEstadoSelects();
-loadPendientes();
+loadPendientes(); // no-blocking
 loadFromSheets();
 </script>
 
