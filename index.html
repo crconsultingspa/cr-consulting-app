@@ -827,7 +827,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzG6bcYWOHNJ1yDXe2gyqdyZPNmVAVjdK7qTSOt_y2eCE76eD50daygqqgXz4ZWJTdH/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRyUDz4mk-YzE97V5zZcS3mU4VPQ6sdEFXMFVmst9LQgZb47ZF-QcDgvJkxOs1wDgI/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1150,6 +1150,7 @@ function renderCases() {
           </div>`:''}
           <div class="action-row" onclick="event.stopPropagation()">
             <button class="btn" onclick="editCase('${c.id}')"><i class="ti ti-edit"></i> Editar</button>
+            <button class="btn" onclick="toggleBoleta('${c.id}','${c.boleta}')" style="color:${c.boleta==='SI'?'var(--green)':'var(--text-3)'};border-color:${c.boleta==='SI'?'var(--green)':'var(--border)'}"><i class="ti ti-receipt"></i> Boleta: ${c.boleta==='SI'?'Sí':'No'}</button>
             <button class="btn" onclick="openMandato('${c.id}')" style="color:var(--teal);border-color:var(--teal)"><i class="ti ti-file-text"></i> Mandato</button>
             <button class="btn" onclick="openContrato('${c.id}')" style="color:var(--navy);border-color:var(--navy)"><i class="ti ti-file-description"></i> Contrato</button>
             <button class="btn" onclick="deleteCase('${c.id}')" style="color:var(--red)"><i class="ti ti-trash"></i> Eliminar</button>
@@ -1163,6 +1164,18 @@ function renderCases() {
 function toggleCard(id) {
   expandedId = expandedId===String(id)?null:String(id);
   renderCases();
+}
+
+async function toggleBoleta(id, actual) {
+  const nueva = (actual === 'SI') ? 'NO' : 'SI';
+  setSyncStatus('loading', 'Actualizando boleta…');
+  try {
+    await apiCall({ action: 'update', id, boleta: nueva });
+    showToast('Boleta marcada como ' + (nueva === 'SI' ? 'Sí ✓' : 'No'));
+  } catch(e) {
+    showToast('Error al actualizar boleta', 'error');
+    setSyncStatus('error', 'Error');
+  }
 }
 
 async function deleteCase(id) {
@@ -1569,15 +1582,31 @@ function chartToggleHTML() {
 }
 
 // ── PENDIENTES DEL DÍA ───────────────────────────────────────────────────────
-var pendientesData = JSON.parse(localStorage.getItem('cr_pendientes') || '{"rene":[],"camilo":[]}');
-
-function savePendientes() {
-  localStorage.setItem('cr_pendientes', JSON.stringify(pendientesData));
-}
+var pendientesData = { rene: [], camilo: [] };
 
 function getTodayKey() {
   var d = new Date();
   return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+
+async function loadPendientes() {
+  try {
+    const json = await jsonpFetch(SHEETS_URL + '&action=getPendientes');
+    if (json.ok && json.data) {
+      pendientesData = json.data;
+      renderPendientes();
+    }
+  } catch(e) {
+    console.log('Error cargando pendientes:', e);
+  }
+}
+
+async function savePendientes() {
+  try {
+    await formPost(SHEETS_URL, { action: 'savePendientes', pendientes: pendientesData });
+  } catch(e) {
+    console.log('Error guardando pendientes:', e);
+  }
 }
 
 function renderPendientes() {
@@ -1609,9 +1638,9 @@ function addPendiente(quien) {
   if (!texto) return;
   if (!pendientesData[quien]) pendientesData[quien] = [];
   pendientesData[quien].push({ texto: texto, done: false, fecha: getTodayKey() });
-  savePendientes();
   input.value = '';
   renderPendientes();
+  savePendientes();
 }
 
 function togglePendiente(quien, idx) {
@@ -1633,7 +1662,7 @@ function deletePendiente(quien, idx) {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildPlazos();
 syncEstadoSelects();
-renderPendientes();
+loadPendientes();
 loadFromSheets();
 </script>
 
