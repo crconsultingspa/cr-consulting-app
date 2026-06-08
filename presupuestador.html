@@ -192,6 +192,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal)}
 <div id="tab-partidas-db" class="page">
   <div class="card">
     <div class="card-title">Base de datos de partidas</div>
+    <div id="db-drive-status" style="display:none;font-size:11px;padding:7px 10px;border-radius:6px;margin-bottom:10px;display:flex;align-items:center;gap:7px;"></div>
     <div class="sw"><span class="sw-ico">&#128269;</span><input type="text" id="db-search" placeholder="Buscar partida..." oninput="renderDB()"></div>
     <div class="cap-tabs" id="db-cap-tabs"></div>
     <div style="display:flex;gap:8px;margin-bottom:0;">
@@ -845,6 +846,64 @@ function confirmarNuevo(){
     document.getElementById('sin-badge-hdr').innerHTML='';renderRecintos();showTab('tab-datos');
   }
 }
+
+// ── CARGA DB DESDE GOOGLE DRIVE ──────────────────────────────────────────────
+const DRIVE_FILE_ID = '1PEVPvNUiTXXOEviVi_BRX-5ZEq3ysngE';
+const DB_INTERNA = JSON.parse(JSON.stringify(DB)); // copia de la DB interna como respaldo
+
+function setDBStatus(tipo, msg) {
+  const el = document.getElementById('db-drive-status');
+  if (!el) return;
+  el.style.display = 'flex';
+  const colores = {
+    cargando: 'background:rgba(0,101,126,.1);color:var(--teal);border:1px solid var(--border)',
+    ok:       'background:rgba(26,122,82,.1);color:var(--green);border:1px solid var(--green)',
+    error:    'background:rgba(192,57,43,.08);color:var(--red);border:1px solid var(--red)',
+    local:    'background:rgba(0,0,0,.05);color:var(--muted);border:1px solid var(--border)'
+  };
+  const iconos = { cargando:'⏳', ok:'✅', error:'⚠️', local:'📦' };
+  el.setAttribute('style', 'display:flex;align-items:center;gap:7px;font-size:11px;padding:7px 10px;border-radius:6px;margin-bottom:10px;' + colores[tipo]);
+  el.innerHTML = '<span>' + iconos[tipo] + '</span><span>' + msg + '</span>';
+}
+
+function cargarDBdesdeDrive() {
+  setDBStatus('cargando', 'Cargando base de datos desde Drive...');
+  const url = 'https://docs.google.com/spreadsheets/d/' + DRIVE_FILE_ID + '/export?format=xlsx';
+  fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.arrayBuffer();
+    })
+    .then(function(buf) {
+      const wb = XLSX.read(buf, {type:'array'});
+      const ws = wb.Sheets['Partidas'];
+      if (!ws) throw new Error('Hoja "Partidas" no encontrada');
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      const nuevaDB = [];
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        const cat  = String(r[0]||'').trim();
+        const desc = String(r[1]||'').trim();
+        const uni  = String(r[2]||'').trim();
+        const pre  = parseFloat(r[3]) || 0;
+        if (cat && desc && pre > 0) {
+          nuevaDB.push({c: cat, d: desc, u: uni||'m2', p: pre});
+        }
+      }
+      if (nuevaDB.length < 5) throw new Error('Datos insuficientes en el archivo');
+      DB = nuevaDB;
+      const ahora = new Date().toLocaleTimeString('es-CL', {hour:'2-digit',minute:'2-digit'});
+      setDBStatus('ok', 'Base de datos Drive cargada — ' + DB.length + ' partidas (' + ahora + ')');
+      renderDB();
+    })
+    .catch(function(err) {
+      DB = JSON.parse(JSON.stringify(DB_INTERNA));
+      setDBStatus('error', 'No se pudo cargar desde Drive. Usando base de datos local. (' + err.message + ')');
+      renderDB();
+    });
+}
+
+cargarDBdesdeDrive();
 renderRecintos();
 </script>
 </body>
