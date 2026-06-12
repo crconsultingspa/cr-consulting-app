@@ -767,6 +767,13 @@
       <div class="form-grid">
         <div class="form-group full"><label>Nombre completo</label><input type="text" id="f-nombre" required placeholder="Nombre y apellidos"/></div>
         <div class="form-group"><label>RUT</label><input type="text" id="f-rut" placeholder="12.345.678-9"/></div>
+        <div class="form-group"><label>Tratamiento</label>
+          <select id="f-tratamiento">
+            <option value="">Sin especificar</option>
+            <option value="Sr.">Sr.</option>
+            <option value="Sra.">Sra.</option>
+          </select>
+        </div>
         <div class="form-group"><label>Email</label><input type="email" id="f-email" placeholder="correo@ejemplo.com"/></div>
         <div class="form-group full"><label>Dirección</label><input type="text" id="f-dir" placeholder="Calle, número"/></div>
         <div class="form-group"><label>Comuna</label><input type="text" id="f-comuna" placeholder="San Pedro de la Paz"/></div>
@@ -828,7 +835,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzIETA5y6wB-B3NzMlrTFT4o1CcDCSxXr4bxJXHTRLxPlPchpBkzsXhUANevGTrNuCD/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzOxBgYne-rD3d6L1zCF9-Mi6z2-BqfGbFsclwFOOSgzuf3YOvBQ6JjUi8eqbCiAuNm/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1137,6 +1144,7 @@ function renderCases() {
         <div class="case-detail">
           <div class="detail-grid">
             <div><div class="detail-label">RUT</div><div class="detail-value">${c.rut||'—'}</div></div>
+            <div><div class="detail-label">Tratamiento</div><div class="detail-value">${c.tratamiento||'—'}</div></div>
             <div><div class="detail-label">Email</div><div class="detail-value">${c.email||'—'}</div></div>
             <div><div class="detail-label">Comuna</div><div class="detail-value">${c.comuna||'—'}</div></div>
             <div><div class="detail-label">Ciudad</div><div class="detail-value">${c.ciudad||'—'}</div></div>
@@ -1163,7 +1171,7 @@ function renderCases() {
             <button class="btn" onclick="openMandato('${c.id}')" style="color:var(--teal);border-color:var(--teal)"><i class="ti ti-file-text"></i> Mandato</button>
             <button class="btn" onclick="openContrato('${c.id}')" style="color:var(--navy);border-color:var(--navy)"><i class="ti ti-file-description"></i> Contrato</button>
             <button class="btn" onclick="deleteCase('${c.id}')" style="color:var(--red)"><i class="ti ti-trash"></i> Eliminar</button>
-            ${c.email?`<a href="mailto:${c.email}?subject=Actualización de su caso&body=Estimado/a ${(c.nombre||'').split(' ')[0]},%0A%0ALe informamos que su caso se encuentra en estado: ${c.estado}.%0A%0ASaludos,%0ACR Consulting" class="btn" style="text-decoration:none"><i class="ti ti-mail"></i> Enviar correo</a>`:''}
+            <button class="btn" onclick="openEmail('${c.id}')" style="color:var(--green);border-color:var(--green)"><i class="ti ti-mail"></i> Enviar correo</button>
           </div>
         </div>
       </div>`;
@@ -1201,7 +1209,7 @@ function openModal(prefill) {
   editingId = prefill ? String(prefill.id) : null;
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if(prefill) {
-    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','telefono','nrosin','fechaSiniestro']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','telefono','nrosin','fechaSiniestro','tratamiento']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     document.getElementById('f-monto').value = prefill.monto || '';
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
@@ -1229,6 +1237,7 @@ async function saveCase(e) {
   const data = {
     nombre:      document.getElementById('f-nombre').value,
     rut:         document.getElementById('f-rut').value,
+    tratamiento: document.getElementById('f-tratamiento')?.value || '',
     email:       document.getElementById('f-email').value,
     dir:         document.getElementById('f-dir').value,
         comuna:      document.getElementById('f-comuna')?.value || '',
@@ -2000,6 +2009,299 @@ async function generarContrato() {
 
 function showContratoStatus(msg, type) {
   const el = document.getElementById('contrato-status');
+  el.style.display = 'block';
+  el.textContent   = msg;
+  el.style.background = type==='success' ? 'var(--green-bg)' : type==='error' ? 'var(--red-bg)' : 'var(--blue-bg)';
+  el.style.color      = type==='success' ? 'var(--green)'    : type==='error' ? 'var(--red)'    : 'var(--teal)';
+  el.style.border     = type==='success' ? '1px solid var(--green)' : type==='error' ? '1px solid var(--red)' : '1px solid var(--teal)';
+}
+</script>
+
+
+<!-- MODAL EMAIL -->
+<div class="modal-backdrop" id="modal-email">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div class="modal-title-text"><i class="ti ti-mail" style="margin-right:6px;font-size:16px;vertical-align:-2px"></i>Enviar correo</div>
+      <button class="btn" onclick="closeEmail()" style="padding:4px 8px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:18px;">
+      <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;font-weight:600;">Asegurado</div>
+      <div id="email-nombre" style="font-size:14px;font-weight:600;color:var(--navy);">—</div>
+      <div id="email-rut" style="font-size:12px;color:var(--text-3);margin-top:2px;">—</div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Para</label>
+        <input type="email" id="em-to" placeholder="correo@ejemplo.com"/>
+      </div>
+      <div class="form-group full">
+        <label>Plantilla</label>
+        <select id="em-plantilla" onchange="onEmailTemplateChange()">
+          <option value="documentos">Envío de documentos (Contrato y Mandato)</option>
+          <option value="denuncio">Denuncio exitoso</option>
+          <option value="inspeccion">Inspección programada</option>
+          <option value="antecedentes">Solicitud de antecedentes faltantes</option>
+          <option value="pago">Pago realizado / cierre de caso</option>
+        </select>
+      </div>
+      <div id="em-extra-fields" class="form-grid" style="grid-column:1/-1"></div>
+      <div id="em-adjuntos" class="form-group full" style="display:none">
+        <label>Adjuntos (PDF desde Drive)</label>
+        <div style="display:flex;gap:18px;font-size:13px;color:var(--navy)">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer"><input type="checkbox" id="em-adj-contrato" checked> Contrato</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer"><input type="checkbox" id="em-adj-mandato" checked> Mandato</label>
+        </div>
+        <span style="font-size:10px;color:var(--text-3)">Si el documento aún no ha sido generado en Drive, se omitirá automáticamente.</span>
+      </div>
+      <div class="form-group full">
+        <button type="button" class="btn" onclick="generarBorradorEmail()" style="width:fit-content"><i class="ti ti-wand"></i> Generar borrador</button>
+      </div>
+      <div class="form-group full">
+        <label>Asunto</label>
+        <input type="text" id="em-asunto"/>
+      </div>
+      <div class="form-group full">
+        <label>Mensaje</label>
+        <textarea id="em-cuerpo" oninput="emailDraftDirty=true" style="min-height:230px;font-size:13px;line-height:1.6"></textarea>
+      </div>
+    </div>
+    <div id="email-status" style="display:none;margin-top:14px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn" onclick="closeEmail()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="email-btn" onclick="enviarCorreoCaso()"><i class="ti ti-send"></i> Enviar correo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PLANTILLAS DE CORREO ─────────────────────────────────────────────────────
+function emailSaludo(c) {
+  const nombre = (c.nombre || '').trim();
+  if (c.tratamiento === 'Sra.') return `Estimada señora ${nombre}`;
+  if (c.tratamiento === 'Sr.')  return `Estimado señor ${nombre}`;
+  return `Estimado/a ${nombre}`;
+}
+
+const EMAIL_TEMPLATES = {
+  documentos: {
+    extraFields: [],
+    asunto: c => `Envío de Contrato y Mandato – ${c.nombre || ''}`,
+    cuerpo: c => `${emailSaludo(c)}
+
+Junto con saludar, hago envío de los siguientes documentos:
+
+• Contrato de prestación de servicios
+• Mandato de representación
+
+Recalco la importancia de la firma oportuna de estos documentos, ya que nos permitirá continuar con el proceso de denuncio sin contratiempos.
+
+Quedo atento/a a su confirmación y a cualquier consulta que pueda surgir.
+
+Se despide atentamente,`
+  },
+
+  denuncio: {
+    extraFields: [
+      { id:'numeroDenuncio', label:'N° de denuncio', type:'text', placeholder:'449261', default: c => c.nrosin || '' },
+      { id:'plazoDias',      label:'Plazo de contacto (días hábiles)', type:'text', placeholder:'5', default: () => '5' }
+    ],
+    asunto: (c, ex) => `Denuncio ingresado N° ${ex.numeroDenuncio || '—'} – ${c.siniestro || 'Siniestro'}`,
+    cuerpo: (c, ex) => `${emailSaludo(c)}
+
+Junto con saludar, acusamos recibo de la documentación firmada.
+
+A su vez, le informamos que su caso por ${c.siniestro || '[tipo de siniestro]'} ha sido denunciado exitosamente bajo el número de denuncio ${ex.numeroDenuncio || '[N° de denuncio]'}.
+
+Motivo por el cual, dentro de un plazo de ${ex.plazoDias || '5'} días hábiles, se nos contactará de parte de la empresa liquidadora para realizar la inspección presencial.
+
+Agradecemos estar atento/a a sus canales de comunicación para la coordinación de esta misma.
+
+Se despide atentamente,`
+  },
+
+  inspeccion: {
+    extraFields: [
+      { id:'fechaInspeccion', label:'Fecha de inspección', type:'text', placeholder:'18 de Junio de 2026' },
+      { id:'horaInspeccion',  label:'Hora (opcional)', type:'text', placeholder:'11:00 hrs' }
+    ],
+    asunto: (c, ex) => `Inspección programada – ${ex.fechaInspeccion || 'fecha por confirmar'}`,
+    cuerpo: (c, ex) => `${emailSaludo(c)}
+
+Junto con saludar, le informamos que la inspección presencial correspondiente a su caso ha sido programada para el día ${ex.fechaInspeccion || '[fecha]'}${ex.horaInspeccion ? `, a las ${ex.horaInspeccion}` : ''}, a cargo de la empresa liquidadora ${c.liquidador || '[liquidadora]'}.
+
+Le agradeceríamos confirmar su disponibilidad para recibir a la persona encargada de la inspección en la dirección registrada (${c.dir || '[dirección]'}), y mantenerse atento/a a cualquier comunicación adicional de coordinación.
+
+Se despide atentamente,`
+  },
+
+  antecedentes: {
+    extraFields: [
+      { id:'listaAntecedentes', label:'Antecedentes solicitados (uno por línea)', type:'textarea', placeholder:'Cédula de identidad por ambos lados\nCertificado de dominio vigente\nComprobante de domicilio' }
+    ],
+    asunto: (c) => `Solicitud de antecedentes – Caso ${c.nombre || ''}`,
+    cuerpo: (c, ex) => {
+      const items = (ex.listaAntecedentes || '')
+        .split('\n').map(s => s.trim()).filter(Boolean).map(s => `• ${s}`).join('\n');
+      return `${emailSaludo(c)}
+
+Junto con saludar, para continuar con la tramitación de su caso necesitamos que nos haga llegar los siguientes antecedentes:
+
+${items || '• [detalle de antecedentes]'}
+
+Le agradecemos enviarlos a la brevedad posible, ya que son indispensables para avanzar con el proceso.
+
+Quedo atento/a a cualquier consulta.
+
+Se despide atentamente,`;
+    }
+  },
+
+  pago: {
+    extraFields: [
+      { id:'montoPagado', label:'Monto pagado', type:'text', placeholder:'1.250.000', default: c => c.monto ? Math.round(c.monto).toLocaleString('es-CL') : '' },
+      { id:'fechaPago',   label:'Fecha de pago (opcional)', type:'text', placeholder:'10 de Junio de 2026' }
+    ],
+    asunto: () => `Pago realizado – Cierre de caso`,
+    cuerpo: (c, ex) => `${emailSaludo(c)}
+
+Junto con saludar, le informamos que el pago correspondiente a la indemnización de su siniestro ha sido realizado${ex.fechaPago ? ` con fecha ${ex.fechaPago}` : ''} por un monto de $${ex.montoPagado || '[monto]'}, a través de transferencia a la cuenta registrada en ${c.banco || 'su entidad bancaria'}.
+
+Con esto, damos por concluido el proceso de gestión de su caso. Ha sido un gusto poder asesorarlo/a durante este proceso.
+
+Quedamos atentos ante cualquier consulta adicional que pueda surgir.
+
+Se despide atentamente,`
+  }
+};
+
+// ── MODAL EMAIL ───────────────────────────────────────────────────────────────
+let emailCaseId = null;
+let emailDraftDirty = false;
+
+function openEmail(id) {
+  emailCaseId = String(id);
+  const c = cases.find(x => String(x.id) === String(id));
+  if (!c) return;
+
+  document.getElementById('email-nombre').textContent = c.nombre || '—';
+  document.getElementById('email-rut').textContent    = c.rut    || '—';
+  document.getElementById('em-to').value = c.email || '';
+  document.getElementById('em-plantilla').value = 'documentos';
+  document.getElementById('em-cuerpo').value = '';
+  document.getElementById('em-asunto').value = '';
+  emailDraftDirty = false;
+
+  const st = document.getElementById('email-status');
+  st.style.display = 'none'; st.textContent = '';
+  const btn = document.getElementById('email-btn');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-send"></i> Enviar correo';
+
+  onEmailTemplateChange();
+  document.getElementById('modal-email').classList.add('open');
+}
+
+function closeEmail() {
+  document.getElementById('modal-email').classList.remove('open');
+  emailCaseId = null;
+}
+
+function onEmailTemplateChange() {
+  const key = document.getElementById('em-plantilla').value;
+  const tpl = EMAIL_TEMPLATES[key];
+  const c   = cases.find(x => String(x.id) === String(emailCaseId));
+  const cont = document.getElementById('em-extra-fields');
+
+  cont.innerHTML = (tpl.extraFields || []).map(f => {
+    const defVal = f.default ? (f.default(c) || '') : '';
+    if (f.type === 'textarea') {
+      return `<div class="form-group full"><label>${f.label}</label><textarea id="em-ex-${f.id}" placeholder="${f.placeholder||''}">${defVal}</textarea></div>`;
+    }
+    return `<div class="form-group"><label>${f.label}</label><input type="text" id="em-ex-${f.id}" placeholder="${f.placeholder||''}" value="${defVal}"/></div>`;
+  }).join('');
+
+  document.getElementById('em-adjuntos').style.display = (key === 'documentos') ? '' : 'none';
+
+  emailDraftDirty = false;
+  generarBorradorEmail();
+}
+
+function getEmailExtraValues(tpl) {
+  const ex = {};
+  (tpl.extraFields || []).forEach(f => {
+    const el = document.getElementById('em-ex-' + f.id);
+    ex[f.id] = el ? el.value.trim() : '';
+  });
+  return ex;
+}
+
+function generarBorradorEmail() {
+  const c = cases.find(x => String(x.id) === String(emailCaseId));
+  if (!c) return;
+  const key = document.getElementById('em-plantilla').value;
+  const tpl = EMAIL_TEMPLATES[key];
+  const ex  = getEmailExtraValues(tpl);
+
+  const cuerpoEl = document.getElementById('em-cuerpo');
+  if (emailDraftDirty && cuerpoEl.value.trim() &&
+      !confirm('Esto reemplazará el borrador actual del mensaje. ¿Continuar?')) {
+    return;
+  }
+
+  document.getElementById('em-asunto').value = tpl.asunto(c, ex);
+  cuerpoEl.value = tpl.cuerpo(c, ex);
+  emailDraftDirty = false;
+}
+
+async function enviarCorreoCaso() {
+  const to      = document.getElementById('em-to').value.trim();
+  const subject = document.getElementById('em-asunto').value.trim();
+  const body    = document.getElementById('em-cuerpo').value.trim();
+
+  if (!to)      return showEmailStatus('Ingresa el correo del destinatario.', 'error');
+  if (!subject) return showEmailStatus('Ingresa el asunto del correo.', 'error');
+  if (!body)    return showEmailStatus('Genera o escribe el mensaje antes de enviar.', 'error');
+
+  const key = document.getElementById('em-plantilla').value;
+  let attachContrato = false, attachMandato = false;
+
+  if (key === 'documentos') {
+    attachContrato = document.getElementById('em-adj-contrato').checked;
+    attachMandato  = document.getElementById('em-adj-mandato').checked;
+    if (attachContrato || attachMandato) {
+      const lista = [attachContrato ? 'Contrato (PDF)' : null, attachMandato ? 'Mandato (PDF)' : null].filter(Boolean).join(' y ');
+      if (!confirm(`Se enviará el correo a ${to} adjuntando: ${lista}.\nSi alguno de estos documentos aún no ha sido generado en Drive, se omitirá automáticamente.\n\n¿Confirmar envío?`)) {
+        return;
+      }
+    }
+  }
+
+  const btn = document.getElementById('email-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Enviando…';
+  showEmailStatus('Enviando correo…', 'loading');
+
+  try {
+    await formPost(SHEETS_URL, {
+      action: 'sendEmail',
+      id: emailCaseId,
+      to, subject, body,
+      attachContrato, attachMandato
+    });
+    await new Promise(r => setTimeout(r, 2500));
+    showEmailStatus('✓ Correo enviado correctamente.', 'success');
+    btn.innerHTML = '<i class="ti ti-check"></i> Enviado';
+    setTimeout(() => closeEmail(), 1500);
+  } catch (err) {
+    showEmailStatus('Error al enviar el correo. Intenta nuevamente.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-send"></i> Enviar correo';
+  }
+}
+
+function showEmailStatus(msg, type) {
+  const el = document.getElementById('email-status');
   el.style.display = 'block';
   el.textContent   = msg;
   el.style.background = type==='success' ? 'var(--green-bg)' : type==='error' ? 'var(--red-bg)' : 'var(--blue-bg)';
