@@ -791,6 +791,7 @@
             <option>Incendio</option><option>Inundación</option><option>Sismo</option><option>Otro</option>
           </select>
         </div>
+        <div class="form-group"><label>Fecha de ocurrencia</label><input type="date" id="f-fechaSiniestro"/></div>
         <div class="form-group"><label>Liquidador</label><input type="text" id="f-liquidador" placeholder="Nombre de la liquidadora"/></div>
         <div class="form-group">
           <label>Estado</label>
@@ -827,7 +828,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxD279oIPKcp45rTWzkmIabbh-alXdqkybr2pfRqk4arWVUNVVGomCcsIdUhjP_IbgC/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzIETA5y6wB-B3NzMlrTFT4o1CcDCSxXr4bxJXHTRLxPlPchpBkzsXhUANevGTrNuCD/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -845,6 +846,13 @@ let sortDir = 'asc', customEstados = JSON.parse(localStorage.getItem('cr_estados
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const fmtCLP = n => n ? '$' + Math.round(n).toLocaleString('es-CL') : '—';
+function formatFechaSin(f) {
+  // Convierte 'aaaa-mm-dd' a 'dd/mm/aaaa'; si ya viene en otro formato lo deja igual
+  if (!f) return '—';
+  const s = String(f);
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : s;
+}
 const initials = n => (n||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const AVCOLORS = [
   {bg:'#e0f0f4',tc:'#00657e'},{bg:'#e1f5ee',tc:'#1a7a52'},
@@ -1138,6 +1146,7 @@ function renderCases() {
             <div><div class="detail-label">Boleta emitida</div><div class="detail-value">${c.boleta||'—'}</div></div>
             <div><div class="detail-label">Teléfono</div><div class="detail-value">${c.telefono||'—'}</div></div>
             <div><div class="detail-label">N° Siniestro</div><div class="detail-value">${c.nrosin||'—'}</div></div>
+            <div><div class="detail-label">Fecha de ocurrencia</div><div class="detail-value">${c.fechaSiniestro ? formatFechaSin(c.fechaSiniestro) : '—'}</div></div>
             ${c.obs?`<div style="grid-column:1/-1"><div class="detail-label">Observaciones</div><div class="detail-value">${c.obs}</div></div>`:''}
           </div>
           ${c.monto?`
@@ -1192,7 +1201,7 @@ function openModal(prefill) {
   editingId = prefill ? String(prefill.id) : null;
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if(prefill) {
-    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','telefono','nrosin']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','telefono','nrosin','fechaSiniestro']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     document.getElementById('f-monto').value = prefill.monto || '';
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
@@ -1235,6 +1244,7 @@ async function saveCase(e) {
     obs:      document.getElementById('f-obs').value,
     telefono: document.getElementById('f-telefono').value,
     nrosin:   document.getElementById('f-nrosin').value,
+    fechaSiniestro: document.getElementById('f-fechaSiniestro')?.value || '',
   };
   try {
     if(editingId) {
@@ -1332,13 +1342,15 @@ function buildResumen() {
   const responsables = count(cases.map(c=>c.caso||'Sin asignar'));
   const liquidadores = count(pagados.map(c=>c.liquidador||'—'));
   const ciudades     = count(cases.map(c=>{
+    // Usar el campo comuna del caso si existe; si no, extraer de la dirección
+    if (c.comuna && c.comuna.trim()) return c.comuna.trim();
     const d=(c.dir||'').toLowerCase();
     if(d.includes('hualpen')||d.includes('hualpén')) return 'Hualpén';
     if(d.includes('chiguayante')) return 'Chiguayante';
     if(d.includes('san pedro')) return 'San Pedro de la Paz';
     if(d.includes('talcahuano')) return 'Talcahuano';
     if(d.includes('concep')) return 'Concepción';
-    return 'Otra';
+    return 'Sin comuna';
   }));
 
   const bar = (data, colors) => {
@@ -1362,7 +1374,7 @@ function buildResumen() {
       <div class="chart-card"><div class="chart-title">Tipo de siniestro</div>${toggleHTML}<div id="pie-sin"></div></div>
       <div class="chart-card"><div class="chart-title">Estado de casos</div>${toggleHTML}<div id="pie-est"></div></div>
       <div class="chart-card"><div class="chart-title">Casos por banco</div>${toggleHTML}<div id="pie-ban"></div></div>
-      <div class="chart-card"><div class="chart-title">Distribución por ciudad</div>${toggleHTML}<div id="pie-ciu"></div></div>
+      <div class="chart-card"><div class="chart-title">Distribución por comuna</div>${toggleHTML}<div id="pie-ciu"></div></div>
       <div class="chart-card"><div class="chart-title">Casos por responsable</div>${toggleHTML}<div id="pie-res"></div></div>
       <div class="chart-card"><div class="chart-title">Liquidadores (casos pagados)</div>${toggleHTML}<div id="pie-liq"></div></div>`;
     buildPieChart(sinTypes,   'pie-sin');
@@ -1382,7 +1394,7 @@ function buildResumen() {
         }).join('')}
       </div>
       <div class="chart-card"><div class="chart-title">Casos por banco</div>${toggleHTML}${bar(bancos,C2)}</div>
-      <div class="chart-card"><div class="chart-title">Distribución por ciudad</div>${toggleHTML}${bar(ciudades,C1)}</div>
+      <div class="chart-card"><div class="chart-title">Distribución por comuna</div>${toggleHTML}${bar(ciudades,C1)}</div>
       <div class="chart-card"><div class="chart-title">Casos por responsable</div>${toggleHTML}${bar(responsables,C2)}</div>
       <div class="chart-card"><div class="chart-title">Liquidadores (casos pagados)</div>${toggleHTML}${bar(liquidadores,C2)}</div>`;
   }
@@ -1591,28 +1603,24 @@ function getTodayKey() {
 
 async function loadPendientes() {
   try {
-    // Usar URL base sin parámetros para que jsonpFetch agregue ?callback=... correctamente
-    const url = SHEETS_URL.replace('/exec', '/exec') + '?action=getPendientes';
     const cb = 'cr_pend_' + Date.now();
     const result = await new Promise((resolve, reject) => {
       const script = document.createElement('script');
       const timeout = setTimeout(() => {
-        delete window[cb];
-        document.head.removeChild(script);
+        delete window[cb]; try { document.head.removeChild(script); } catch(e){}
         reject(new Error('timeout'));
       }, 6000);
       window[cb] = (data) => {
         clearTimeout(timeout);
-        delete window[cb];
-        document.head.removeChild(script);
+        delete window[cb]; try { document.head.removeChild(script); } catch(e){}
         resolve(data);
       };
       script.onerror = () => {
         clearTimeout(timeout);
-        delete window[cb];
-        document.head.removeChild(script);
+        delete window[cb]; try { document.head.removeChild(script); } catch(e){}
         reject(new Error('JSONP failed'));
       };
+      // Construir URL correctamente con ? primero
       script.src = SHEETS_URL + '?action=getPendientes&callback=' + cb + '&t=' + Date.now();
       document.head.appendChild(script);
     });
@@ -1621,7 +1629,7 @@ async function loadPendientes() {
       renderPendientes();
     }
   } catch(e) {
-    console.log('Error cargando pendientes (no crítico):', e);
+    console.log('Pendientes no disponibles:', e.message);
     renderPendientes();
   }
 }
@@ -1723,19 +1731,15 @@ loadFromSheets();
       <div id="mandato-rut" style="font-size:12px;color:var(--text-3);margin-top:2px;">—</div>
     </div>
     <div class="form-grid">
-      <div class="form-group">
+      <div class="form-group full">
         <label>Fecha del mandato</label>
         <input type="text" id="m-fecha" placeholder="23 de Marzo de 2026" />
         <span style="font-size:10px;color:var(--text-3);">Ej: 23 de Marzo de 2026</span>
       </div>
-      <div class="form-group">
-        <label>Ciudad</label>
-        <input type="text" id="m-ciudad" placeholder="CONCEPCION" />
-      </div>
       <div class="form-group full">
         <label>Domicilio del asegurado (para el mandato)</label>
         <input type="text" id="m-direccion" placeholder="CALLE LOS EBANOS NORTE 290 Comuna de SAN PEDRO DE LA PAZ" />
-        <span style="font-size:10px;color:var(--text-3);">En mayúsculas tal como aparecerá en el documento</span>
+        <span style="font-size:10px;color:var(--text-3);">Tal como aparecerá en el documento</span>
       </div>
     </div>
     <div id="mandato-status" style="display:none;margin-top:14px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;"></div>
@@ -1777,7 +1781,6 @@ function openMandato(id) {
   document.getElementById('mandato-rut').textContent    = c.rut    || '—';
   document.getElementById('m-direccion').value = c.dir || '';
   document.getElementById('m-fecha').value     = '';
-  document.getElementById('m-ciudad').value    = '';
   const st = document.getElementById('mandato-status');
   st.style.display = 'none'; st.textContent = '';
   const btn = document.getElementById('mandato-btn');
@@ -1793,10 +1796,8 @@ function closeMandato() {
 
 async function generarMandato() {
   const fecha     = document.getElementById('m-fecha').value.trim();
-  const ciudad    = document.getElementById('m-ciudad').value.trim();
   const direccion = document.getElementById('m-direccion').value.trim();
   if (!fecha)     return showMandatoStatus('Ingresa la fecha del mandato.', 'error');
-  if (!ciudad)    return showMandatoStatus('Ingresa la ciudad.', 'error');
   if (!direccion) return showMandatoStatus('Ingresa el domicilio del asegurado.', 'error');
   const btn = document.getElementById('mandato-btn');
   btn.disabled = true;
@@ -1806,7 +1807,7 @@ async function generarMandato() {
     await formPost(SHEETS_URL, {
       action: 'generateDoc',
       id: mandatoCaseId,
-      fecha, ciudad, direccion
+      fecha, direccion
     });
     await new Promise(r => setTimeout(r, 3000));
     showMandatoStatus('✓ Mandato generado y guardado en la carpeta Drive del asegurado.', 'success');
