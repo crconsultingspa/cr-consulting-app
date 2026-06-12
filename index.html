@@ -835,7 +835,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzOxBgYne-rD3d6L1zCF9-Mi6z2-BqfGbFsclwFOOSgzuf3YOvBQ6JjUi8eqbCiAuNm/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwigjm62TauPuAoqsJ44fEE-I2tPMFp4xC8hdfDWbtAsL_lUnWO0G4rpOTTn8MjBqYz/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -2018,58 +2018,118 @@ function showContratoStatus(msg, type) {
 </script>
 
 
+<style>
+.email-label { font-size:9.5px;font-weight:700;color:#96AEBE;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:5px; }
+.email-field { width:100%;padding:9px 12px;background:#fff;border:1.5px solid #D5E0EC;border-radius:7px;font-size:13.5px;color:#1A2B3C;outline:none;font-family:inherit;box-sizing:border-box; }
+.email-field:focus { border-color:#2B7BA0;box-shadow:0 0 0 3px rgba(43,123,160,.12); }
+.email-field-bold { font-weight:600;color:#0D2A4E; }
+.email-textarea { flex:1;min-height:160px;resize:none;line-height:1.65; }
+.email-pill { background:#fff;color:#4A6A85;border:1.5px solid #D0DCE8;border-radius:20px;padding:5px 15px;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;transition:all .15s; }
+.email-pill.active { background:#0D2A4E;color:#fff;border-color:#0D2A4E;font-weight:600; }
+.email-att-chip { display:flex;align-items:center;gap:9px;padding:7px 10px;background:#F2F7FC;border:1px solid #D5E3EE;border-radius:7px;cursor:pointer;font-size:12.5px;color:#2D3F55;font-weight:500; }
+.email-att-chip.off { opacity:.45;text-decoration:line-through; }
+.email-att-icon { width:26px;height:26px;background:#0D2A4E;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:7.5px;font-weight:700;letter-spacing:.04em; }
+@media (max-width:760px) {
+  .email-cols { flex-direction:column;max-height:none !important; }
+  .email-preview-col { width:100% !important;border-left:none !important;border-top:1px solid #DDE7F0; }
+}
+</style>
+
 <!-- MODAL EMAIL -->
 <div class="modal-backdrop" id="modal-email">
-  <div class="modal" style="max-width:640px">
-    <div class="modal-header">
-      <div class="modal-title-text"><i class="ti ti-mail" style="margin-right:6px;font-size:16px;vertical-align:-2px"></i>Enviar correo</div>
-      <button class="btn" onclick="closeEmail()" style="padding:4px 8px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
-    </div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:18px;">
-      <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;font-weight:600;">Asegurado</div>
-      <div id="email-nombre" style="font-size:14px;font-weight:600;color:var(--navy);">—</div>
-      <div id="email-rut" style="font-size:12px;color:var(--text-3);margin-top:2px;">—</div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group full">
-        <label>Para</label>
-        <input type="email" id="em-to" placeholder="correo@ejemplo.com"/>
+  <div class="modal" style="max-width:980px;padding:0;overflow:hidden;width:95%">
+
+    <!-- header -->
+    <div style="background:#0D2A4E;display:flex;align-items:center;gap:14px;padding:0 22px;height:58px;">
+      <div style="flex:1;min-width:0;">
+        <div style="color:#fff;font-size:15px;font-weight:600;letter-spacing:-0.01em;">Enviar correo</div>
+        <div id="email-nombre-rut" style="color:#6FA3C4;font-size:11px;margin-top:2px;">—</div>
       </div>
-      <div class="form-group full">
-        <label>Plantilla</label>
-        <select id="em-plantilla" onchange="onEmailTemplateChange()">
-          <option value="documentos">Envío de documentos (Contrato y Mandato)</option>
-          <option value="denuncio">Denuncio exitoso</option>
-          <option value="inspeccion">Inspección programada</option>
-          <option value="antecedentes">Solicitud de antecedentes faltantes</option>
-          <option value="pago">Pago realizado / cierre de caso</option>
-        </select>
-      </div>
-      <div id="em-extra-fields" class="form-grid" style="grid-column:1/-1"></div>
-      <div id="em-adjuntos" class="form-group full" style="display:none">
-        <label>Adjuntos (PDF desde Drive)</label>
-        <div style="display:flex;gap:18px;font-size:13px;color:var(--navy)">
-          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer"><input type="checkbox" id="em-adj-contrato" checked> Contrato</label>
-          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer"><input type="checkbox" id="em-adj-mandato" checked> Mandato</label>
+      <button class="btn" onclick="closeEmail()" style="padding:0;border:none;background:rgba(255,255,255,.08);color:#fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-x" style="font-size:16px"></i></button>
+    </div>
+
+    <!-- pills de plantillas -->
+    <div style="padding:14px 22px 0;background:#fff;">
+      <div style="font-size:9.5px;font-weight:700;color:#96AEBE;letter-spacing:.13em;text-transform:uppercase;margin-bottom:9px;">Plantilla de correo</div>
+      <div id="em-pills" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:13px;"></div>
+    </div>
+    <div style="height:1px;background:#E5EDF5;"></div>
+
+    <!-- dos columnas -->
+    <div class="email-cols" style="display:flex;min-height:480px;max-height:62vh;">
+
+      <!-- izquierda: composición -->
+      <div style="flex:1;min-width:0;overflow-y:auto;padding:16px 22px;display:flex;flex-direction:column;gap:13px;">
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:160px;">
+            <label class="email-label">Para</label>
+            <input type="email" id="em-to" placeholder="correo@cliente.cl" oninput="updateEmailPreview()" class="email-field"/>
+          </div>
+          <div style="flex:1;min-width:160px;">
+            <label class="email-label">CC <span style="font-weight:400;text-transform:none;color:#B5C8D8;">(opcional)</span></label>
+            <input type="email" id="em-cc" placeholder="copia@email.cl" class="email-field"/>
+          </div>
         </div>
-        <span style="font-size:10px;color:var(--text-3)">Si el documento aún no ha sido generado en Drive, se omitirá automáticamente.</span>
+
+        <div id="em-extra-fields" style="display:flex;gap:12px;flex-wrap:wrap;"></div>
+
+        <div>
+          <label class="email-label">Asunto</label>
+          <input type="text" id="em-asunto" oninput="updateEmailPreview()" class="email-field email-field-bold"/>
+        </div>
+
+        <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
+          <label class="email-label">Mensaje</label>
+          <textarea id="em-cuerpo" oninput="emailDraftDirty=true;updateEmailPreview()" class="email-field email-textarea"></textarea>
+        </div>
+
+        <div id="em-adjuntos" style="display:none">
+          <label class="email-label">Adjuntos (PDF desde Drive)</label>
+          <div id="em-adjuntos-list" style="display:flex;flex-direction:column;gap:5px;margin-top:6px;"></div>
+          <span style="font-size:10px;color:#9CB3C4">Si el documento aún no ha sido generado en Drive, se omitirá automáticamente.</span>
+        </div>
+
       </div>
-      <div class="form-group full">
-        <button type="button" class="btn" onclick="generarBorradorEmail()" style="width:fit-content"><i class="ti ti-wand"></i> Generar borrador</button>
-      </div>
-      <div class="form-group full">
-        <label>Asunto</label>
-        <input type="text" id="em-asunto"/>
-      </div>
-      <div class="form-group full">
-        <label>Mensaje</label>
-        <textarea id="em-cuerpo" oninput="emailDraftDirty=true" style="min-height:230px;font-size:13px;line-height:1.6"></textarea>
+
+      <!-- derecha: vista previa -->
+      <div class="email-preview-col" style="width:340px;flex-shrink:0;background:#EAF0F7;padding:16px;overflow-y:auto;border-left:1px solid #DDE7F0;">
+        <div style="font-size:9.5px;font-weight:700;color:#96AEBE;letter-spacing:.13em;text-transform:uppercase;margin-bottom:13px;">Vista previa del destinatario</div>
+
+        <div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 3px 22px rgba(13,42,78,.14),0 1px 5px rgba(0,0,0,.07);">
+
+          <div style="background:#0D2A4E;padding:20px 14px 16px;text-align:center;">
+            <div style="color:#fff;font-size:17px;font-weight:800;letter-spacing:.06em;">CR CONSULTING</div>
+            <div style="color:#6FA3C4;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-top:5px;">Asesoría en gestión de siniestros</div>
+          </div>
+
+          <div style="background:#F5F8FC;padding:9px 13px;border-bottom:1px solid #E8EFF6;">
+            <table style="width:100%;border-collapse:collapse;"><tr>
+              <td style="font-size:10px;color:#96AEBE;font-weight:600;padding:2px 6px 2px 0;white-space:nowrap;width:30px;">Para:</td>
+              <td style="font-size:10.5px;color:#1A2B3C;font-weight:500;padding:2px 0;" id="email-preview-to">cliente@email.cl</td>
+            </tr></table>
+          </div>
+
+          <div style="padding:10px 13px 8px;border-bottom:1px solid #EDF1F6;">
+            <div style="font-size:12.5px;font-weight:700;color:#0D2A4E;line-height:1.35;" id="email-preview-subject">(sin asunto)</div>
+          </div>
+
+          <div style="padding:15px 13px;min-height:120px;font-family:Tahoma,Geneva,sans-serif;" id="email-preview-body"></div>
+
+          <div style="background:#0D2A4E;padding:14px;text-align:center;">
+            <div style="color:#fff;font-size:10.5px;font-weight:600;margin-bottom:4px;">CR Consulting SPA</div>
+            <div style="color:#6FA3C4;font-size:9.5px;line-height:1.8;">contacto@crconsulting.cl<br>www.crconsulting.cl</div>
+          </div>
+
+        </div>
       </div>
     </div>
-    <div id="email-status" style="display:none;margin-top:14px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;"></div>
-    <div class="modal-footer">
+
+    <!-- pie -->
+    <div id="email-status" style="display:none;margin:0 22px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;"></div>
+    <div class="modal-footer" style="margin:0;padding:12px 22px;border-top:1px solid #E5EDF5;background:#F8FAFB;">
       <button type="button" class="btn" onclick="closeEmail()">Cancelar</button>
-      <button type="button" class="btn btn-primary" id="email-btn" onclick="enviarCorreoCaso()"><i class="ti ti-send"></i> Enviar correo</button>
+      <button type="button" class="btn btn-primary" id="email-btn" onclick="enviarCorreoCaso()" style="min-width:160px"><i class="ti ti-send"></i> Enviar correo</button>
     </div>
   </div>
 </div>
@@ -2098,7 +2158,10 @@ Recalco la importancia de la firma oportuna de estos documentos, ya que nos perm
 
 Quedo atento/a a su confirmación y a cualquier consulta que pueda surgir.
 
-Se despide atentamente,`
+Se despide atentamente,
+
+Camilo Llao
+CR Consulting SPA`
   },
 
   denuncio: {
@@ -2117,7 +2180,10 @@ Motivo por el cual, dentro de un plazo de ${ex.plazoDias || '5'} días hábiles,
 
 Agradecemos estar atento/a a sus canales de comunicación para la coordinación de esta misma.
 
-Se despide atentamente,`
+Se despide atentamente,
+
+Camilo Llao
+CR Consulting SPA`
   },
 
   inspeccion: {
@@ -2132,7 +2198,10 @@ Junto con saludar, le informamos que la inspección presencial correspondiente a
 
 Le agradeceríamos confirmar su disponibilidad para recibir a la persona encargada de la inspección en la dirección registrada (${c.dir || '[dirección]'}), y mantenerse atento/a a cualquier comunicación adicional de coordinación.
 
-Se despide atentamente,`
+Se despide atentamente,
+
+Camilo Llao
+CR Consulting SPA`
   },
 
   antecedentes: {
@@ -2153,7 +2222,10 @@ Le agradecemos enviarlos a la brevedad posible, ya que son indispensables para a
 
 Quedo atento/a a cualquier consulta.
 
-Se despide atentamente,`;
+Se despide atentamente,
+
+Camilo Llao
+CR Consulting SPA`;
     }
   },
 
@@ -2171,26 +2243,40 @@ Con esto, damos por concluido el proceso de gestión de su caso. Ha sido un gust
 
 Quedamos atentos ante cualquier consulta adicional que pueda surgir.
 
-Se despide atentamente,`
+Se despide atentamente,
+
+Camilo Llao
+CR Consulting SPA`
   }
 };
 
 // ── MODAL EMAIL ───────────────────────────────────────────────────────────────
+const EMAIL_TEMPLATE_LABELS = {
+  documentos:   'Documentos',
+  denuncio:     'Denuncio exitoso',
+  inspeccion:   'Inspección',
+  antecedentes: 'Antecedentes',
+  pago:         'Pago / Cierre'
+};
+
 let emailCaseId = null;
 let emailDraftDirty = false;
+let emailTemplateKey = 'documentos';
+let emailAttachState = { contrato: true, mandato: true };
 
 function openEmail(id) {
   emailCaseId = String(id);
   const c = cases.find(x => String(x.id) === String(id));
   if (!c) return;
 
-  document.getElementById('email-nombre').textContent = c.nombre || '—';
-  document.getElementById('email-rut').textContent    = c.rut    || '—';
+  document.getElementById('email-nombre-rut').textContent = `${c.nombre || '—'}  ·  ${c.rut || '—'}`;
   document.getElementById('em-to').value = c.email || '';
-  document.getElementById('em-plantilla').value = 'documentos';
+  document.getElementById('em-cc').value = '';
   document.getElementById('em-cuerpo').value = '';
   document.getElementById('em-asunto').value = '';
   emailDraftDirty = false;
+  emailTemplateKey = 'documentos';
+  emailAttachState = { contrato: true, mandato: true };
 
   const st = document.getElementById('email-status');
   st.style.display = 'none'; st.textContent = '';
@@ -2198,7 +2284,9 @@ function openEmail(id) {
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-send"></i> Enviar correo';
 
-  onEmailTemplateChange();
+  renderEmailPills();
+  renderEmailExtraFields();
+  generarBorradorEmail();
   document.getElementById('modal-email').classList.add('open');
 }
 
@@ -2207,24 +2295,58 @@ function closeEmail() {
   emailCaseId = null;
 }
 
-function onEmailTemplateChange() {
-  const key = document.getElementById('em-plantilla').value;
-  const tpl = EMAIL_TEMPLATES[key];
+function renderEmailPills() {
+  const cont = document.getElementById('em-pills');
+  cont.innerHTML = Object.keys(EMAIL_TEMPLATES).map(key => {
+    const active = key === emailTemplateKey;
+    return `<button type="button" class="email-pill${active ? ' active' : ''}" onclick="selectEmailTemplate('${key}')">${EMAIL_TEMPLATE_LABELS[key]}</button>`;
+  }).join('');
+}
+
+function selectEmailTemplate(key) {
+  emailTemplateKey = key;
+  renderEmailPills();
+  renderEmailExtraFields();
+  generarBorradorEmail();
+}
+
+function renderEmailExtraFields() {
+  const tpl = EMAIL_TEMPLATES[emailTemplateKey];
   const c   = cases.find(x => String(x.id) === String(emailCaseId));
   const cont = document.getElementById('em-extra-fields');
 
   cont.innerHTML = (tpl.extraFields || []).map(f => {
     const defVal = f.default ? (f.default(c) || '') : '';
     if (f.type === 'textarea') {
-      return `<div class="form-group full"><label>${f.label}</label><textarea id="em-ex-${f.id}" placeholder="${f.placeholder||''}">${defVal}</textarea></div>`;
+      return `<div style="flex:1 1 100%;"><label class="email-label">${f.label}</label><textarea id="em-ex-${f.id}" placeholder="${f.placeholder||''}" class="email-field" style="min-height:70px" oninput="generarBorradorEmail()">${defVal}</textarea></div>`;
     }
-    return `<div class="form-group"><label>${f.label}</label><input type="text" id="em-ex-${f.id}" placeholder="${f.placeholder||''}" value="${defVal}"/></div>`;
+    return `<div style="flex:1;min-width:150px;"><label class="email-label">${f.label}</label><input type="text" id="em-ex-${f.id}" placeholder="${f.placeholder||''}" value="${defVal}" class="email-field" oninput="generarBorradorEmail()"/></div>`;
   }).join('');
 
-  document.getElementById('em-adjuntos').style.display = (key === 'documentos') ? '' : 'none';
+  renderEmailAdjuntos();
+}
 
-  emailDraftDirty = false;
-  generarBorradorEmail();
+function renderEmailAdjuntos() {
+  const wrap = document.getElementById('em-adjuntos');
+  if (emailTemplateKey !== 'documentos') { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  const items = [
+    { key: 'contrato', name: 'Contrato.pdf' },
+    { key: 'mandato',  name: 'Mandato.pdf'  }
+  ];
+  document.getElementById('em-adjuntos-list').innerHTML = items.map(it => {
+    const on = emailAttachState[it.key];
+    return `<div class="email-att-chip${on ? '' : ' off'}" onclick="toggleEmailAttach('${it.key}')">
+      <div class="email-att-icon">PDF</div>
+      <span style="flex:1;">${it.name}</span>
+      <span style="color:#B5C8D8;font-size:16px;line-height:1;">${on ? '×' : '+'}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleEmailAttach(key) {
+  emailAttachState[key] = !emailAttachState[key];
+  renderEmailAdjuntos();
 }
 
 function getEmailExtraValues(tpl) {
@@ -2239,8 +2361,7 @@ function getEmailExtraValues(tpl) {
 function generarBorradorEmail() {
   const c = cases.find(x => String(x.id) === String(emailCaseId));
   if (!c) return;
-  const key = document.getElementById('em-plantilla').value;
-  const tpl = EMAIL_TEMPLATES[key];
+  const tpl = EMAIL_TEMPLATES[emailTemplateKey];
   const ex  = getEmailExtraValues(tpl);
 
   const cuerpoEl = document.getElementById('em-cuerpo');
@@ -2252,10 +2373,29 @@ function generarBorradorEmail() {
   document.getElementById('em-asunto').value = tpl.asunto(c, ex);
   cuerpoEl.value = tpl.cuerpo(c, ex);
   emailDraftDirty = false;
+  updateEmailPreview();
+}
+
+// ── VISTA PREVIA EN VIVO ─────────────────────────────────────────────────────
+function renderEmailPreviewBody(text) {
+  return String(text).split(/\n\s*\n/).map(p => {
+    const esc = p.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    return `<p style="margin:0 0 12px 0;line-height:1.7;color:#002b41;font-size:12.5px;font-family:Tahoma,Geneva,sans-serif;">${esc}</p>`;
+  }).join('');
+}
+
+function updateEmailPreview() {
+  const to      = document.getElementById('em-to').value.trim();
+  const subject = document.getElementById('em-asunto').value.trim();
+  const body    = document.getElementById('em-cuerpo').value;
+  document.getElementById('email-preview-to').textContent = to || 'cliente@email.cl';
+  document.getElementById('email-preview-subject').textContent = subject || '(sin asunto)';
+  document.getElementById('email-preview-body').innerHTML = renderEmailPreviewBody(body);
 }
 
 async function enviarCorreoCaso() {
   const to      = document.getElementById('em-to').value.trim();
+  const cc      = document.getElementById('em-cc').value.trim();
   const subject = document.getElementById('em-asunto').value.trim();
   const body    = document.getElementById('em-cuerpo').value.trim();
 
@@ -2263,12 +2403,11 @@ async function enviarCorreoCaso() {
   if (!subject) return showEmailStatus('Ingresa el asunto del correo.', 'error');
   if (!body)    return showEmailStatus('Genera o escribe el mensaje antes de enviar.', 'error');
 
-  const key = document.getElementById('em-plantilla').value;
   let attachContrato = false, attachMandato = false;
 
-  if (key === 'documentos') {
-    attachContrato = document.getElementById('em-adj-contrato').checked;
-    attachMandato  = document.getElementById('em-adj-mandato').checked;
+  if (emailTemplateKey === 'documentos') {
+    attachContrato = !!emailAttachState.contrato;
+    attachMandato  = !!emailAttachState.mandato;
     if (attachContrato || attachMandato) {
       const lista = [attachContrato ? 'Contrato (PDF)' : null, attachMandato ? 'Mandato (PDF)' : null].filter(Boolean).join(' y ');
       if (!confirm(`Se enviará el correo a ${to} adjuntando: ${lista}.\nSi alguno de estos documentos aún no ha sido generado en Drive, se omitirá automáticamente.\n\n¿Confirmar envío?`)) {
@@ -2286,7 +2425,7 @@ async function enviarCorreoCaso() {
     await formPost(SHEETS_URL, {
       action: 'sendEmail',
       id: emailCaseId,
-      to, subject, body,
+      to, cc, subject, body,
       attachContrato, attachMandato
     });
     await new Promise(r => setTimeout(r, 2500));
