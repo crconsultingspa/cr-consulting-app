@@ -77,9 +77,19 @@
 
     .sidebar-brand {
       display: flex; align-items: center; gap: 13px;
-      padding: 20px 20px 18px;
+      padding: 22px 20px 18px;
       border-bottom: 1px solid rgba(255,247,238,0.10);
     }
+    /* Logo CR Consulting: PNG oscuro teñido a crema mediante máscara
+       (variante clara sobre fondo oscuro, según manual de identidad) */
+    .brand-logo {
+      display: block; width: 100%; max-width: 205px; height: 56px;
+      background-color: var(--cream);
+      -webkit-mask: url("https://i.imgur.com/USzJtPh.png") left center / contain no-repeat;
+              mask: url("https://i.imgur.com/USzJtPh.png") left center / contain no-repeat;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.30));
+    }
+    .brand-logo-sm { max-width: 150px; height: 32px; }
     .brand-shield {
       width: 46px; height: 54px; flex-shrink: 0;
       filter: drop-shadow(0 3px 8px rgba(0,0,0,.28));
@@ -571,11 +581,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <svg class="brand-shield"><use href="#cr-shield"/></svg>
-      <div class="brand-text">
-        <div class="brand-name">CR</div>
-        <div class="brand-sub">Consulting</div>
-      </div>
+      <span class="brand-logo" role="img" aria-label="CR Consulting"></span>
     </div>
 
     <div class="sync-bar">
@@ -607,8 +613,7 @@
   <!-- TOPBAR MOBILE -->
   <div class="topbar">
     <div class="topbar-brand">
-      <svg class="brand-shield"><use href="#cr-shield"/></svg>
-      <span class="topbar-name">CR Consulting</span>
+      <span class="brand-logo brand-logo-sm" role="img" aria-label="CR Consulting"></span>
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-primary" onclick="showSection('casos')" style="padding:7px 11px"><i class="ti ti-folders"></i></button>
@@ -856,6 +861,7 @@
             <option value="0.15">15%</option><option value="0.10">10%</option>
           </select>
         </div>
+        <div class="form-group full"><label>Relato de los hechos</label><textarea id="f-relato" placeholder="Breve descripción de lo sucedido…"></textarea></div>
         <div class="form-group full"><label>Observaciones</label><textarea id="f-obs" placeholder="Notas adicionales…"></textarea></div>
       </div>
       <div class="modal-footer">
@@ -894,6 +900,18 @@ function formatFechaSin(f) {
   const s = String(f);
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   return m ? `${m[3]}/${m[2]}/${m[1]}` : s;
+}
+// Normaliza cualquier formato de fecha (ISO con hora, aaaa-mm-dd o dd/mm/aaaa)
+// al valor 'aaaa-mm-dd' que exige <input type="date">. Evita que la fecha
+// de ocurrencia se borre al editar un caso.
+function toDateInput(f) {
+  if (!f) return '';
+  const s = String(f).trim();
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);             // ISO / aaaa-mm-dd
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);   // dd/mm/aaaa
+  if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  return '';
 }
 const initials = n => (n||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const AVCOLORS = [
@@ -1190,6 +1208,7 @@ function renderCases() {
             <div><div class="detail-label">Teléfono</div><div class="detail-value">${c.telefono||'—'}</div></div>
             <div><div class="detail-label">N° Siniestro</div><div class="detail-value">${c.nrosin||'—'}</div></div>
             <div><div class="detail-label">Fecha de ocurrencia</div><div class="detail-value">${c.fechaSiniestro ? formatFechaSin(c.fechaSiniestro) : '—'}</div></div>
+            ${c.relato?`<div style="grid-column:1/-1"><div class="detail-label">Relato de los hechos</div><div class="detail-value">${c.relato}</div></div>`:''}
             ${c.obs?`<div style="grid-column:1/-1"><div class="detail-label">Observaciones</div><div class="detail-value">${c.obs}</div></div>`:''}
           </div>
           ${c.monto?`
@@ -1244,8 +1263,10 @@ function openModal(prefill) {
   editingId = prefill ? String(prefill.id) : null;
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if(prefill) {
-    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','telefono','nrosin','fechaSiniestro','tratamiento']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','relato','telefono','nrosin','tratamiento']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
+    const fs = document.getElementById('f-fechaSiniestro');
+    if(fs) fs.value = toDateInput(prefill.fechaSiniestro);
     document.getElementById('f-monto').value = prefill.monto || '';
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
   } else {
@@ -1286,6 +1307,7 @@ async function saveCase(e) {
     monto, porcentaje:pct, comision, fondo, retiro,
     boleta: 'NO',
     obs:      document.getElementById('f-obs').value,
+    relato:   document.getElementById('f-relato')?.value || '',
     telefono: document.getElementById('f-telefono').value,
     nrosin:   document.getElementById('f-nrosin').value,
     fechaSiniestro: document.getElementById('f-fechaSiniestro')?.value || '',
