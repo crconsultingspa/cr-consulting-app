@@ -532,6 +532,29 @@
     .pendiente-add button { padding: 7px 13px; border-radius: var(--radius-sm); background: var(--teal); color: #fff; border: none; cursor: pointer; font-size: 16px; font-family: inherit; font-weight: 600; line-height:1; transition: background .15s; }
     .pendiente-add button:hover { background: var(--teal-2); }
 
+    /* ─────────────────────────── AJUSTES ─────────────────────────── */
+    .aj-tabs { display:flex; gap:4px; background:rgba(0,43,65,.05); padding:4px; border-radius:11px; margin-bottom:18px; width:fit-content; max-width:100%; flex-wrap:wrap; }
+    .aj-tab { padding:8px 16px; font-size:12.5px; font-weight:600; color:var(--text-2); cursor:pointer; border-radius:8px; border:none; background:none; font-family:inherit; transition:all .15s; }
+    .aj-tab:hover { color:var(--teal); }
+    .aj-tab.active { color:var(--navy); background:var(--surface); box-shadow:0 2px 8px rgba(0,43,65,.08); }
+    .aj-add-row { display:flex; gap:10px; margin-bottom:8px; }
+    .aj-add-row input { flex:1; }
+    .aj-hint { font-size:11.5px; color:var(--text-3); margin-bottom:14px; }
+    .aj-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface2); margin-bottom:7px; }
+    .aj-item-name { flex:1; font-size:13.5px; font-weight:600; color:var(--navy); }
+    .aj-item-tag { font-size:10px; font-weight:700; padding:2px 9px; border-radius:20px; letter-spacing:.02em; }
+    .aj-tag-detectado { background:var(--blue-bg); color:var(--teal); }
+    .aj-tag-extra { background:var(--amber-bg); color:var(--amber); }
+    .aj-item-count { font-size:11px; color:var(--text-3); margin-right:4px; }
+    .aj-item button { background:none; border:1px solid var(--border); border-radius:7px; cursor:pointer; color:var(--text-3); padding:5px 8px; font-family:inherit; transition:all .14s; }
+    .aj-item button:hover { border-color:var(--teal); color:var(--teal); }
+    .aj-item button.aj-del:hover { border-color:var(--red); color:var(--red); }
+    .plazo-img { position:absolute; right:14px; top:14px; width:40px; height:40px; object-fit:contain; border-radius:8px; background:#fff; }
+    .plazo-actions { display:flex; gap:6px; margin-top:12px; }
+    .plazo-actions button { background:none; border:1px solid var(--border); border-radius:7px; cursor:pointer; color:var(--text-3); padding:5px 9px; font-family:inherit; font-size:12px; transition:all .14s; display:inline-flex; align-items:center; gap:4px; }
+    .plazo-actions button:hover { border-color:var(--teal); color:var(--teal); }
+    .plazo-actions button.pl-del:hover { border-color:var(--red); color:var(--red); }
+
     /* ─────────────────────────── RESPONSIVE ─────────────────────────── */
     @media (max-width: 1000px){
       .stats-hero { grid-template-columns: 1fr; }
@@ -595,6 +618,7 @@
       <button class="nav-item" onclick="showSection('resumen')"><i class="ti ti-chart-histogram"></i> Estadísticas</button>
       <button class="nav-item" onclick="showSection('plazos')"><i class="ti ti-clock-hour-4"></i> Plazos bancarios</button>
       <button class="nav-item" onclick="showSection('periodos')"><i class="ti ti-calendar-event"></i> Períodos</button>
+      <button class="nav-item" onclick="showSection('ajustes')"><i class="ti ti-settings"></i> Ajustes</button>
     </div>
 
     <div class="nav-section" style="margin-top:6px">
@@ -793,6 +817,55 @@
       </div>
       <div id="periodos-list"></div>
     </div>
+
+    <!-- AJUSTES -->
+    <div id="sec-ajustes" class="view">
+      <div class="page-header">
+        <div>
+          <div class="eyebrow">Configuración</div>
+          <div class="page-title">Ajustes</div>
+          <div class="page-sub">Listas maestras del sistema — se reflejan en casos, filtros y documentos</div>
+        </div>
+        <button class="btn" onclick="loadAjustes()"><i class="ti ti-refresh"></i> Recargar</button>
+      </div>
+
+      <div class="aj-tabs">
+        <button class="aj-tab active" data-aj="bancos"       onclick="setAjustesTab('bancos',this)">Bancos</button>
+        <button class="aj-tab"        data-aj="responsables" onclick="setAjustesTab('responsables',this)">Responsables</button>
+        <button class="aj-tab"        data-aj="comunas"      onclick="setAjustesTab('comunas',this)">Comunas</button>
+        <button class="aj-tab"        data-aj="ciudades"     onclick="setAjustesTab('ciudades',this)">Ciudades</button>
+        <button class="aj-tab"        data-aj="estados"      onclick="setAjustesTab('estados',this)">Estados</button>
+        <button class="aj-tab"        data-aj="plazos"       onclick="setAjustesTab('plazos',this)">Plazos bancarios</button>
+      </div>
+
+      <!-- Sub-secciones de lista simple -->
+      <div id="aj-lista-wrap" class="chart-card" style="margin-bottom:0">
+        <div class="aj-add-row">
+          <input type="text" id="aj-add-input" placeholder="Agregar nuevo…" onkeydown="if(event.key==='Enter') ajAddExtra()"/>
+          <button class="btn btn-primary" onclick="ajAddExtra()"><i class="ti ti-plus"></i> Agregar</button>
+        </div>
+        <div class="aj-hint" id="aj-hint"></div>
+        <div id="aj-lista"></div>
+      </div>
+
+      <!-- Sub-sección Plazos -->
+      <div id="aj-plazos-wrap" style="display:none">
+        <div class="chart-card" style="margin-bottom:16px">
+          <div class="chart-title"><i class="ti ti-plus"></i> Agregar plazo bancario</div>
+          <div class="filter-grid" style="margin-bottom:14px">
+            <div class="filter-group"><label>Banco</label><input type="text" id="pl-banco" placeholder="Banco Estado"/></div>
+            <div class="filter-group"><label>Compañía / Aseguradora</label><input type="text" id="pl-comp" placeholder="HDI"/></div>
+            <div class="filter-group"><label>Días hábiles</label><input type="number" id="pl-dias" min="0" placeholder="30"/></div>
+            <div class="filter-group"><label>URL de imagen (opcional)</label><input type="text" id="pl-img" placeholder="https://i.imgur.com/...png"/></div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn" onclick="ajResetPlazoForm()" id="pl-cancel" style="display:none"><i class="ti ti-x"></i> Cancelar edición</button>
+            <button class="btn btn-primary" id="pl-save-btn" onclick="ajSavePlazo()"><i class="ti ti-check"></i> Guardar plazo</button>
+          </div>
+        </div>
+        <div class="plazos-grid" id="aj-plazos-grid"></div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -816,8 +889,8 @@
         </div>
         <div class="form-group"><label>Email</label><input type="email" id="f-email" placeholder="correo@ejemplo.com"/></div>
         <div class="form-group full"><label>Dirección</label><input type="text" id="f-dir" placeholder="Calle, número"/></div>
-        <div class="form-group"><label>Comuna</label><input type="text" id="f-comuna" placeholder="San Pedro de la Paz"/></div>
-        <div class="form-group"><label>Ciudad</label><input type="text" id="f-ciudad" placeholder="Concepción"/></div>
+        <div class="form-group"><label>Comuna</label><select id="f-comuna"><option value="">Seleccionar…</option></select></div>
+        <div class="form-group"><label>Ciudad</label><select id="f-ciudad"><option value="">Seleccionar…</option></select></div>
         <div class="form-group"><label>Teléfono</label><input type="text" id="f-telefono" placeholder="+56 9 1234 5678"/></div>
         <div class="form-group"><label>N° Siniestro</label><input type="text" id="f-nrosin" placeholder="SIN-2024-001"/></div>
         <div class="form-group">
@@ -851,7 +924,7 @@
             <button type="button" onclick="openNuevoEstado()" title="Agregar estado personalizado" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);cursor:pointer;font-size:17px;color:var(--teal);flex-shrink:0">+</button>
           </div>
         </div>
-        <div class="form-group"><label>Responsable</label><input type="text" id="f-caso" placeholder="Caso Camilo / René…"/></div>
+        <div class="form-group"><label>Responsable</label><select id="f-caso"><option value="">Seleccionar…</option></select></div>
         <div class="form-group"><label>Correlativo / Folio</label><input type="text" id="f-correlativo" placeholder="FOLIO 00000"/></div>
         <div class="form-group"><label>Monto indemnizado ($)</label><input type="number" id="f-monto" placeholder="0" min="0"/></div>
         <div class="form-group">
@@ -876,7 +949,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxVY3S7GSSoXwpEO00JGmiZOm2NHtTeAaT7CNRQY7gTT2pzlubm7dGSpxUNzIP5vbYe/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzWgvM5-FwcQvjr-lUvWywBj-P4TUWhqjllmUBSgfvLV6tkLVCmWO2o3FBa0aqraWt-/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -891,6 +964,10 @@ const PLAZOS = [
 // ── ESTADO ────────────────────────────────────────────────────────────────────
 let cases = [], activeFilter = 'todos', expandedId = null, editingId = null;
 let sortDir = 'asc', customEstados = JSON.parse(localStorage.getItem('cr_estados')||'[]');
+let ajustesExtras = { banco:[], responsable:[], comuna:[], ciudad:[], estado:[] };
+let plazosData = PLAZOS.map(p => ({ banco:p.banco, compania:p.comp, dias:p.dias, imagen:'' }));
+let ajustesTab = 'bancos';
+let editingPlazoIdx = null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const fmtCLP = n => n ? '$' + Math.round(n).toLocaleString('es-CL') : '—';
@@ -1118,14 +1195,16 @@ function clearFilters() {
 }
 
 function populateDynamicFilters() {
-  const responsables = [...new Set(cases.map(c=>c.caso).filter(Boolean))].sort();
-  const ciudades = [...new Set(cases.map(c=>{
-    const d = (c.dir||''); const parts=d.split(','); return parts[parts.length-1].trim();
-  }).filter(Boolean))].sort();
+  const lista = (typeof getListaCompleta==='function') ? getListaCompleta : (t)=>[];
+  const responsables = lista('responsable');
+  const ciudades     = lista('ciudad');
+  const bancos       = lista('banco');
   const rSel = document.getElementById('flt-responsable');
   const cSel = document.getElementById('flt-ciudad');
+  const bSel = document.getElementById('flt-banco');
   if(rSel){ const cur=rSel.value; rSel.innerHTML='<option value="">Todos</option>'+responsables.map(r=>`<option>${r}</option>`).join(''); rSel.value=cur; }
   if(cSel){ const cur=cSel.value; cSel.innerHTML='<option value="">Todas</option>'+ciudades.map(c=>`<option>${c}</option>`).join(''); cSel.value=cur; }
+  if(bSel){ const cur=bSel.value; bSel.innerHTML='<option value="">Todos</option>'+bancos.map(b=>`<option>${b}</option>`).join(''); bSel.value=cur; }
 }
 
 function renderCases() {
@@ -1151,10 +1230,7 @@ function renderCases() {
     if(fEstado && (c.estado||'')!==fEstado) return false;
     if(fBanco  && (c.banco||'')!==fBanco) return false;
     if(fResp   && (c.caso||'')!==fResp) return false;
-    if(fCiudad) {
-      const lastPart = (c.dir||'').split(',').pop().trim();
-      if(lastPart!==fCiudad) return false;
-    }
+    if(fCiudad && (c.ciudad||'')!==fCiudad) return false;
     if(fAntMin>0 && getDaysOld(c.fechaCreacion)<fAntMin) return false;
     if(fMontoMin>0 && (c.monto||0)<fMontoMin) return false;
     if(fMontoMax>0 && (c.monto||0)>fMontoMax) return false;
@@ -1262,6 +1338,7 @@ async function deleteCase(id) {
 function openModal(prefill) {
   editingId = prefill ? String(prefill.id) : null;
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
+  if (typeof fillCaseSelects === 'function') fillCaseSelects(prefill || null);
   if(prefill) {
     ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','relato','telefono','nrosin','tratamiento']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
@@ -1337,7 +1414,9 @@ function syncEstadoSelects() {
     const cur = sel.value;
     const baseOpts = ['Pendiente denuncio','Espera de informe final','Pendiente antecedentes',
       'Pendiente firma','Pendiente PPTO','Pagado','Rechazado'];
-    const allOpts = [...baseOpts, ...customEstados];
+    const detected = (typeof cases !== 'undefined') ? cases.map(c=>c.estado).filter(Boolean) : [];
+    const cloud = (ajustesExtras && ajustesExtras.estado) ? ajustesExtras.estado : [];
+    const allOpts = [...new Set([...baseOpts, ...detected, ...cloud, ...customEstados])];
     sel.innerHTML = (id==='flt-estado'?'<option value="">Todos</option>':'') +
       allOpts.map(o=>`<option value="${o}">${o}</option>`).join('');
     if(cur) sel.value = cur;
@@ -1546,10 +1625,17 @@ function buildResumen() {
 
 // ── PLAZOS ────────────────────────────────────────────────────────────────────
 function buildPlazos() {
-  document.getElementById('plazos-grid').innerHTML = PLAZOS.map(p=>`
+  const grid = document.getElementById('plazos-grid');
+  if (!grid) return;
+  if (!plazosData.length) {
+    grid.innerHTML = '<div class="empty-state"><i class="ti ti-clock-off"></i><p>Sin plazos registrados. Agrégalos en Ajustes → Plazos bancarios.</p></div>';
+    return;
+  }
+  grid.innerHTML = plazosData.map(p=>`
     <div class="plazo-card" style="--plazo-accent:${diasColor(p.dias)}">
-      <div class="plazo-banco">${p.banco}</div>
-      <div class="plazo-comp">${p.comp}</div>
+      ${p.imagen ? `<img src="${p.imagen}" class="plazo-img" alt="" onerror="this.style.display='none'">` : ''}
+      <div class="plazo-banco">${p.banco||'—'}</div>
+      <div class="plazo-comp">${p.compania||'—'}</div>
       <div class="plazo-dias" style="color:${diasColor(p.dias)}">${p.dias} <span>días hábiles</span></div>
     </div>`).join('');
 }
@@ -1559,19 +1645,23 @@ function showSection(sec) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('sec-'+sec).classList.add('active');
-  const idx = ['casos','resumen','plazos','periodos'].indexOf(sec);
+  const idx = ['casos','resumen','plazos','periodos','ajustes'].indexOf(sec);
   document.querySelectorAll('.nav-item')[idx]?.classList.add('active');
   if(sec==='resumen') buildResumen();
   if(sec==='periodos') renderPeriodos();
+  if(sec==='ajustes' && typeof renderAjustes==='function') renderAjustes();
 }
 
 
 // ── PERÍODOS ──────────────────────────────────────────────────────────────────
-let periodos = JSON.parse(localStorage.getItem('cr_periodos') || '[]');
+let periodos = [];
 let editingPeriodoId = null;
 
 function savePeriodosLocal() {
-  localStorage.setItem('cr_periodos', JSON.stringify(periodos));
+  localStorage.setItem('cr_periodos', JSON.stringify(periodos)); // respaldo local
+  if (typeof formPost === 'function') {
+    formPost(SHEETS_URL, { action: 'savePeriodos', periodos: periodos }).catch(()=>{});
+  }
 }
 
 function openModalPeriodo(id) {
@@ -1821,6 +1911,7 @@ buildPlazos();
 syncEstadoSelects();
 loadPendientes(); // no-blocking
 loadFromSheets();
+setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 0);
 </script>
 <!-- MODAL PERÍODO -->
 <div class="modal-backdrop" id="modal-periodo">
@@ -2564,6 +2655,241 @@ function showEmailStatus(msg, type) {
   el.style.background = type==='success' ? 'var(--green-bg)' : type==='error' ? 'var(--red-bg)' : 'var(--blue-bg)';
   el.style.color      = type==='success' ? 'var(--green)'    : type==='error' ? 'var(--red)'    : 'var(--teal)';
   el.style.border     = type==='success' ? '1px solid var(--green)' : type==='error' ? '1px solid var(--red)' : '1px solid var(--teal)';
+}
+</script>
+
+
+<script>
+// ═══════════════════════ AJUSTES (listas maestras en la nube) ═══════════════════════
+const TIPO_FIELD = { banco:'banco', responsable:'caso', comuna:'comuna', ciudad:'ciudad', estado:'estado' };
+const TAB_TIPO   = { bancos:'banco', responsables:'responsable', comunas:'comuna', ciudades:'ciudad', estados:'estado' };
+const TIPO_LABEL = { banco:'banco', responsable:'responsable', comuna:'comuna', ciudad:'ciudad', estado:'estado' };
+const BASE_ESTADOS = ['Pendiente denuncio','Espera de informe final','Pendiente antecedentes','Pendiente firma','Pendiente PPTO','Pagado','Rechazado'];
+let ajCurrentList = [];
+
+function getDetectedValues(tipo) {
+  const field = TIPO_FIELD[tipo];
+  let vals = (typeof cases !== 'undefined' ? cases : []).map(c => String(c[field]||'').trim()).filter(Boolean);
+  if (tipo === 'estado') vals = vals.concat(BASE_ESTADOS);
+  return [...new Set(vals)];
+}
+
+function getListaCompleta(tipo) {
+  const det = getDetectedValues(tipo);
+  const ext = (ajustesExtras[tipo]||[]).map(v => String(v).trim()).filter(Boolean);
+  return [...new Set([...det, ...ext])].sort((a,b)=>a.localeCompare(b,'es'));
+}
+
+// ── Carga desde la nube ──
+function loadAjustes() {
+  const cb = 'cr_aj_' + Date.now();
+  const script = document.createElement('script');
+  const timeout = setTimeout(() => { delete window[cb]; try{document.head.removeChild(script);}catch(e){} }, 8000);
+  window[cb] = (res) => {
+    clearTimeout(timeout); delete window[cb]; try{document.head.removeChild(script);}catch(e){}
+    if (res && res.ok) {
+      ['banco','responsable','comuna','ciudad','estado'].forEach(k => {
+        ajustesExtras[k] = (res.extras && res.extras[k]) ? res.extras[k] : [];
+      });
+      if (Array.isArray(res.plazos) && res.plazos.length) plazosData = res.plazos;
+      if (Array.isArray(res.periodos)) periodos = res.periodos;
+      buildPlazos();
+      syncEstadoSelects();
+      if (typeof renderCases === 'function') renderCases();
+      const perView = document.getElementById('sec-periodos');
+      if (perView && perView.classList.contains('active') && typeof renderPeriodos==='function') renderPeriodos();
+      const ajView = document.getElementById('sec-ajustes');
+      if (ajView && ajView.classList.contains('active')) renderAjustes();
+    }
+  };
+  script.onerror = () => { clearTimeout(timeout); delete window[cb]; try{document.head.removeChild(script);}catch(e){} };
+  script.src = SHEETS_URL + '?action=getAjustes&callback=' + cb + '&t=' + Date.now();
+  document.head.appendChild(script);
+}
+
+// ── Poblar selects del modal de caso ──
+function fillSelectKeepCurrent(selId, lista, currentVal, placeholder) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  const opts = lista.slice();
+  if (currentVal && opts.indexOf(currentVal) === -1) opts.unshift(currentVal);
+  sel.innerHTML = '<option value="">' + placeholder + '</option>' +
+    opts.map(o => '<option value="' + String(o).replace(/"/g,'&quot;') + '">' + escapeHtml(o) + '</option>').join('');
+  sel.value = currentVal || '';
+}
+
+function fillCaseSelects(prefill) {
+  [['banco','banco'],['caso','responsable'],['comuna','comuna'],['ciudad','ciudad']].forEach(pair => {
+    const field = pair[0], tipo = pair[1];
+    const cur = prefill ? String(prefill[field]||'') : '';
+    fillSelectKeepCurrent('f-'+field, getListaCompleta(tipo), cur, 'Seleccionar…');
+  });
+  syncEstadoSelects();
+}
+
+// ── Pestaña Ajustes: navegación y render ──
+function setAjustesTab(tab) { ajustesTab = tab; renderAjustes(); }
+
+function renderAjustes() {
+  ['bancos','responsables','comunas','ciudades','estados','plazos'].forEach(t => {
+    const b = document.querySelector('.aj-tab[data-aj="'+t+'"]');
+    if (b) b.classList.toggle('active', t === ajustesTab);
+  });
+  const isPlazos = ajustesTab === 'plazos';
+  document.getElementById('aj-lista-wrap').style.display  = isPlazos ? 'none' : '';
+  document.getElementById('aj-plazos-wrap').style.display = isPlazos ? '' : 'none';
+  if (isPlazos) renderAjustesPlazos(); else renderAjustesLista();
+}
+
+function renderAjustesLista() {
+  const tipo  = TAB_TIPO[ajustesTab];
+  const field = TIPO_FIELD[tipo];
+  const ext   = ajustesExtras[tipo] || [];
+  ajCurrentList = getListaCompleta(tipo);
+  const inp = document.getElementById('aj-add-input');
+  if (inp) inp.placeholder = 'Agregar ' + TIPO_LABEL[tipo] + '…';
+  document.getElementById('aj-hint').textContent =
+    'Renombrar actualiza todos los casos que usan ese valor. Solo puedes eliminar valores manuales que no estén en uso.';
+  const cont = document.getElementById('aj-lista');
+  if (!ajCurrentList.length) {
+    cont.innerHTML = '<div class="empty-state"><i class="ti ti-list"></i><p>Sin valores aún. Agrega el primero arriba.</p></div>';
+    return;
+  }
+  cont.innerHTML = ajCurrentList.map((v,i) => {
+    const count   = (typeof cases!=='undefined'?cases:[]).filter(c => String(c[field]||'').trim() === v).length;
+    const isExtra = ext.some(e => e === v);
+    const inUse   = count > 0;
+    const tag     = isExtra ? '<span class="aj-item-tag aj-tag-extra">manual</span>'
+                            : '<span class="aj-item-tag aj-tag-detectado">en datos</span>';
+    const cnt     = inUse ? '<span class="aj-item-count">'+count+' caso'+(count!==1?'s':'')+'</span>' : '';
+    const editBtn = (inUse || isExtra) ? '<button onclick="ajRenameByIdx('+i+')" title="Renombrar"><i class="ti ti-edit"></i></button>' : '';
+    const delBtn  = (isExtra && !inUse) ? '<button class="aj-del" onclick="ajDeleteByIdx('+i+')" title="Eliminar"><i class="ti ti-trash"></i></button>' : '';
+    return '<div class="aj-item"><span class="aj-item-name">'+escapeHtml(v)+'</span>'+tag+cnt+editBtn+delBtn+'</div>';
+  }).join('');
+}
+
+function ajAddExtra() {
+  const tipo = TAB_TIPO[ajustesTab];
+  if (!tipo) return;
+  const inp = document.getElementById('aj-add-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (getListaCompleta(tipo).some(v => v.toLowerCase() === val.toLowerCase())) {
+    showToast('Ese valor ya existe', 'error'); return;
+  }
+  ajustesExtras[tipo] = ajustesExtras[tipo] || [];
+  ajustesExtras[tipo].push(val);
+  formPost(SHEETS_URL, { action:'addAjusteExtra', tipo:tipo, valor:val }).catch(()=>{});
+  inp.value = '';
+  showToast('Agregado ✓');
+  renderAjustesLista();
+  if (typeof renderCases === 'function') renderCases();
+  syncEstadoSelects();
+}
+
+function ajRenameByIdx(i) {
+  const tipo   = TAB_TIPO[ajustesTab];
+  const field  = TIPO_FIELD[tipo];
+  const oldVal = ajCurrentList[i];
+  const nv = prompt('Nuevo nombre para "' + oldVal + '":', oldVal);
+  if (nv === null) return;
+  const newVal = nv.trim();
+  if (!newVal || newVal === oldVal) return;
+  (typeof cases!=='undefined'?cases:[]).forEach(c => { if (String(c[field]||'').trim() === oldVal) c[field] = newVal; });
+  ajustesExtras[tipo] = (ajustesExtras[tipo]||[]).map(v => v === oldVal ? newVal : v);
+  formPost(SHEETS_URL, { action:'renameValor', tipo:tipo, oldVal:oldVal, newVal:newVal }).catch(()=>{});
+  showToast('Renombrado ✓');
+  renderAjustesLista();
+  if (typeof buildMetrics === 'function') buildMetrics();
+  if (typeof renderCases === 'function') renderCases();
+  syncEstadoSelects();
+  setTimeout(() => { loadFromSheets(); loadAjustes(); }, 2500);
+}
+
+function ajDeleteByIdx(i) {
+  const tipo  = TAB_TIPO[ajustesTab];
+  const field = TIPO_FIELD[tipo];
+  const val   = ajCurrentList[i];
+  if ((typeof cases!=='undefined'?cases:[]).some(c => String(c[field]||'').trim() === val)) {
+    alert('No puedes eliminar "' + val + '" porque está en uso por uno o más casos. Renómbralo o cambia esos casos primero.');
+    return;
+  }
+  if (!confirm('¿Eliminar "' + val + '" de la lista?')) return;
+  ajustesExtras[tipo] = (ajustesExtras[tipo]||[]).filter(v => v !== val);
+  formPost(SHEETS_URL, { action:'deleteAjusteExtra', tipo:tipo, valor:val }).catch(()=>{});
+  showToast('Eliminado');
+  renderAjustesLista();
+  if (typeof renderCases === 'function') renderCases();
+  syncEstadoSelects();
+}
+
+// ── Plazos bancarios (CRUD en la nube) ──
+function renderAjustesPlazos() {
+  const grid = document.getElementById('aj-plazos-grid');
+  if (!plazosData.length) {
+    grid.innerHTML = '<div class="empty-state"><i class="ti ti-clock-off"></i><p>Sin plazos. Agrega el primero arriba.</p></div>';
+    return;
+  }
+  grid.innerHTML = plazosData.map((p,i) => `
+    <div class="plazo-card" style="--plazo-accent:${diasColor(p.dias)}">
+      ${p.imagen ? `<img src="${p.imagen}" class="plazo-img" alt="" onerror="this.style.display='none'">` : ''}
+      <div class="plazo-banco">${escapeHtml(p.banco||'—')}</div>
+      <div class="plazo-comp">${escapeHtml(p.compania||'—')}</div>
+      <div class="plazo-dias" style="color:${diasColor(p.dias)}">${p.dias} <span>días hábiles</span></div>
+      <div class="plazo-actions">
+        <button onclick="ajEditPlazo(${i})"><i class="ti ti-edit"></i> Editar</button>
+        <button class="pl-del" onclick="ajDeletePlazo(${i})"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+function ajEditPlazo(i) {
+  const p = plazosData[i]; if (!p) return;
+  editingPlazoIdx = i;
+  document.getElementById('pl-banco').value = p.banco || '';
+  document.getElementById('pl-comp').value  = p.compania || '';
+  document.getElementById('pl-dias').value  = p.dias || '';
+  document.getElementById('pl-img').value   = p.imagen || '';
+  document.getElementById('pl-cancel').style.display = '';
+  document.getElementById('pl-save-btn').innerHTML = '<i class="ti ti-check"></i> Actualizar plazo';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function ajResetPlazoForm() {
+  editingPlazoIdx = null;
+  ['pl-banco','pl-comp','pl-dias','pl-img'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('pl-cancel').style.display = 'none';
+  document.getElementById('pl-save-btn').innerHTML = '<i class="ti ti-check"></i> Guardar plazo';
+}
+
+function ajSavePlazo() {
+  const banco    = document.getElementById('pl-banco').value.trim();
+  const compania = document.getElementById('pl-comp').value.trim();
+  const dias     = parseInt(document.getElementById('pl-dias').value) || 0;
+  const imagen   = document.getElementById('pl-img').value.trim();
+  if (!banco) { showToast('Ingresa el banco', 'error'); return; }
+  if (editingPlazoIdx !== null) {
+    plazosData[editingPlazoIdx] = { banco, compania, dias, imagen };
+    formPost(SHEETS_URL, { action:'updatePlazo', index:editingPlazoIdx, banco, compania, dias, imagen }).catch(()=>{});
+    showToast('Plazo actualizado ✓');
+  } else {
+    plazosData.push({ banco, compania, dias, imagen });
+    formPost(SHEETS_URL, { action:'addPlazo', banco, compania, dias, imagen }).catch(()=>{});
+    showToast('Plazo agregado ✓');
+  }
+  ajResetPlazoForm();
+  renderAjustesPlazos();
+  buildPlazos();
+  setTimeout(loadAjustes, 2500);
+}
+
+function ajDeletePlazo(i) {
+  if (!confirm('¿Eliminar este plazo?')) return;
+  plazosData.splice(i, 1);
+  formPost(SHEETS_URL, { action:'deletePlazo', index:i }).catch(()=>{});
+  renderAjustesPlazos();
+  buildPlazos();
+  setTimeout(loadAjustes, 2500);
 }
 </script>
 
