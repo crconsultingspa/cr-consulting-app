@@ -204,6 +204,23 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .db-status.st-err{background:var(--red-bg);color:var(--red);border-color:rgba(192,57,43,.25)}
 .db-status .ti{font-size:15px}
 
+/* ── Toggles parte 3 ── */
+.obspos-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.obspos-btn{padding:10px 8px;border-radius:var(--radius-sm);border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text-2);font-family:var(--ui);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s}
+.obspos-btn:hover{border-color:var(--teal)}
+.obspos-btn.active{border-color:var(--teal);background:var(--teal-soft);color:var(--teal)}
+.inc-toggle{display:inline-flex;align-items:center;cursor:pointer;user-select:none}
+.inc-toggle input{position:absolute;opacity:0;pointer-events:none}
+.inc-track{width:38px;height:21px;border-radius:20px;background:var(--border-strong);position:relative;transition:background .18s;flex-shrink:0}
+.inc-track::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.inc-toggle input:checked + .inc-track{background:var(--teal)}
+.inc-toggle input:checked + .inc-track::after{transform:translateX(17px)}
+.res-row.off{opacity:.45}
+.noinf-btn{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-3);font-size:9.5px;font-weight:700;padding:3px 7px;border-radius:20px;cursor:pointer;font-family:var(--ui);white-space:nowrap}
+.noinf-btn:hover{border-color:var(--teal)}
+.noinf-btn.on{background:var(--amber);color:#fff;border-color:var(--amber)}
+.noinf-btn i{font-size:11px}
+
 /* ── Cube buttons & recinto controls ── */
 .recinto-add-row{display:flex;gap:10px;margin-bottom:14px}
 .cube-btn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:88px;min-height:78px;border-radius:var(--radius);border:1.5px solid var(--teal);background:var(--teal);color:#fff;font-family:var(--ui);font-size:11px;font-weight:700;line-height:1.15;text-align:center;cursor:pointer;transition:all .15s;box-shadow:0 4px 14px rgba(0,101,126,.24);padding:9px 6px}
@@ -391,7 +408,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 <!-- MODAL EDITAR PARTIDA -->
 <div class="modal-ov" id="modal-edit-partida">
   <div class="modal">
-    <div class="modal-title">Editar partida<button class="modal-close" onclick="closeModal('modal-edit-partida')">X</button></div>
+    <div class="modal-title">Editar partida<button class="modal-close" onclick="closeModal('modal-edit-partida')"><i class="ti ti-x"></i></button></div>
     <div class="ig"><label>Descripcion</label><input type="text" id="ep-det"></div>
     <div class="ig">
       <label>Calculadora m2</label>
@@ -412,6 +429,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
     <div class="ig">
       <label>Observacion</label>
       <textarea id="ep-obs" rows="2" placeholder="Observacion para PDF/Excel..." style="resize:none;"></textarea>
+    </div>
+    <div class="ig">
+      <label>¿Dónde aparece la observación?</label>
+      <div class="obspos-grid">
+        <button type="button" class="obspos-btn" id="ep-obspos-inline" onclick="setEpObsPos('inline')">Junto a la partida</button>
+        <button type="button" class="obspos-btn" id="ep-obspos-final" onclick="setEpObsPos('final')">Al final del documento</button>
+      </div>
     </div>
     <button class="btn btn-teal" onclick="guardarEditPartida()">Guardar cambios</button>
   </div>
@@ -580,7 +604,7 @@ const CAPS=()=>[...new Set(DB.map(x=>x.c))];
 const SHEETS_URL='https://script.google.com/macros/s/AKfycbx0n8s2fjxuJfkTEv1IJ8dZCSrkwHuGEPg1vHPyZIli2eBODx1a9nOkcQDvWs2jVhQQ/exec';
 const PARTIDAS_SHEET_ID='1PEVPvNUiTXXOEviVi_BRX-5ZEq3ysngE';
 const PARTIDAS_EXPORT_URL='https://docs.google.com/spreadsheets/d/'+PARTIDAS_SHEET_ID+'/export?format=xlsx';
-let S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0};
+let S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0,showGG:true,showIVA:true};
 let chk={},cachedDet={},cachedU={},cachedQ={},cachedP={},cachedL={},cachedA={},cachedObs={};
 let editRid=null,editPid=null,pidCtr=1,ridCtr=1,activeCap='Todos';
 let dbActiveCap='Todos',dbEditIdx=null,logoPngB64=null;
@@ -797,7 +821,7 @@ function confirmarRecinto(){
     if(!qty||qty<=0){alert('Ingresa cantidad para: '+det);return;}
     const precio=parseFloat(cachedP[idx]||p.p)||p.p;
     const obs=(cachedObs[idx]||'').trim();
-    nuevas.push({id:pidCtr++,capitulo:p.c,detalle:det,unidad:u,cantidad:qty,precioUnit:precio,total:qty*precio,obs});
+    nuevas.push({id:pidCtr++,capitulo:p.c,detalle:det,unidad:u,cantidad:qty,precioUnit:precio,total:qty*precio,obs,obsPos:"final",noInflar:false});
   }
   if(editRid===null){S.recintos.push({id:ridCtr++,nombre,partidas:nuevas});}
   else{const r=S.recintos.find(x=>x.id===editRid);r.nombre=nombre;r.partidas=[...r.partidas,...nuevas];}
@@ -882,9 +906,16 @@ function abrirEditPartida(rid,pid){
   document.getElementById('ep-q').value=p.cantidad;
   document.getElementById('ep-p').value=p.precioUnit;
   document.getElementById('ep-obs').value=p.obs||'';
+  setEpObsPos(p.obsPos==='inline'?'inline':'final');
   document.getElementById('ep-l').value='';document.getElementById('ep-a').value='';
   document.getElementById('ep-r').textContent='-- m2';calcEPTot();
   document.getElementById('modal-edit-partida').classList.add('open');
+}
+let epObsPos='final';
+function setEpObsPos(pos){
+  epObsPos=pos==='inline'?'inline':'final';
+  document.getElementById('ep-obspos-inline').className='obspos-btn'+(epObsPos==='inline'?' active':'');
+  document.getElementById('ep-obspos-final').className='obspos-btn'+(epObsPos==='final'?' active':'');
 }
 function calcEP(){
   const l=parseFloat(document.getElementById('ep-l').value)||0,a=parseFloat(document.getElementById('ep-a').value)||0,r=l*a;
@@ -902,6 +933,7 @@ function guardarEditPartida(){
   p.cantidad=parseFloat(document.getElementById('ep-q').value)||p.cantidad;
   p.precioUnit=parseFloat(document.getElementById('ep-p').value)||p.precioUnit;
   p.total=p.cantidad*p.precioUnit;p.obs=document.getElementById('ep-obs').value.trim();
+  p.obsPos=p.obs?epObsPos:'final';
   closeModal('modal-edit-partida');renderRecintos();
 }
 function renderDB(){
@@ -997,40 +1029,58 @@ function guardarPartidasEnDrive(){
       setDBStatus('error','No se pudo guardar. Revisa la conexión.');
     });
 }
-function calcFinales(cdRaw){
-  const factor=1+((S.pctInflar||0)/100);
-  const cd=cdRaw*factor,gguu=cd*(S.pctGG/100),neto=cd+gguu,iva=neto*(S.pctIVA/100),total=neto+iva;
-  return{factor,cd,gguu,neto,iva,total};
+// Factor de inflado por partida (las marcadas "no inflar" quedan en 1)
+function pFactor(p){return (S.pctInflar>0 && !p.noInflar)?(1+S.pctInflar/100):1;}
+function pTotalInf(p){return p.total*pFactor(p);}
+function pUnitInf(p){return p.precioUnit*pFactor(p);}
+function calcCD(){return S.recintos.flatMap(r=>r.partidas).reduce((s,p)=>s+pTotalInf(p),0);}
+function calcFinales(){
+  const cd=calcCD();
+  const gguu=(S.showGG!==false)?cd*(S.pctGG/100):0;
+  const neto=cd+gguu;
+  const iva=(S.showIVA!==false)?neto*(S.pctIVA/100):0;
+  const total=neto+iva;
+  return{cd,gguu,neto,iva,total};
 }
 function renderResumen(){
   const c=document.getElementById('resumen-content');
   const all=S.recintos.flatMap(r=>r.partidas);
-  if(!all.length){c.innerHTML='<div class="empty"><div class="empty-icon">&#128202;</div><div class="empty-txt">Agrega recintos y partidas para ver el resumen.</div></div>';return;}
+  if(!all.length){c.innerHTML='<div class="empty"><div class="empty-icon"><i class="ti ti-chart-bar"></i></div><div class="empty-txt">Agrega recintos y partidas para ver el resumen.</div></div>';return;}
   const cdRaw=all.reduce((s,p)=>s+p.total,0);
-  const{factor,cd,gguu,neto,iva,total}=calcFinales(cdRaw);
+  const{cd,gguu,neto,iva,total}=calcFinales();
   const infPct=S.pctInflar||0;
   const sinInfo=S.siniestro?'<div class="sin-disp '+SIN_CFG[S.siniestro].disp+'" style="margin-bottom:11px;font-size:12px;">'+esc(S.siniestro==='custom'?(S.datos.sinCustom||'Personalizado'):SIN_CFG[S.siniestro].label)+'</div>':'';
   const detRows=S.recintos.map(r=>{
-    const subRaw=r.partidas.reduce((s,p)=>s+p.total,0),sub=subRaw*factor;
-    return'<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px;border-bottom:1.5px solid var(--teal);margin-bottom:4px;display:flex;justify-content:space-between;"><span>'+r.nombre+'</span><span style="color:var(--green);">'+fmt(sub)+'</span></div>'+
-      r.partidas.map(p=>'<div class="rp-row"><div class="rp-det">'+p.detalle+(p.obs?'<div style="font-size:9px;color:var(--muted)">'+p.obs+'</div>':'')+'</div><span class="rp-un">'+p.unidad.toUpperCase()+'</span><span class="rp-qty">'+p.cantidad+'</span><span class="rp-tot">'+fmt(p.total*factor)+'</span><button class="btn-sm btn-sm-sec" onclick="abrirEditPartida('+r.id+','+p.id+')" style="padding:4px 6px;font-size:10px;">Ed</button></div>').join('')+
+    const sub=r.partidas.reduce((s,p)=>s+pTotalInf(p),0);
+    return'<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px;border-bottom:1.5px solid var(--teal);margin-bottom:4px;display:flex;justify-content:space-between;"><span>'+esc(r.nombre)+'</span><span style="color:var(--green);">'+fmt(sub)+'</span></div>'+
+      r.partidas.map(p=>{
+        const noInf=infPct>0?'<button class="noinf-btn'+(p.noInflar?' on':'')+'" onclick="toggleNoInflar('+r.id+','+p.id+')" title="No inflar esta partida"><i class="ti ti-flame-off"></i>'+(p.noInflar?'No inflada':'Inflar')+'</button>':'';
+        return'<div class="rp-row"><div class="rp-det">'+esc(p.detalle)+(p.obs?'<div style="font-size:9px;color:var(--muted)">'+esc(p.obs)+(p.obsPos==='inline'?' · (junto a la partida)':'')+'</div>':'')+'</div><span class="rp-un">'+esc((p.unidad||'').toUpperCase())+'</span><span class="rp-qty">'+p.cantidad+'</span><span class="rp-tot">'+fmt(pTotalInf(p))+'</span>'+noInf+'<button class="btn-sm btn-sm-sec" onclick="abrirEditPartida('+r.id+','+p.id+')" style="padding:4px 6px;font-size:10px;"><i class="ti ti-pencil"></i></button></div>';
+      }).join('')+
       '</div>';
   }).join('');
   const recRows=S.recintos.map(r=>{
-    const subRaw=r.partidas.reduce((s,p)=>s+p.total,0),sub=subRaw*factor,pct=((sub/cd)*100).toFixed(1);
-    return'<div class="res-row"><span class="res-label">'+r.nombre+'</span><div style="text-align:right"><div class="res-val">'+fmt(sub)+'</div><div style="font-size:10px;color:var(--muted)">'+pct+'%</div></div></div>';
+    const sub=r.partidas.reduce((s,p)=>s+pTotalInf(p),0),pct=cd>0?((sub/cd)*100).toFixed(1):'0.0';
+    return'<div class="res-row"><span class="res-label">'+esc(r.nombre)+'</span><div style="text-align:right"><div class="res-val">'+fmt(sub)+'</div><div style="font-size:10px;color:var(--muted)">'+pct+'%</div></div></div>';
   }).join('');
+  const ggOn=S.showGG!==false, ivaOn=S.showIVA!==false;
   c.innerHTML=sinInfo+
     '<div class="inflate-box"><label>Inflar partidas</label><div style="display:flex;align-items:center;gap:6px;"><input type="number" class="pct-input" value="'+infPct+'" min="0" max="200" step="0.5" oninput="S.pctInflar=parseFloat(this.value)||0;renderResumen()"><span style="font-size:12px;color:var(--muted);">%</span>'+(infPct>0?'<span style="font-size:10px;color:var(--green);font-weight:700;">+'+fmt(cd-cdRaw)+'</span>':'')+'</div></div>'+
-    '<div class="card"><div class="card-title">Detalle por recinto</div>'+detRows+'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn-sm btn-sm-teal" onclick="abrirModalRecinto(null)">+ Recinto</button><button class="btn-sm btn-sm-sec" onclick="abrirModalFinal()">+ Prot./Logistica</button></div></div>'+
-    '<div class="card"><div class="card-title">Por recinto</div>'+recRows+'</div>'+
-    '<div class="card"><div class="card-title">Resumen financiero</div>'+
+    (infPct>0?'<div style="font-size:10.5px;color:var(--text-3);margin:-6px 2px 12px;display:flex;align-items:center;gap:5px;"><i class="ti ti-info-circle" style="font-size:13px;"></i>Toca "Inflar/No inflada" en cada partida para excluirla del aumento.</div>':'')+
+    '<div class="card"><div class="card-title"><i class="ti ti-list-details"></i>Detalle por recinto</div>'+detRows+'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button class="btn-sm btn-sm-teal" onclick="abrirModalRecinto(null)">+ Recinto</button><button class="btn-sm btn-sm-sec" onclick="abrirModalFinal()">+ Prot./Logistica</button></div></div>'+
+    '<div class="card"><div class="card-title"><i class="ti ti-chart-pie"></i>Por recinto</div>'+recRows+'</div>'+
+    '<div class="card"><div class="card-title"><i class="ti ti-receipt"></i>Resumen financiero</div>'+
       '<div class="res-row"><span class="res-label">Costo Directo'+(infPct>0?' (+'+infPct+'%)':'')+'</span><span class="res-val">'+fmt(cd)+'</span></div>'+
-      '<div class="res-row" style="align-items:center;"><span class="res-label">G. Generales y Utilidades</span><div style="display:flex;align-items:center;gap:5px;"><input type="number" class="pct-input" value="'+S.pctGG+'" min="0" max="100" oninput="S.pctGG=parseFloat(this.value)||0;renderResumen()"><span style="font-size:11px;color:var(--muted)">%</span><span class="res-val">'+fmt(gguu)+'</span></div></div>'+
+      '<div class="res-row'+(ggOn?'':' off')+'" style="align-items:center;"><span class="res-label" style="display:flex;align-items:center;gap:8px;"><label class="inc-toggle"><input type="checkbox" '+(ggOn?'checked':'')+' onchange="S.showGG=this.checked;renderResumen()"><span class="inc-track"></span></label>G. Generales y Utilidades</span><div style="display:flex;align-items:center;gap:5px;"><input type="number" class="pct-input" value="'+S.pctGG+'" min="0" max="100" '+(ggOn?'':'disabled')+' oninput="S.pctGG=parseFloat(this.value)||0;renderResumen()"><span style="font-size:11px;color:var(--muted)">%</span><span class="res-val">'+fmt(gguu)+'</span></div></div>'+
       '<div class="res-row"><span class="res-label">Neto</span><span class="res-val">'+fmt(neto)+'</span></div>'+
-      '<div class="res-row" style="align-items:center;"><span class="res-label">IVA</span><div style="display:flex;align-items:center;gap:5px;"><input type="number" class="pct-input" value="'+S.pctIVA+'" min="0" max="100" oninput="S.pctIVA=parseFloat(this.value)||0;renderResumen()"><span style="font-size:11px;color:var(--muted)">%</span><span class="res-val">'+fmt(iva)+'</span></div></div>'+
+      '<div class="res-row'+(ivaOn?'':' off')+'" style="align-items:center;"><span class="res-label" style="display:flex;align-items:center;gap:8px;"><label class="inc-toggle"><input type="checkbox" '+(ivaOn?'checked':'')+' onchange="S.showIVA=this.checked;renderResumen()"><span class="inc-track"></span></label>IVA</span><div style="display:flex;align-items:center;gap:5px;"><input type="number" class="pct-input" value="'+S.pctIVA+'" min="0" max="100" '+(ivaOn?'':'disabled')+' oninput="S.pctIVA=parseFloat(this.value)||0;renderResumen()"><span style="font-size:11px;color:var(--muted)">%</span><span class="res-val">'+fmt(iva)+'</span></div></div>'+
       '<div class="res-row res-final"><span>TOTAL</span><span>'+fmt(total)+'</span></div>'+
     '</div>';
+}
+function toggleNoInflar(rid,pid){
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  const p=r.partidas.find(x=>x.id===pid);if(!p)return;
+  p.noInflar=!p.noInflar;renderResumen();
 }
 function abrirModalFinal(){
   editRid=null;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};
@@ -1045,7 +1095,7 @@ function abrirModalFinal(){
 }
 function getObservaciones(){
   const obs=[];
-  S.recintos.forEach(r=>r.partidas.forEach(p=>{if(p.obs&&p.obs.trim())obs.push(p.obs.trim());}));
+  S.recintos.forEach(r=>r.partidas.forEach(p=>{if(p.obs&&p.obs.trim()&&p.obsPos!=='inline')obs.push(p.obs.trim());}));
   return[...new Set(obs)];
 }
 function cargarLogoPNG(input){
@@ -1066,8 +1116,7 @@ function exportarExcel(){
   if(!all.length) return alert('No hay partidas para exportar.');
   const d=S.datos;
   const sinTxt=getSinTxt();
-  const cdRaw=all.reduce((s,p)=>s+p.total,0);
-  const{factor,cd,gguu,neto,iva,total}=calcFinales(cdRaw);
+  const{cd,gguu,neto,iva,total}=calcFinales();
   const obs=getObservaciones();
   const rows=[];
   rows.push(['','PRESUPUESTO DE REPARACION','','','','']);
@@ -1080,18 +1129,23 @@ function exportarExcel(){
   let n=1;
   S.recintos.forEach(r=>{
     rows.push([r.nombre.toUpperCase(),'','','','','']);
-    r.partidas.forEach(p=>{rows.push([n+++',001',p.detalle,p.unidad.toUpperCase(),p.cantidad,Math.round(p.precioUnit*factor),Math.round(p.total*factor)]);});
+    r.partidas.forEach(p=>{
+      const desig=(p.obs&&p.obsPos==='inline')?(p.detalle+'\nObs.: '+p.obs):p.detalle;
+      rows.push([n+++',001',desig,(p.unidad||'').toUpperCase(),p.cantidad,Math.round(pUnitInf(p)),Math.round(pTotalInf(p))]);
+    });
   });
   rows.push(['','','','','','']);
   rows.push(['','','','','COSTO DIRECTO',Math.round(cd)]);
-  rows.push(['','','','','G.GENERALES Y UTILIDADES ('+S.pctGG+'%)',Math.round(gguu)]);
+  if(S.showGG!==false) rows.push(['','','','','G.GENERALES Y UTILIDADES ('+S.pctGG+'%)',Math.round(gguu)]);
   rows.push(['','','','','NETO',Math.round(neto)]);
-  rows.push(['','','','','IVA ('+S.pctIVA+'%)',Math.round(iva)]);
+  if(S.showIVA!==false) rows.push(['','','','','IVA ('+S.pctIVA+'%)',Math.round(iva)]);
   rows.push(['','','','','TOTAL',Math.round(total)]);
   if(obs.length){rows.push(['','','','','','']);rows.push(['OBSERVACIONES:','','','','','']);obs.forEach((o,i)=>rows.push([(i+1)+':',o,'','','','']));}
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet(rows);
   ws['!cols']=[{wch:10},{wch:52},{wch:8},{wch:10},{wch:20},{wch:14}];
+  // Activar ajuste de texto en celdas de Designacion (para obs en 2 lineas)
+  try{Object.keys(ws).forEach(function(k){if(k[0]==='B'){if(!ws[k].s)ws[k].s={};ws[k].s.alignment={wrapText:true,vertical:'top'};}});}catch(e){}
   XLSX.utils.book_append_sheet(wb,ws,'Presupuesto');
   const backup={version:3,state:JSON.parse(JSON.stringify(S)),db:DB};
   const wsB=XLSX.utils.aoa_to_sheet([[JSON.stringify(backup)]]);
@@ -1127,13 +1181,12 @@ function exportarPDF(){
   if(!all.length) return alert('No hay partidas para exportar.');
   const d=S.datos;
   const sinTxt=getSinTxt();
-  const cdRaw=all.reduce((s,p)=>s+p.total,0);
-  const{factor,cd,gguu,neto,iva,total}=calcFinales(cdRaw);
+  const{cd,gguu,neto,iva,total}=calcFinales();
   const obsArr=getObservaciones();
   let n=1;
   const tbody=S.recintos.map(r=>{
-    const rRows=r.partidas.map(p=>'<tr><td>'+n+++',001</td><td>'+p.detalle+'</td><td style="text-align:center;">'+p.unidad.toUpperCase()+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(p.precioUnit*factor))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(p.total*factor))+'</td></tr>').join('');
-    return'<tr><td colspan="6" class="rc-hdr-pdf">'+r.nombre.toUpperCase()+'</td></tr>'+rRows;
+    const rRows=r.partidas.map(p=>'<tr><td>'+n+++',001</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#00657e;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>').join('');
+    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+rRows;
   }).join('');
   const obsHTML=obsArr.length?'<div class="obs-box"><div class="obs-title">OBSERVACIONES:</div>'+obsArr.map((o,i)=>'<div class="obs-item"><strong>'+(i+1)+':</strong> '+o+'</div>').join('')+'</div>':'';
   const logoHTML=logoPngB64?'<img src="'+logoPngB64+'" style="width:80px;height:auto;display:block;" alt="CR Consulting">':LOGO_FALLBACK;
@@ -1149,13 +1202,13 @@ function exportarPDF(){
       (d.direccion?'<div class="dato" style="grid-column:1\/-1"><span class="dl">DIRECCION:<\/span>'+esc(d.direccion)+'<\/div>':'')+
     '<\/div>'+
     '<table><thead><tr><th style="width:55px">ITEM N<\/th><th>Designacion<\/th><th style="width:36px;text-align:center">Un.<\/th><th style="width:58px;text-align:right">Cantidad<\/th><th style="width:88px;text-align:right">Unitario<\/th><th style="width:88px;text-align:right">Total<\/th><\/tr><\/thead><tbody>'+tbody+'<\/tbody><\/table>'+
-    '<div class="tots"><div class="tr"><span>COSTO DIRECTO<\/span><strong>$ '+fmtN(cd)+'<\/strong><\/div><div class="tr"><span>G.GENERALES Y UTILIDADES ('+S.pctGG+'%)<\/span><strong>$ '+fmtN(gguu)+'<\/strong><\/div><div class="tr"><span>NETO<\/span><strong>$ '+fmtN(neto)+'<\/strong><\/div><div class="tr"><span>IVA ('+S.pctIVA+'%)<\/span><strong>$ '+fmtN(iva)+'<\/strong><\/div><div class="tr ttot"><span>TOTAL<\/span><strong>$ '+fmtN(total)+'<\/strong><\/div><\/div>'+
+    '<div class="tots"><div class="tr"><span>COSTO DIRECTO<\/span><strong>$ '+fmtN(cd)+'<\/strong><\/div>'+(S.showGG!==false?'<div class="tr"><span>G.GENERALES Y UTILIDADES ('+S.pctGG+'%)<\/span><strong>$ '+fmtN(gguu)+'<\/strong><\/div><div class="tr"><span>NETO<\/span><strong>$ '+fmtN(neto)+'<\/strong><\/div>':'')+(S.showIVA!==false?'<div class="tr"><span>IVA ('+S.pctIVA+'%)<\/span><strong>$ '+fmtN(iva)+'<\/strong><\/div>':'')+'<div class="tr ttot"><span>TOTAL<\/span><strong>$ '+fmtN(total)+'<\/strong><\/div><\/div>'+
     obsHTML+'<script>window.onload=function(){window.print();}<\/script><\/body><\/html>';
   const w=window.open('','_blank');w.document.write(html);w.document.close();
 }
 function confirmarNuevo(){
   if(confirm('Borrar todo y comenzar un nuevo presupuesto?')){
-    S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0};pidCtr=1;ridCtr=1;
+    S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0,showGG:true,showIVA:true};pidCtr=1;ridCtr=1;
     ['d-nombre','d-rut','d-sin','d-dir','d-comuna','d-fecha','d-sin-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     ['btn-can','btn-vie','btn-sis','btn-inc','btn-cus'].forEach(id=>{const el=document.getElementById(id);if(el)el.className='sin-btn';});
     document.getElementById('sin-custom-wrap').style.display='none';
