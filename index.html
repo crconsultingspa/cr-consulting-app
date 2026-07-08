@@ -560,16 +560,103 @@
       .stats-hero { grid-template-columns: 1fr; }
       .detail-grid { grid-template-columns: 1fr 1fr; }
     }
+    /* ── Drawer y bottom-nav (solo móvil, ocultos en escritorio) ── */
+    .menu-btn { display:none; }
+    .drawer-backdrop { display:none; }
+    .bottom-nav { display:none; }
+
     @media (max-width: 760px) {
-      .sidebar { display: none; }
-      .topbar { display: flex; }
-      .main { margin-left: 0; padding: 18px 16px 64px; }
-      .page-header { flex-direction: column; align-items: flex-start; gap: 14px; }
-      .page-title { font-size: 27px; }
+      /* Sidebar se convierte en drawer deslizable */
+      .sidebar { display:flex; transform: translateX(-100%); transition: transform .25s ease; width: 280px; z-index: 300; }
+      .sidebar.open { transform: translateX(0); box-shadow: 0 0 60px rgba(0,0,0,.4); }
+      .drawer-backdrop { display:block; position:fixed; inset:0; background:rgba(0,27,43,.5); z-index:299; opacity:0; pointer-events:none; transition:opacity .25s; }
+      .drawer-backdrop.open { opacity:1; pointer-events:auto; }
+
+      .topbar { display: flex; gap: 10px; padding: 10px 12px; }
+      .menu-btn { display:flex; align-items:center; justify-content:center; background:rgba(255,247,238,.1); border:1px solid rgba(255,247,238,.15); color:var(--cream); border-radius:9px; width:40px; height:40px; font-size:22px; cursor:pointer; flex-shrink:0; }
+      .topbar-brand { flex:1; min-width:0; }
+
+      /* Bottom nav fija */
+      .bottom-nav { display:flex; position:fixed; bottom:0; left:0; right:0; z-index:98;
+        background: var(--navy); padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+        justify-content: space-around; box-shadow: 0 -4px 20px rgba(0,27,43,.25); }
+      .bn-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+        background:none; border:none; color:rgba(255,247,238,.55); font-family:inherit;
+        font-size:9.5px; font-weight:600; cursor:pointer; padding:5px 2px; border-radius:9px; max-width:76px; }
+      .bn-item i { font-size:21px; }
+      .bn-item.active { color:#fff; background:rgba(0,101,126,.55); }
+
+      .main { margin-left: 0; padding: 16px 14px calc(84px + env(safe-area-inset-bottom)); }
+      .page-header { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 18px; }
+      .page-header .btn { justify-content:center; }
+      .page-title { font-size: 25px; }
+
+      /* Grids a 1 columna */
       .detail-grid, .form-grid, .tables-row, .hero-side { grid-template-columns: 1fr; }
       .analytics-grid { grid-template-columns: 1fr; }
-      .funnel-name { width: 110px; font-size:11px; }
-      .modal { padding: 22px 20px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .metric-value { font-size: 24px; }
+      .stats-hero { grid-template-columns: 1fr; }
+
+      /* Tarjetas de caso: monto pasa abajo, sin desbordes */
+      .case-top { flex-wrap: wrap; gap: 10px 12px; padding: 12px 14px; }
+      .case-info { flex: 1 1 60%; }
+      .case-meta { white-space: normal; }
+      .case-right { width:100%; justify-content: space-between; }
+      .case-detail { padding: 0 14px 14px; }
+
+      /* Botones de acción a pantalla completa en 2 columnas */
+      .action-row { display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .action-row .btn { justify-content:center; padding: 10px 8px; font-size: 12.5px; }
+
+      /* Tabs y toolbar scrolleables sin salto de línea */
+      .tabs { width:100%; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      .tab { white-space:nowrap; flex-shrink:0; }
+      .aj-tabs { width:100%; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      .aj-tab { white-space:nowrap; flex-shrink:0; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .filter-toggle-btn { justify-content:center; }
+
+      /* Pendientes en columna */
+      .pendientes-bar { flex-direction: column; gap: 14px; padding: 14px 16px; }
+      .pendiente-col { min-width: 0; }
+
+      /* Funnel / barras compactas */
+      .funnel-name { width: 96px; font-size:10.5px; }
+      .bar-label { width: 88px; font-size:10.5px; }
+      .bar-val { width: 76px; font-size:11px; }
+
+      /* Períodos apilados */
+      .periodo-card { flex-wrap: wrap; gap: 12px; padding: 14px 16px; }
+      .periodo-info { flex: 1 1 100%; }
+      .periodo-actions { margin-left:auto; }
+
+      /* Plazos en 2 columnas compactas */
+      .plazos-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .plazo-card { padding: 13px 14px; }
+      .plazo-dias { font-size: 24px; }
+      .plazo-img { width:30px; height:30px; right:10px; top:10px; }
+
+      /* Modales a pantalla casi completa */
+      .modal-backdrop { padding: 0; align-items: flex-end; }
+      .modal { padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); max-height: 94vh; max-width: 100%; border-radius: 18px 18px 0 0; }
+      .modal-footer { position: sticky; bottom: -20px; background: var(--surface); padding-bottom: 4px; }
+      .modal-footer .btn { flex:1; justify-content:center; }
+
+      /* Inputs con tamaño táctil y sin zoom de iOS */
+      input, select, textarea { font-size: 16px; padding: 12px 13px; }
+      .pie-wrap { justify-content: center; }
+      .data-table { display:block; overflow-x:auto; white-space:nowrap; }
+
+      /* Ajustes: fila de agregar en columna */
+      .aj-add-row { flex-direction: column; }
+      .aj-add-row .btn { justify-content: center; }
+      .aj-item { flex-wrap: wrap; }
+    }
+    @media (max-width: 380px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .plazos-grid { grid-template-columns: 1fr; }
+      .action-row { grid-template-columns: 1fr; }
     }
     @media (prefers-reduced-motion: reduce){
       *, *::before, *::after { animation-duration:.001ms !important; transition-duration:.05ms !important; }
@@ -636,14 +723,22 @@
 
   <!-- TOPBAR MOBILE -->
   <div class="topbar">
+    <button class="menu-btn" onclick="toggleDrawer()" aria-label="Menú"><i class="ti ti-menu-2"></i></button>
     <div class="topbar-brand">
       <span class="brand-logo brand-logo-sm" role="img" aria-label="CR Consulting"></span>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-primary" onclick="showSection('casos')" style="padding:7px 11px"><i class="ti ti-folders"></i></button>
-      <button class="btn btn-primary" onclick="openModal()" style="padding:7px 11px"><i class="ti ti-plus"></i></button>
-    </div>
+    <button class="btn btn-primary" onclick="openModal()" style="padding:8px 12px"><i class="ti ti-plus"></i></button>
   </div>
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
+
+  <!-- BOTTOM NAV MOBILE -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bn-item active" data-sec="casos" onclick="showSection('casos')"><i class="ti ti-folder-open"></i><span>Casos</span></button>
+    <button class="bn-item" data-sec="resumen" onclick="showSection('resumen')"><i class="ti ti-chart-histogram"></i><span>Stats</span></button>
+    <button class="bn-item" data-sec="plazos" onclick="showSection('plazos')"><i class="ti ti-clock-hour-4"></i><span>Plazos</span></button>
+    <button class="bn-item" data-sec="periodos" onclick="showSection('periodos')"><i class="ti ti-calendar-event"></i><span>Períodos</span></button>
+    <button class="bn-item" data-sec="ajustes" onclick="showSection('ajustes')"><i class="ti ti-settings"></i><span>Ajustes</span></button>
+  </nav>
 
   <!-- MAIN -->
   <main class="main">
@@ -950,7 +1045,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx1MBHa_4mNvwLOMmfxl18CczerHfR8NkON1Vl3rkMW5nEo4Hj94TzWn1nCBnkioJJn/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx0n8s2fjxuJfkTEv1IJ8dZCSrkwHuGEPg1vHPyZIli2eBODx1a9nOkcQDvWs2jVhQQ/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1664,9 +1759,26 @@ function showSection(sec) {
   document.getElementById('sec-'+sec).classList.add('active');
   const idx = ['casos','resumen','plazos','periodos','ajustes'].indexOf(sec);
   document.querySelectorAll('.nav-item')[idx]?.classList.add('active');
+  // Sincronizar bottom-nav móvil
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.toggle('active', b.dataset.sec===sec));
+  closeDrawer();
+  window.scrollTo({ top: 0 });
   if(sec==='resumen') buildResumen();
   if(sec==='periodos') renderPeriodos();
   if(sec==='ajustes' && typeof renderAjustes==='function') renderAjustes();
+}
+
+// ── Drawer móvil ──
+function toggleDrawer() {
+  const sb = document.querySelector('.sidebar');
+  const bd = document.getElementById('drawer-backdrop');
+  const open = !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  if (bd) bd.classList.toggle('open', open);
+}
+function closeDrawer() {
+  document.querySelector('.sidebar')?.classList.remove('open');
+  document.getElementById('drawer-backdrop')?.classList.remove('open');
 }
 
 
