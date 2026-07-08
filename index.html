@@ -688,6 +688,7 @@
         <button class="tab" onclick="setFilter('Pagado',this)">Pagados</button>
         <button class="tab" onclick="setFilter('Rechazado',this)">Rechazados</button>
         <button class="tab" onclick="setFilter('pendiente',this)">En gestión</button>
+        <button class="tab" onclick="setFilter('archivados',this)">Archivados</button>
       </div>
 
       <div class="toolbar">
@@ -949,7 +950,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx0n8s2fjxuJfkTEv1IJ8dZCSrkwHuGEPg1vHPyZIli2eBODx1a9nOkcQDvWs2jVhQQ/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx1MBHa_4mNvwLOMmfxl18CczerHfR8NkON1Vl3rkMW5nEo4Hj94TzWn1nCBnkioJJn/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -968,6 +969,16 @@ let ajustesExtras = { banco:[], responsable:[], comuna:[], ciudad:[], estado:[] 
 let plazosData = PLAZOS.map(p => ({ banco:p.banco, compania:p.comp, dias:p.dias, imagen:'' }));
 let ajustesTab = 'bancos';
 let editingPlazoIdx = null;
+let archivados = JSON.parse(localStorage.getItem('cr_archivados')||'[]');
+function isArchivado(id){ return archivados.includes(String(id)); }
+function saveArchivados(){ localStorage.setItem('cr_archivados', JSON.stringify(archivados)); }
+function toggleArchivar(id){
+  id = String(id);
+  if (isArchivado(id)) { archivados = archivados.filter(x=>x!==id); showToast('Caso desarchivado'); }
+  else { archivados.push(id); showToast('Caso archivado'); }
+  saveArchivados();
+  buildMetrics(); renderCases(); buildResumen();
+}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const fmtCLP = n => n ? '$' + Math.round(n).toLocaleString('es-CL') : '—';
@@ -1107,12 +1118,13 @@ async function apiCall(body) {
 
 // ── MÉTRICAS ──────────────────────────────────────────────────────────────────
 function buildMetrics() {
-  const p = cases.filter(c=>c.estado==='Pagado').length;
-  const r = cases.filter(c=>c.estado==='Rechazado').length;
-  const g = cases.filter(c=>c.estado!=='Pagado'&&c.estado!=='Rechazado').length;
-  const tc= cases.reduce((a,c)=>a+(c.comision||0),0);
+  const cs = cases.filter(c=>!isArchivado(c.id));
+  const p = cs.filter(c=>c.estado==='Pagado').length;
+  const r = cs.filter(c=>c.estado==='Rechazado').length;
+  const g = cs.filter(c=>c.estado!=='Pagado'&&c.estado!=='Rechazado').length;
+  const tc= cs.reduce((a,c)=>a+(c.comision||0),0);
   document.getElementById('metrics').innerHTML = `
-    <div class="metric-card"><div class="metric-label">Total casos</div><div class="metric-value">${cases.length}</div></div>
+    <div class="metric-card"><div class="metric-label">Total casos</div><div class="metric-value">${cs.length}</div></div>
     <div class="metric-card m-green"><div class="metric-label">Pagados</div><div class="metric-value" style="color:var(--green)">${p}</div></div>
     <div class="metric-card m-amber"><div class="metric-label">En gestión</div><div class="metric-value" style="color:var(--amber)">${g}</div></div>
     <div class="metric-card m-red"><div class="metric-label">Rechazados</div><div class="metric-value" style="color:var(--red)">${r}</div></div>
@@ -1222,10 +1234,13 @@ function renderCases() {
   const sortField  = document.getElementById('sort-field')?.value||'fechaCreacion';
 
   let filtered = cases.filter(c => {
+    // Archivados: solo se ven en su pestaña; en el resto quedan ocultos
+    if(activeFilter==='archivados') { if(!isArchivado(c.id)) return false; }
+    else if(isArchivado(c.id)) return false;
     const mq = !q || [c.nombre,c.rut,c.banco,c.dir,c.caso,c.siniestro].some(v=>(v||'').toLowerCase().includes(q));
     if(!mq) return false;
     if(activeFilter==='pendiente' && (c.estado==='Pagado'||c.estado==='Rechazado')) return false;
-    if(activeFilter!=='todos' && activeFilter!=='pendiente' && c.estado!==activeFilter) return false;
+    if(activeFilter!=='todos' && activeFilter!=='pendiente' && activeFilter!=='archivados' && c.estado!==activeFilter) return false;
     if(fSin    && (c.siniestro||'')!==fSin) return false;
     if(fEstado && (c.estado||'')!==fEstado) return false;
     if(fBanco  && (c.banco||'')!==fBanco) return false;
@@ -1302,6 +1317,7 @@ function renderCases() {
             <button class="btn" onclick="openContrato('${c.id}')" style="color:var(--navy);border-color:var(--navy)"><i class="ti ti-file-description"></i> Contrato</button>
             <button class="btn" onclick="deleteCase('${c.id}')" style="color:var(--red)"><i class="ti ti-trash"></i> Eliminar</button>
             <button class="btn" onclick="openEmail('${c.id}')" style="color:var(--green);border-color:var(--green)"><i class="ti ti-mail"></i> Enviar correo</button>
+            <button class="btn" onclick="toggleArchivar('${c.id}')" style="color:var(--text-2)"><i class="ti ti-${isArchivado(c.id)?'archive-off':'archive'}"></i> ${isArchivado(c.id)?'Desarchivar':'Archivar'}</button>
           </div>
         </div>
       </div>`;
@@ -1464,14 +1480,15 @@ function eliminarEstado(nombre) {
 
 // ── ESTADÍSTICAS ──────────────────────────────────────────────────────────────
 function buildResumen() {
-  const pagados    = cases.filter(c=>c.estado==='Pagado');
-  const rechazados = cases.filter(c=>c.estado==='Rechazado');
-  const gestion    = cases.filter(c=>c.estado!=='Pagado'&&c.estado!=='Rechazado');
+  const cs = cases.filter(c=>!isArchivado(c.id));
+  const pagados    = cs.filter(c=>c.estado==='Pagado');
+  const rechazados = cs.filter(c=>c.estado==='Rechazado');
+  const gestion    = cs.filter(c=>c.estado!=='Pagado'&&c.estado!=='Rechazado');
   const totalMonto = pagados.reduce((a,c)=>a+(c.monto||0),0);
   const totalCom   = pagados.reduce((a,c)=>a+(c.comision||0),0);
   const totalFondo = pagados.reduce((a,c)=>a+(c.fondo||0),0);
   const avgMonto   = pagados.length ? totalMonto/pagados.length : 0;
-  const tasaExito  = cases.length ? Math.round(pagados.length/cases.length*100) : 0;
+  const tasaExito  = (pagados.length+rechazados.length) ? Math.round(pagados.length/(pagados.length+rechazados.length)*100) : 0;
 
   const gestionPot = gestion.reduce((a,c)=>a+(c.comision||0),0);
   const resueltos  = pagados.length + rechazados.length;
@@ -1504,7 +1521,7 @@ function buildResumen() {
     </div>`;
 
   document.getElementById('kpi-row').innerHTML = `
-    <div class="kpi-card kpi-navy"><i class="ti ti-folders kpi-icon"></i><div class="kpi-label">Total casos</div><div class="kpi-value">${cases.length}</div><div class="kpi-sub">cartera completa</div></div>
+    <div class="kpi-card kpi-navy"><i class="ti ti-folders kpi-icon"></i><div class="kpi-label">Total casos</div><div class="kpi-value">${cs.length}</div><div class="kpi-sub">cartera completa</div></div>
     <div class="kpi-card kpi-green"><i class="ti ti-circle-check kpi-icon"></i><div class="kpi-label">Casos pagados</div><div class="kpi-value">${pagados.length}</div><div class="kpi-sub">${resueltos?Math.round(pagados.length/resueltos*100):0}% de los resueltos</div></div>
     <div class="kpi-card kpi-amber"><i class="ti ti-progress kpi-icon"></i><div class="kpi-label">En gestión</div><div class="kpi-value">${gestion.length}</div><div class="kpi-sub">casos activos</div></div>
     <div class="kpi-card kpi-red"><i class="ti ti-circle-x kpi-icon"></i><div class="kpi-label">Rechazados</div><div class="kpi-value">${rechazados.length}</div><div class="kpi-sub">${resueltos?Math.round(rechazados.length/resueltos*100):0}% de los resueltos</div></div>`;
@@ -1512,9 +1529,9 @@ function buildResumen() {
   // ── EMBUDO / PIPELINE DE ESTADOS ──
   const PIPE = ['Pendiente denuncio','Pendiente antecedentes','Pendiente firma','Espera de informe final','Pendiente PPTO','Pagado','Rechazado'];
   const estadosFunnel = {};
-  cases.forEach(c => { const e = c.estado || '—'; estadosFunnel[e] = (estadosFunnel[e]||0)+1; });
+  cs.forEach(c => { const e = c.estado || '—'; estadosFunnel[e] = (estadosFunnel[e]||0)+1; });
   const ordered = [...PIPE.filter(e => estadosFunnel[e]), ...Object.keys(estadosFunnel).filter(e => !PIPE.includes(e))];
-  const totalCasos = cases.length || 1;
+  const totalCasos = cs.length || 1;
   const funColor = e => e==='Pagado' ? 'var(--green)' : e==='Rechazado' ? 'var(--red)' : e==='Espera de informe final' ? 'var(--teal)' : 'var(--amber)';
   document.getElementById('funnel-card').innerHTML = `
     <div class="chart-title"><i class="ti ti-filter-cog"></i> Pipeline de casos por estado</div>
@@ -1528,12 +1545,12 @@ function buildResumen() {
     }).join('')}`;
 
   const count = arr => arr.reduce((a,c)=>{a[c]=(a[c]||0)+1;return a;},{});
-  const sinTypes     = count(cases.map(c=>c.siniestro||'Otro'));
-  const bancos       = count(cases.map(c=>c.banco||'Otro'));
-  const estados      = count(cases.map(c=>c.estado||'—'));
-  const responsables = count(cases.map(c=>c.caso||'Sin asignar'));
+  const sinTypes     = count(cs.map(c=>c.siniestro||'Otro'));
+  const bancos       = count(cs.map(c=>c.banco||'Otro'));
+  const estados      = count(cs.map(c=>c.estado||'—'));
+  const responsables = count(cs.map(c=>c.caso||'Sin asignar'));
   const liquidadores = count(pagados.map(c=>c.liquidador||'—'));
-  const ciudades     = count(cases.map(c=>{
+  const ciudades     = count(cs.map(c=>{
     // Usar el campo comuna del caso si existe; si no, extraer de la dirección
     if (c.comuna && c.comuna.trim()) return c.comuna.trim();
     const d=(c.dir||'').toLowerCase();
