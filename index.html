@@ -2202,10 +2202,6 @@ function showMandatoStatus(msg, type) {
       <div class="form-group"><label>Banco</label>
         <select id="ct-banco">
           <option value="">Seleccionar…</option>
-          <option>Banco Estado</option><option>BCI</option><option>Banco de Chile</option>
-          <option>Banco de Crédito e Inversiones</option><option>Banco Itaú Chile</option>
-          <option>Scotiabank</option><option>Coopeuch</option><option>Consorcio</option>
-          <option>MetLife</option><option>Caja los Andes</option><option>Renta Nacional</option><option>Otro</option>
         </select>
       </div>
       <div class="form-group"><label>Tipo de siniestro</label>
@@ -2261,10 +2257,14 @@ function openContrato(id) {
   document.getElementById('ct-telefono').value = c.telefono || '';
   document.getElementById('ct-email').value    = c.email    || '';
 
-  // Banco
-  const bancoSel = document.getElementById('ct-banco');
-  const bancoMatch = Array.from(bancoSel.options).find(o => o.value === c.banco || o.text === c.banco);
-  bancoSel.value = bancoMatch ? bancoMatch.value : '';
+  // Banco — poblar con lista completa (fijos + agregados en Ajustes)
+  if (typeof fillSelectKeepCurrent === 'function' && typeof getListaCompleta === 'function') {
+    fillSelectKeepCurrent('ct-banco', getListaCompleta('banco'), c.banco || '', 'Seleccionar…');
+  } else {
+    const bancoSel = document.getElementById('ct-banco');
+    const bancoMatch = Array.from(bancoSel.options).find(o => o.value === c.banco || o.text === c.banco);
+    bancoSel.value = bancoMatch ? bancoMatch.value : '';
+  }
 
   // Siniestro
   const sinSel = document.getElementById('ct-siniestro');
