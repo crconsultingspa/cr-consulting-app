@@ -716,7 +716,7 @@
     </div>
 
     <div class="sidebar-footer">
-      <span>CR Consulting &copy; 2025</span>
+      <span>CR Consulting &copy; 2025 <span id="app-version" style="opacity:.5;font-size:10px;"></span></span>
       <button onclick="loadFromSheets()"><i class="ti ti-refresh"></i> Sincronizar</button>
     </div>
   </aside>
@@ -1045,7 +1045,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzAIH9rcOlygxgXPv2CqDg6a11atN_I5hRJRNI7HStoKKao_x78rF384ioAT6IWq4CV2A/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyKaI6uWgJ_H6RUwLj4-CWkDeOniu5sWbUt8HfDsvS98t9yvE2SdoM97PADAu3mRdSLLw/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1194,6 +1194,7 @@ async function loadFromSheets() {
         retiro:     r.retiro     ? parseFloat(r.retiro)     : null,
       }));
       setSyncStatus('ok', `${cases.length} casos · sync ✓`);
+      if (json.version) { const vEl = document.getElementById('app-version'); if (vEl) vEl.textContent = '· ' + json.version; }
       buildMetrics(); renderCases(); buildResumen();
     } else {
       setSyncStatus('error', 'Error al cargar');
