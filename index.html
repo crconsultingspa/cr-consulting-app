@@ -278,6 +278,17 @@
     .case-meta { font-size: 11.5px; color: var(--text-3); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .case-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
     .case-monto { font-family: var(--disp); font-size: 16px; font-weight: 600; color: var(--navy); }
+    .status-select {
+      font-family: var(--ui); font-size: 11.5px; font-weight: 700; padding: 6px 26px 6px 12px;
+      border-radius: 20px; border: 1.5px solid currentColor; cursor: pointer;
+      -webkit-appearance:none; appearance:none; background-repeat:no-repeat;
+      background-position: right 9px center; background-size: 11px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      max-width: 190px; text-overflow: ellipsis;
+    }
+    .status-select:focus { outline:none; box-shadow: 0 0 0 3px rgba(0,101,126,.15); }
+    .estado-wrap { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+    .estado-label { font-family: var(--disp); font-size: 9px; font-weight: 600; letter-spacing:.16em; text-transform:uppercase; color: var(--text-3); }
     .badge { font-size: 10.5px; font-weight: 700; padding: 4px 11px; border-radius: 20px; white-space: nowrap; letter-spacing:.01em; }
     .badge-pagado    { background: var(--green-bg); color: var(--green); }
     .badge-rechazado { background: var(--red-bg);   color: var(--red); }
@@ -1009,17 +1020,7 @@
         </div>
         <div class="form-group"><label>Fecha de ocurrencia</label><input type="date" id="f-fechaSiniestro"/></div>
         <div class="form-group"><label>Liquidador</label><input type="text" id="f-liquidador" placeholder="Nombre de la liquidadora"/></div>
-        <div class="form-group">
-          <label>Estado</label>
-          <div style="display:flex;gap:6px">
-            <select id="f-estado" style="flex:1">
-              <option>Pendiente denuncio</option><option>Espera de informe final</option>
-              <option>Pendiente antecedentes</option><option>Pendiente firma</option>
-              <option>Pendiente PPTO</option><option>Pagado</option><option>Rechazado</option>
-            </select>
-            <button type="button" onclick="openNuevoEstado()" title="Agregar estado personalizado" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);cursor:pointer;font-size:17px;color:var(--teal);flex-shrink:0">+</button>
-          </div>
-        </div>
+        <div class="form-group"><label>Cobertura (código CAD)</label><input type="text" id="f-cobertura" placeholder="CAD120130926"/></div>
         <div class="form-group"><label>Responsable</label><select id="f-caso"><option value="">Seleccionar…</option></select></div>
         <div class="form-group"><label>Correlativo / Folio</label><input type="text" id="f-correlativo" placeholder="FOLIO 00000"/></div>
         <div class="form-group"><label>Monto indemnizado ($)</label><input type="number" id="f-monto" placeholder="0" min="0"/></div>
@@ -1045,7 +1046,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyKaI6uWgJ_H6RUwLj4-CWkDeOniu5sWbUt8HfDsvS98t9yvE2SdoM97PADAu3mRdSLLw/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxao8qrz6x6-fyhm-xLmht0FnyniiesviumEho8ELv15OMQrfP-pJcRv_Njhaj5KQ3brQ/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1109,6 +1110,57 @@ function badgeClass(e) {
   if((e||'').toLowerCase().includes('espera')) return 'badge-espera';
   return 'badge-pendiente';
 }
+
+// Colores por estado (borde + fondo tenue de la tarjeta). Clave = nombre exacto.
+const ESTADO_COLORS = {
+  'Pendiente denuncio':              { b:'#e35d4e', bg:'#fdeeec' },
+  'Espera de informe final':         { b:'#4a5fd0', bg:'#eceefb' },
+  'Pendiente antecedentes':          { b:'#e0a800', bg:'#fdf6e0' },
+  'Pendiente firma':                 { b:'#cbb24a', bg:'#fbf8ea' },
+  'Pendiente PPTO':                  { b:'#b5651d', bg:'#f7ece1' },
+  'Pagado':                          { b:'#1a7a52', bg:'#e4f5ed' },
+  'Rechazado':                       { b:'#c0392b', bg:'#fbeae8' },
+  'Espera de Contacto Liquidadora':  { b:'#8f9fe0', bg:'#eef1fc' },
+  'Pendiente mandato y contrato':    { b:'#9b59b6', bg:'#f5ecf8' },
+  'Espera de pago':                  { b:'#56c271', bg:'#e9f8ef' }
+};
+const ESTADO_FALLBACK = { b:'#00657e', bg:'#e9f2f5' };
+function estadoColor(e){ return ESTADO_COLORS[e] || ESTADO_FALLBACK; }
+
+// Lista de estados para el selector de la tarjeta (base + detectados + nube + locales)
+function estadoOptionsList() {
+  const base = ['Pendiente denuncio','Espera de informe final','Pendiente antecedentes',
+    'Pendiente firma','Pendiente PPTO','Pagado','Rechazado'];
+  const conColor = Object.keys(ESTADO_COLORS);
+  const detect = (typeof cases!=='undefined') ? cases.map(c=>c.estado).filter(Boolean) : [];
+  const cloud  = (typeof ajustesExtras!=='undefined' && ajustesExtras.estado) ? ajustesExtras.estado : [];
+  const locales = (typeof customEstados!=='undefined') ? customEstados : [];
+  return [...new Set([...base, ...conColor, ...detect, ...cloud, ...locales])];
+}
+
+// <select> de estado dentro de la tarjeta, con el color del estado actual
+function estadoSelectHTML(c) {
+  const col = estadoColor(c.estado);
+  const opts = estadoOptionsList().map(e =>
+    `<option value="${String(e).replace(/"/g,'&quot;')}"${e===c.estado?' selected':''}>${e}</option>`).join('');
+  return `<select class="status-select" style="color:${col.b};background-color:${col.bg}"
+      onclick="event.stopPropagation()"
+      onchange="cambiarEstado('${c.id}', this.value); event.stopPropagation();">${opts}</select>`;
+}
+
+// Cambia el estado del caso (optimista) y lo persiste
+async function cambiarEstado(id, nuevo) {
+  const c = cases.find(x => String(x.id) === String(id));
+  if (!c || c.estado === nuevo) return;
+  c.estado = nuevo;
+  buildMetrics(); renderCases(); buildResumen();
+  try {
+    await formPost(SHEETS_URL, { action:'update', id:String(id), estado:nuevo });
+    showToast('Estado actualizado ✓');
+  } catch(e) {
+    showToast('Error al actualizar estado', 'error');
+  }
+}
 function diasColor(d){ return d<=30?'var(--green)':d<=60?'var(--amber)':'var(--red)'; }
 
 function showToast(msg, type='success') {
@@ -1122,19 +1174,49 @@ function setSyncStatus(s, msg) {
 }
 
 // ── API: JSONP para leer, form-trick para escribir ────────────────────────────
-function jsonpFetch(url) {
+// JSONP robusto: timeout amplio, 1 reintento automático y tolerancia a
+// respuestas tardías (deja un stub en vez de borrar el callback, para que
+// una respuesta que llegue después del timeout no lance ReferenceError).
+function jsonpOnce(fullUrl, cbPrefix, timeoutMs) {
   return new Promise((resolve, reject) => {
-    const cb = 'cr_cb_' + Date.now();
+    const cb = cbPrefix + '_' + Date.now() + '_' + Math.floor(Math.random()*1e4);
     const script = document.createElement('script');
+    let settled = false;
+    const cleanup = () => { try { document.head.removeChild(script); } catch(e){} };
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      window[cb] = function(){ delete window[cb]; }; // stub para respuesta tardía
+      cleanup();
+      reject(new Error('timeout'));
+    }, timeoutMs);
     window[cb] = (data) => {
-      delete window[cb];
-      document.head.removeChild(script);
+      if (settled) { delete window[cb]; return; }
+      settled = true; clearTimeout(timer);
+      delete window[cb]; cleanup();
       resolve(data);
     };
-    script.onerror = () => { delete window[cb]; document.head.removeChild(script); reject(new Error('JSONP failed')); };
-    script.src = url + '?callback=' + cb + '&t=' + Date.now();
+    script.onerror = () => {
+      if (settled) return;
+      settled = true; clearTimeout(timer);
+      window[cb] = function(){ delete window[cb]; };
+      cleanup();
+      reject(new Error('JSONP failed'));
+    };
+    script.src = fullUrl + (fullUrl.includes('?') ? '&' : '?') + 'callback=' + cb + '&t=' + Date.now();
     document.head.appendChild(script);
   });
+}
+
+async function jsonpFetch(url, cbPrefix) {
+  const prefix = cbPrefix || 'cr_cb';
+  try {
+    return await jsonpOnce(url, prefix, 15000);
+  } catch(e) {
+    // Reintento único: Apps Script a veces responde lento o falla transitoriamente
+    await new Promise(r => setTimeout(r, 1500));
+    return jsonpOnce(url, prefix, 20000);
+  }
 }
 
 function formPost(url, data) {
@@ -1368,7 +1450,7 @@ function renderCases() {
     const av = AVCOLORS[ci];
     const isOpen = expandedId === String(c.id);
     return `
-      <div class="case-card ${isOpen?'open':''}" id="card-${c.id}" onclick="toggleCard('${c.id}')">
+      <div class="case-card ${isOpen?'open':''}" id="card-${c.id}" onclick="toggleCard('${c.id}')" style="border-color:${estadoColor(c.estado).b};background:${estadoColor(c.estado).bg}">
         <div class="case-top">
           <div class="avatar" style="background:${av.bg};color:${av.tc}">${initials(c.nombre)}</div>
           <div class="case-info">
@@ -1376,8 +1458,11 @@ function renderCases() {
             <div class="case-meta">${c.banco||'—'} &nbsp;·&nbsp; ${c.siniestro||'—'} &nbsp;·&nbsp; ${c.dir||'—'}</div>
           </div>
           <div class="case-right">
-            <span class="badge ${badgeClass(c.estado)}">${c.estado}</span>
             ${c.monto?`<span class="case-monto">${fmtCLP(c.monto)}</span>`:''}
+            <div class="estado-wrap">
+              <span class="estado-label">Estado</span>
+              ${estadoSelectHTML(c)}
+            </div>
             <i class="ti ti-chevron-down chevron"></i>
           </div>
         </div>
@@ -1390,6 +1475,7 @@ function renderCases() {
             <div><div class="detail-label">Ciudad</div><div class="detail-value">${c.ciudad||'—'}</div></div>
             <div><div class="detail-label">Liquidador</div><div class="detail-value">${c.liquidador||'—'}</div></div>
             <div><div class="detail-label">Correlativo / Folio</div><div class="detail-value">${c.correlativo||'—'}</div></div>
+            <div><div class="detail-label">Cobertura (CAD)</div><div class="detail-value">${c.cobertura||'—'}</div></div>
             <div><div class="detail-label">Responsable</div><div class="detail-value">${c.caso||'—'}</div></div>
             <div><div class="detail-label">Boleta emitida</div><div class="detail-value">${c.boleta||'—'}</div></div>
             <div><div class="detail-label">Teléfono</div><div class="detail-value">${c.telefono||'—'}</div></div>
@@ -1452,7 +1538,7 @@ function openModal(prefill) {
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if (typeof fillCaseSelects === 'function') fillCaseSelects(prefill || null);
   if(prefill) {
-    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','estado','caso','correlativo','obs','relato','telefono','nrosin','tratamiento']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     const fs = document.getElementById('f-fechaSiniestro');
     if(fs) fs.value = toDateInput(prefill.fechaSiniestro);
@@ -1460,7 +1546,6 @@ function openModal(prefill) {
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
   } else {
     document.querySelectorAll('#modal-backdrop input,#modal-backdrop textarea').forEach(i=>i.value='');
-    document.getElementById('f-estado').value='Pendiente denuncio';
     document.getElementById('f-porcentaje').value='0.25';
   }
   document.getElementById('modal-backdrop').classList.add('open');
@@ -1490,9 +1575,9 @@ async function saveCase(e) {
     banco:       document.getElementById('f-banco').value,
     siniestro:   document.getElementById('f-siniestro').value,
     liquidador:  document.getElementById('f-liquidador').value,
-    estado:      document.getElementById('f-estado').value,
     caso:        document.getElementById('f-caso').value,
     correlativo: document.getElementById('f-correlativo').value,
+    cobertura:   document.getElementById('f-cobertura')?.value || '',
     monto, porcentaje:pct, comision, fondo, retiro,
     boleta: 'NO',
     obs:      document.getElementById('f-obs').value,
@@ -1503,10 +1588,11 @@ async function saveCase(e) {
   };
   try {
     if(editingId) {
+      // El estado ya no se edita en el modal (se cambia en la tarjeta): se preserva
       await apiCall({action:'update', id:editingId, ...data});
       showToast('Caso actualizado ✓');
     } else {
-      await apiCall({action:'add', ...data});
+      await apiCall({action:'add', ...data, estado:'Pendiente denuncio'});
       showToast('Caso agregado ✓');
     }
     closeModal();
@@ -1563,7 +1649,7 @@ function agregarNuevoEstado() {
     localStorage.setItem('cr_estados', JSON.stringify(customEstados));
   }
   syncEstadoSelects();
-  document.getElementById('f-estado').value = val;
+  const fe = document.getElementById('f-estado'); if (fe) fe.value = val;
   document.getElementById('nuevo-estado-input').value = '';
   closeNuevoEstado();
 }
@@ -1947,27 +2033,7 @@ function getTodayKey() {
 
 async function loadPendientes() {
   try {
-    const cb = 'cr_pend_' + Date.now();
-    const result = await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      const timeout = setTimeout(() => {
-        delete window[cb]; try { document.head.removeChild(script); } catch(e){}
-        reject(new Error('timeout'));
-      }, 6000);
-      window[cb] = (data) => {
-        clearTimeout(timeout);
-        delete window[cb]; try { document.head.removeChild(script); } catch(e){}
-        resolve(data);
-      };
-      script.onerror = () => {
-        clearTimeout(timeout);
-        delete window[cb]; try { document.head.removeChild(script); } catch(e){}
-        reject(new Error('JSONP failed'));
-      };
-      // Construir URL correctamente con ? primero
-      script.src = SHEETS_URL + '?action=getPendientes&callback=' + cb + '&t=' + Date.now();
-      document.head.appendChild(script);
-    });
+    const result = await jsonpFetch(SHEETS_URL + '?action=getPendientes', 'cr_pend');
     if (result && result.ok && result.data) {
       pendientesData = result.data;
       renderPendientes();
@@ -2811,12 +2877,9 @@ function getListaCompleta(tipo) {
 }
 
 // ── Carga desde la nube ──
-function loadAjustes() {
-  const cb = 'cr_aj_' + Date.now();
-  const script = document.createElement('script');
-  const timeout = setTimeout(() => { delete window[cb]; try{document.head.removeChild(script);}catch(e){} }, 8000);
-  window[cb] = (res) => {
-    clearTimeout(timeout); delete window[cb]; try{document.head.removeChild(script);}catch(e){}
+async function loadAjustes() {
+  try {
+    const res = await jsonpFetch(SHEETS_URL + '?action=getAjustes', 'cr_aj');
     if (res && res.ok) {
       ['banco','responsable','comuna','ciudad','estado'].forEach(k => {
         ajustesExtras[k] = (res.extras && res.extras[k]) ? res.extras[k] : [];
@@ -2831,10 +2894,9 @@ function loadAjustes() {
       const ajView = document.getElementById('sec-ajustes');
       if (ajView && ajView.classList.contains('active')) renderAjustes();
     }
-  };
-  script.onerror = () => { clearTimeout(timeout); delete window[cb]; try{document.head.removeChild(script);}catch(e){} };
-  script.src = SHEETS_URL + '?action=getAjustes&callback=' + cb + '&t=' + Date.now();
-  document.head.appendChild(script);
+  } catch(e) {
+    console.log('Ajustes no disponibles:', e.message);
+  }
 }
 
 // ── Poblar selects del modal de caso ──
@@ -2894,7 +2956,8 @@ function renderAjustesLista() {
     const cnt     = inUse ? '<span class="aj-item-count">'+count+' caso'+(count!==1?'s':'')+'</span>' : '';
     const editBtn = (inUse || isExtra) ? '<button onclick="ajRenameByIdx('+i+')" title="Renombrar"><i class="ti ti-edit"></i></button>' : '';
     const delBtn  = (isExtra && !inUse) ? '<button class="aj-del" onclick="ajDeleteByIdx('+i+')" title="Eliminar"><i class="ti ti-trash"></i></button>' : '';
-    return '<div class="aj-item"><span class="aj-item-name">'+escapeHtml(v)+'</span>'+tag+cnt+editBtn+delBtn+'</div>';
+    const dot = (tipo==='estado') ? '<span style="width:14px;height:14px;border-radius:5px;flex-shrink:0;display:inline-block;border:1.5px solid '+estadoColor(v).b+';background:'+estadoColor(v).bg+'"></span>' : '';
+    return '<div class="aj-item">'+dot+'<span class="aj-item-name">'+escapeHtml(v)+'</span>'+tag+cnt+editBtn+delBtn+'</div>';
   }).join('');
 }
 
