@@ -1400,7 +1400,8 @@ function populateDynamicFilters() {
 function renderCases() {
   populateDynamicFilters();
   updateFilterBadge();
-  const q          = (document.getElementById('search')?.value||'').toLowerCase();
+  const norm = v => String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const q          = norm(document.getElementById('search')?.value||'');
   const fSin       = document.getElementById('flt-siniestro')?.value||'';
   const fEstado    = document.getElementById('flt-estado')?.value||'';
   const fBanco     = document.getElementById('flt-banco')?.value||'';
@@ -1415,7 +1416,7 @@ function renderCases() {
     // Archivados: solo se ven en su pestaña; en el resto quedan ocultos
     if(activeFilter==='archivados') { if(!isArchivado(c.id)) return false; }
     else if(isArchivado(c.id)) return false;
-    const mq = !q || [c.nombre,c.rut,c.banco,c.dir,c.caso,c.siniestro].some(v=>(v||'').toLowerCase().includes(q));
+    const mq = !q || [c.nombre,c.rut,c.banco,c.dir,c.caso,c.siniestro,c.ciudad,c.comuna,c.nrosin,c.cobertura].some(v=>norm(v).includes(q));
     if(!mq) return false;
     if(activeFilter==='pendiente' && (c.estado==='Pagado'||c.estado==='Rechazado')) return false;
     if(activeFilter!=='todos' && activeFilter!=='pendiente' && activeFilter!=='archivados' && c.estado!==activeFilter) return false;
@@ -1452,7 +1453,6 @@ function renderCases() {
     return `
       <div class="case-card ${isOpen?'open':''}" id="card-${c.id}" onclick="toggleCard('${c.id}')" style="border-color:${estadoColor(c.estado).b};background:${estadoColor(c.estado).bg}">
         <div class="case-top">
-          <div class="avatar" style="background:${av.bg};color:${av.tc}">${initials(c.nombre)}</div>
           <div class="case-info">
             <div class="case-name">${c.nombre}</div>
             <div class="case-meta">${c.banco||'—'} &nbsp;·&nbsp; ${c.siniestro||'—'} &nbsp;·&nbsp; ${c.dir||'—'}</div>
