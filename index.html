@@ -1046,7 +1046,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxao8qrz6x6-fyhm-xLmht0FnyniiesviumEho8ELv15OMQrfP-pJcRv_Njhaj5KQ3brQ/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzkoTY4q1Hdk8BFm9-7PF0IpCbD2cyKyPJMWZUnTRW9K0BwZxRjhW1d--tkGhCY4QK1Tw/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1070,10 +1070,13 @@ function isArchivado(id){ return archivados.includes(String(id)); }
 function saveArchivados(){ localStorage.setItem('cr_archivados', JSON.stringify(archivados)); }
 function toggleArchivar(id){
   id = String(id);
-  if (isArchivado(id)) { archivados = archivados.filter(x=>x!==id); showToast('Caso desarchivado'); }
-  else { archivados.push(id); showToast('Caso archivado'); }
+  var archivar;
+  if (isArchivado(id)) { archivados = archivados.filter(x=>x!==id); archivar = false; showToast('Caso desarchivado'); }
+  else { archivados.push(id); archivar = true; showToast('Caso archivado'); }
   saveArchivados();
   buildMetrics(); renderCases(); buildResumen();
+  // Persistir en la nube para que se refleje en otros equipos / navegadores
+  formPost(SHEETS_URL, { action: archivar ? 'archivarCaso' : 'desarchivarCaso', id: id }).catch(function(){});
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -1526,8 +1529,14 @@ async function toggleBoleta(id, actual) {
 async function deleteCase(id) {
   if(!confirm('¿Eliminar este caso? No se puede deshacer.')) return;
   setSyncStatus('loading','Eliminando…');
+  id = String(id);
+  // Quita el caso de la vista de inmediato para dar feedback claro; luego
+  // apiCall recarga desde la hoja y confirma (si el borrado falló, reaparece).
+  cases = cases.filter(function(c){ return String(c.id) !== id; });
+  if (expandedId && String(expandedId) === id) expandedId = null;
+  buildMetrics(); renderCases(); buildResumen();
   try {
-    await apiCall({action:'delete', id});
+    await apiCall({action:'delete', id: id});
     showToast('Caso eliminado');
   } catch(e) { showToast('Error al eliminar','error'); setSyncStatus('error','Error'); }
 }
@@ -2652,12 +2661,19 @@ Se despide atentamente,
 
 Camilo Llao
 CR Consulting SPA`
+  },
+
+  personalizado: {
+    extraFields: [],
+    asunto: () => '',
+    cuerpo: () => ''
   }
 };
 
 // ── MODAL EMAIL ───────────────────────────────────────────────────────────────
 const EMAIL_TEMPLATE_LABELS = {
-  documentos:   'Documentos',
+  documentos:    'Documentos',
+  personalizado: 'Personalizado',
   denuncio:     'Denuncio exitoso',
   inspeccion:   'Inspección',
   antecedentes: 'Antecedentes',
@@ -2884,8 +2900,21 @@ async function loadAjustes() {
       ['banco','responsable','comuna','ciudad','estado'].forEach(k => {
         ajustesExtras[k] = (res.extras && res.extras[k]) ? res.extras[k] : [];
       });
-      if (Array.isArray(res.plazos) && res.plazos.length) plazosData = res.plazos;
+      if (Array.isArray(res.plazos)) plazosData = res.plazos;
       if (Array.isArray(res.periodos)) periodos = res.periodos;
+      if (Array.isArray(res.archivados)) {
+        var cloudArc = res.archivados.map(String);
+        // Migración: sube a la nube los archivados que estaban solo en local
+        // (localStorage) para no perderlos en la primera sincronización.
+        archivados.map(String).forEach(function(id){
+          if (cloudArc.indexOf(id) === -1) {
+            formPost(SHEETS_URL, { action:'archivarCaso', id:id }).catch(function(){});
+            cloudArc.push(id);
+          }
+        });
+        archivados = cloudArc;
+        saveArchivados();
+      }
       buildPlazos();
       syncEstadoSelects();
       if (typeof renderCases === 'function') renderCases();
