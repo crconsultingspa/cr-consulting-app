@@ -1046,7 +1046,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzkoTY4q1Hdk8BFm9-7PF0IpCbD2cyKyPJMWZUnTRW9K0BwZxRjhW1d--tkGhCY4QK1Tw/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx8hs4pk6fECDTObTsT7rhagxqooPouXgWyCKTZYSbyAhxpjllc_w0pFxBSYG3y0lCedw/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -2149,6 +2149,13 @@ setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 
       <div id="mandato-nombre" style="font-size:14px;font-weight:600;color:var(--navy);">—</div>
       <div id="mandato-rut" style="font-size:12px;color:var(--text-3);margin-top:2px;">—</div>
     </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px;font-weight:600;">Tipo de mandato</label>
+      <div class="chart-toggle" id="mandato-tipo-toggle" style="margin-bottom:0;">
+        <button type="button" class="chart-toggle-btn active" id="m-tipo-principal" onclick="setMandatoTipo('principal')"><i class="ti ti-file-text"></i> Principal</button>
+        <button type="button" class="chart-toggle-btn" id="m-tipo-secundario" onclick="setMandatoTipo('secundario')"><i class="ti ti-file-text"></i> Secundario</button>
+      </div>
+    </div>
     <div class="form-grid">
       <div class="form-group full">
         <label>Fecha del mandato</label>
@@ -2190,6 +2197,7 @@ setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 
 <script>
 // ── MANDATO ───────────────────────────────────────────────────────────────────
 let mandatoCaseId = null;
+let mandatoTipo   = 'principal';
 
 function openMandato(id) {
   mandatoCaseId = String(id);
@@ -2204,12 +2212,19 @@ function openMandato(id) {
   const btn = document.getElementById('mandato-btn');
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-file-text"></i> Generar y guardar en Drive';
+  setMandatoTipo('principal');
   document.getElementById('modal-mandato').classList.add('open');
 }
 
 function closeMandato() {
   document.getElementById('modal-mandato').classList.remove('open');
   mandatoCaseId = null;
+}
+
+function setMandatoTipo(tipo) {
+  mandatoTipo = tipo;
+  document.getElementById('m-tipo-principal').classList.toggle('active', tipo === 'principal');
+  document.getElementById('m-tipo-secundario').classList.toggle('active', tipo === 'secundario');
 }
 
 async function generarMandato() {
@@ -2225,6 +2240,7 @@ async function generarMandato() {
     await formPost(SHEETS_URL, {
       action: 'generateDoc',
       id: mandatoCaseId,
+      tipo: mandatoTipo,
       fecha, direccion
     });
     await new Promise(r => setTimeout(r, 3000));
