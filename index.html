@@ -258,61 +258,79 @@
     .search-box input { border: none; background: none; outline: none; font-family: inherit; font-size: 13px; color: var(--text); flex: 1; }
 
     /* ─────────────────────────── CASE CARDS ─────────────────────────── */
-    .case-list { display: flex; flex-direction: column; gap: 9px; }
-    .case-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-      transition: border-color 0.15s, box-shadow .15s, transform .12s; cursor: pointer;
-      box-shadow: var(--shadow);
-    }
-    .case-card:hover { border-color: var(--teal); box-shadow: 0 6px 22px rgba(0,43,65,.09); }
-    .case-card.open { border-color: var(--teal); }
-    .case-top { display: flex; align-items: center; gap: 13px; padding: 14px 17px; }
-    .avatar {
-      width: 42px; height: 42px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--disp); font-size: 15px; font-weight: 600; flex-shrink: 0;
-    }
-    .case-info { flex: 1; min-width: 0; }
-    .case-name { font-size: 14px; font-weight: 700; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .case-meta { font-size: 11.5px; color: var(--text-3); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .case-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-    .case-monto { font-family: var(--disp); font-size: 16px; font-weight: 600; color: var(--navy); }
+    /* ── LISTA DE CASOS (tabla) ── */
+    .case-cols { display:grid; grid-template-columns:12px 1fr 160px 200px 30px; gap:16px; padding:10px 18px;
+      background:var(--surface2); border-bottom:1px solid var(--border-strong);
+      font-family:var(--ui); font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-3); }
+    .case-cols .num { text-align:right; }
+    .case-list { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+    .case-card { border-bottom:1px solid rgba(0,43,65,.07); border-left:4px solid var(--teal); transition:background .12s; }
+    .case-card:last-child { border-bottom:none; }
+    .case-card:hover { background:rgba(0,43,65,.02); }
+    .case-card.open { background:#fbfdfe; }
+    .case-card.case-arch { opacity:.72; }
+    .case-row { display:grid; grid-template-columns:12px 1fr 160px 200px 30px; gap:16px; align-items:center; padding:12px 18px; cursor:pointer; }
+    .case-dot { width:9px; height:9px; border-radius:50%; background:var(--teal); }
+    .case-info { min-width:0; display:flex; align-items:baseline; gap:10px; }
+    .case-name { font-size:14.5px; font-weight:700; color:var(--navy); white-space:nowrap; }
+    .case-meta { font-size:12px; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .case-monto { text-align:right; font-family:var(--disp); font-size:17px; font-weight:600; color:var(--navy); font-variant-numeric:tabular-nums; }
     .status-select {
       font-family: var(--ui); font-size: 11.5px; font-weight: 700; padding: 6px 26px 6px 12px;
-      border-radius: 20px; border: 1.5px solid currentColor; cursor: pointer;
+      border-radius: 20px; border: 1.5px solid currentColor; cursor: pointer; width:100%; max-width:100%;
       -webkit-appearance:none; appearance:none; background-repeat:no-repeat;
       background-position: right 9px center; background-size: 11px;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-      max-width: 190px; text-overflow: ellipsis;
+      text-overflow: ellipsis; white-space:nowrap; overflow:hidden;
     }
     .status-select:focus { outline:none; box-shadow: 0 0 0 3px rgba(0,101,126,.15); }
-    .estado-wrap { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
-    .estado-label { font-family: var(--disp); font-size: 9px; font-weight: 600; letter-spacing:.16em; text-transform:uppercase; color: var(--text-3); }
     .badge { font-size: 10.5px; font-weight: 700; padding: 4px 11px; border-radius: 20px; white-space: nowrap; letter-spacing:.01em; }
     .badge-pagado    { background: var(--green-bg); color: var(--green); }
     .badge-rechazado { background: var(--red-bg);   color: var(--red); }
     .badge-espera    { background: var(--blue-bg);  color: var(--teal); }
     .badge-pendiente { background: var(--amber-bg); color: var(--amber); }
-    .chevron { font-size: 17px; color: var(--text-3); transition: transform 0.25s; }
+    .chevron { display:flex; justify-content:flex-end; font-size: 17px; color: var(--text-3); transition: transform 0.25s; }
     .case-card.open .chevron { transform: rotate(180deg); color: var(--teal); }
-    .case-detail { display: none; padding: 0 17px 17px; border-top: 1px solid var(--border); }
-    .case-card.open .case-detail { display: block; animation: slideDown .25s ease; }
+
+    /* ── DETALLE ── */
+    .case-detail { display:none; background:var(--surface2); border-top:1px solid rgba(0,43,65,.09); padding:18px; }
+    .case-card.open .case-detail { display:block; animation: slideDown .25s ease; }
     @keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-    .detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px 22px; padding-top: 16px; margin-bottom: 14px; }
-    .detail-label { font-size: 9.5px; color: var(--text-3); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.06em; font-weight:700; }
-    .detail-value { font-size: 13px; font-weight: 600; color: var(--navy); word-break: break-word; }
-    .commission-row {
-      display: flex; flex-wrap: wrap; gap: 10px;
-      background: linear-gradient(135deg, var(--surface2), #eaf4f7);
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 14px 16px; margin-bottom: 14px;
-    }
-    .comm-item { min-width: 110px; flex:1; }
-    .comm-label { font-size: 9.5px; color: var(--text-3); margin-bottom: 4px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; }
-    .comm-value { font-family: var(--disp); font-size: 17px; font-weight: 600; color: var(--navy); }
-    .action-row { display: flex; gap: 9px; flex-wrap: wrap; }
-    .action-row .btn { padding: 7px 13px; font-size: 12px; }
+    .detail-blocks { display:grid; grid-template-columns:1fr 1fr; gap:26px; }
+    .detail-block > h4 { margin:0; font-family:var(--ui); font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+      color:var(--teal); padding-bottom:8px; border-bottom:1px solid rgba(0,101,126,.2); }
+    .detail-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px 20px; padding-top:12px; }
+    .detail-full { grid-column:1 / -1; }
+    .detail-label { font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--text-3); margin-bottom:5px; }
+    .detail-value { font-size:13.5px; font-weight:500; color:var(--navy); word-break:break-word; }
+    .detail-value.mail { color:var(--teal); font-weight:600; }
+    .detail-textos { margin-top:18px; display:grid; grid-template-columns:1fr 1fr; gap:26px; }
+    .detail-textos .detail-value { font-weight:400; line-height:1.55; }
+
+    /* ── FRANJA FINANCIERA ── */
+    .commission-row { margin-top:18px; background:var(--navy); border-radius:12px; padding:14px 18px;
+      display:grid; grid-template-columns:1.3fr repeat(4,1fr); gap:16px; align-items:end; }
+    .comm-item { min-width:0; }
+    .comm-label { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,247,238,.55); margin-bottom:6px; }
+    .comm-value { font-family:var(--disp); font-size:18px; font-weight:500; color:var(--cream); font-variant-numeric:tabular-nums; }
+    .comm-item.total .comm-value { font-size:24px; }
+
+    /* ── ACCIONES ── */
+    .action-row { margin-top:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .action-row .btn { padding: 8px 13px; font-size: 12px; }
+    .action-row .der { margin-left:auto; display:flex; align-items:center; gap:10px; }
+    .boleta-txt { font-size:12px; color:var(--text-2); white-space:nowrap; }
+    .boleta-txt b { color:var(--navy); }
+    .case-menu { position:relative; }
+    .case-menu-list { position:absolute; right:0; bottom:calc(100% + 6px); margin:0; padding:6px; list-style:none; min-width:210px;
+      background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--radius-sm);
+      box-shadow:0 6px 18px rgba(0,43,65,.14); display:none; z-index:20; }
+    .case-menu.open .case-menu-list { display:block; }
+    .case-menu-list li button { display:flex; width:100%; align-items:center; gap:8px; background:none; border:none; cursor:pointer;
+      font-family:var(--ui); font-size:13px; font-weight:600; color:var(--text); padding:10px; border-radius:6px; text-align:left; }
+    .case-menu-list li button:hover { background:var(--surface2); }
+    .case-menu-list li button.peligro { color:var(--red); }
+    .case-menu-list li button i { font-size:16px; }
 
     /* ─────────────────────────── VIEWS ─────────────────────────── */
     .view { display: none; }
@@ -609,16 +627,33 @@
       .metric-value { font-size: 24px; }
       .stats-hero { grid-template-columns: 1fr; }
 
-      /* Tarjetas de caso: monto pasa abajo, sin desbordes */
-      .case-top { flex-wrap: wrap; gap: 10px 12px; padding: 12px 14px; }
-      .case-info { flex: 1 1 60%; }
-      .case-meta { white-space: normal; }
-      .case-right { width:100%; justify-content: space-between; }
-      .case-detail { padding: 0 14px 14px; }
+      /* Tarjetas de caso: la tabla se convierte en tarjetas apiladas */
+      .case-cols { display:none; }
+      .case-list { background:none; border:none; box-shadow:none; border-radius:0; overflow:visible; }
+      .case-card { background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--teal);
+        border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:10px; overflow:hidden; }
+      .case-row { grid-template-columns:1fr auto; grid-template-areas:"info chev" "monto estado"; gap:10px 12px; padding:13px 14px; }
+      .case-dot { display:none; }
+      .case-info { grid-area:info; flex-direction:column; align-items:flex-start; gap:3px; }
+      .case-name { white-space:normal; }
+      .case-meta { white-space:normal; overflow:visible; }
+      .chevron { grid-area:chev; align-self:start; }
+      .case-monto { grid-area:monto; text-align:left; font-size:20px; align-self:center; }
+      .status-select { grid-area:estado; width:auto; justify-self:end; }
+      .case-detail { padding:13px 14px; }
+      .detail-blocks, .detail-textos, .detail-grid { grid-template-columns:1fr 1fr; gap:14px; }
+      .commission-row { grid-template-columns:1fr 1fr; gap:12px; }
+      .commission-row .comm-item.total { grid-column:span 2; }
+      .detail-label { font-size:9.5px; } .detail-value { font-size:12.5px; }
 
-      /* Botones de acción a pantalla completa en 2 columnas */
+      /* Acciones a pantalla completa */
       .action-row { display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-      .action-row .btn { justify-content:center; padding: 10px 8px; font-size: 12.5px; }
+      .action-row .btn { justify-content:center; padding: 11px 8px; font-size: 12.5px; }
+      .action-row .der { margin-left:0; display:contents; }
+      .boleta-txt { grid-column:span 2; order:-1; text-align:center; }
+      .case-menu { grid-column:span 2; }
+      .case-menu > .btn { width:100%; }
+      .case-menu-list { left:0; right:0; min-width:0; }
 
       /* Tabs y toolbar scrolleables sin salto de línea */
       .tabs { width:100%; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
@@ -1449,65 +1484,91 @@ function renderCases() {
   document.getElementById('casos-count').textContent = `${filtered.length} caso${filtered.length!==1?'s':''} encontrado${filtered.length!==1?'s':''}`;
   const el = document.getElementById('case-list');
   if(!filtered.length){ el.innerHTML=`<div class="empty-state"><i class="ti ti-folder-off"></i><p>Sin casos que coincidan.</p></div>`; return; }
-  el.innerHTML = filtered.map(c => {
-    const ci = Math.abs(parseInt(String(c.id).slice(-2))||0) % 5;
-    const av = AVCOLORS[ci];
-    const isOpen = expandedId === String(c.id);
+  const cols = `<div class="case-cols"><span></span><span>Cliente</span><span class="num">Monto</span><span>Estado</span><span></span></div>`;
+  el.innerHTML = cols + filtered.map(c => {
+    const col = estadoColor(c.estado);
+    const arch = isArchivado(c.id);
     return `
-      <div class="case-card ${isOpen?'open':''}" id="card-${c.id}" onclick="toggleCard('${c.id}')" style="border-color:${estadoColor(c.estado).b};background:${estadoColor(c.estado).bg}">
-        <div class="case-top">
-          <div class="case-info">
-            <div class="case-name">${c.nombre}</div>
-            <div class="case-meta">${c.banco||'—'} &nbsp;·&nbsp; ${c.siniestro||'—'} &nbsp;·&nbsp; ${c.dir||'—'}</div>
-          </div>
-          <div class="case-right">
-            ${c.monto?`<span class="case-monto">${fmtCLP(c.monto)}</span>`:''}
-            <div class="estado-wrap">
-              <span class="estado-label">Estado</span>
-              ${estadoSelectHTML(c)}
-            </div>
-            <i class="ti ti-chevron-down chevron"></i>
-          </div>
+      <div class="case-card${expandedId===String(c.id)?' open':''}${arch?' case-arch':''}" id="card-${c.id}" style="border-left-color:${col.b}">
+        <div class="case-row" onclick="toggleCard('${c.id}')">
+          <span class="case-dot" style="background:${col.b}"></span>
+          <span class="case-info"><b class="case-name">${c.nombre||'—'}</b><span class="case-meta">${c.banco||'—'} · ${c.siniestro||'—'} · ${c.dir||'—'}</span></span>
+          <span class="case-monto">${c.monto?fmtCLP(c.monto):'—'}</span>
+          ${estadoSelectHTML(c)}
+          <span class="chevron"><i class="ti ti-chevron-down"></i></span>
         </div>
         <div class="case-detail">
-          <div class="detail-grid">
-            <div><div class="detail-label">RUT</div><div class="detail-value">${c.rut||'—'}</div></div>
-            <div><div class="detail-label">Tratamiento</div><div class="detail-value">${c.tratamiento||'—'}</div></div>
-            <div><div class="detail-label">Email</div><div class="detail-value">${c.email||'—'}</div></div>
-            <div><div class="detail-label">Comuna</div><div class="detail-value">${c.comuna||'—'}</div></div>
-            <div><div class="detail-label">Ciudad</div><div class="detail-value">${c.ciudad||'—'}</div></div>
-            <div><div class="detail-label">Liquidador</div><div class="detail-value">${c.liquidador||'—'}</div></div>
-            <div><div class="detail-label">Correlativo / Folio</div><div class="detail-value">${c.correlativo||'—'}</div></div>
-            <div><div class="detail-label">Cobertura (CAD)</div><div class="detail-value">${c.cobertura||'—'}</div></div>
-            <div><div class="detail-label">Responsable</div><div class="detail-value">${c.caso||'—'}</div></div>
-            <div><div class="detail-label">Boleta emitida</div><div class="detail-value">${c.boleta||'—'}</div></div>
-            <div><div class="detail-label">Teléfono</div><div class="detail-value">${c.telefono||'—'}</div></div>
-            <div><div class="detail-label">N° Siniestro</div><div class="detail-value">${c.nrosin||'—'}</div></div>
-            <div><div class="detail-label">Fecha de ocurrencia</div><div class="detail-value">${c.fechaSiniestro ? formatFechaSin(c.fechaSiniestro) : '—'}</div></div>
-            ${c.relato?`<div style="grid-column:1/-1"><div class="detail-label">Relato de los hechos</div><div class="detail-value">${c.relato}</div></div>`:''}
-            ${c.obs?`<div style="grid-column:1/-1"><div class="detail-label">Observaciones</div><div class="detail-value">${c.obs}</div></div>`:''}
+          <div class="detail-blocks">
+            <section class="detail-block">
+              <h4>Cliente</h4>
+              <div class="detail-grid">
+                <div><div class="detail-label">RUT</div><div class="detail-value">${c.rut||'—'}</div></div>
+                <div><div class="detail-label">Tratamiento</div><div class="detail-value">${c.tratamiento||'—'}</div></div>
+                <div><div class="detail-label">Teléfono</div><div class="detail-value">${c.telefono||'—'}</div></div>
+                <div class="detail-full"><div class="detail-label">Email</div><div class="detail-value mail">${c.email||'—'}</div></div>
+                <div><div class="detail-label">Comuna</div><div class="detail-value">${c.comuna||'—'}</div></div>
+                <div><div class="detail-label">Ciudad</div><div class="detail-value">${c.ciudad||'—'}</div></div>
+              </div>
+            </section>
+            <section class="detail-block">
+              <h4>Siniestro</h4>
+              <div class="detail-grid">
+                <div><div class="detail-label">N° Siniestro</div><div class="detail-value">${c.nrosin||'—'}</div></div>
+                <div><div class="detail-label">Correlativo / Folio</div><div class="detail-value">${c.correlativo||'—'}</div></div>
+                <div><div class="detail-label">Cobertura (CAD)</div><div class="detail-value">${c.cobertura||'—'}</div></div>
+                <div><div class="detail-label">Fecha de ocurrencia</div><div class="detail-value">${c.fechaSiniestro?formatFechaSin(c.fechaSiniestro):'—'}</div></div>
+                <div><div class="detail-label">Liquidador</div><div class="detail-value">${c.liquidador||'—'}</div></div>
+                <div><div class="detail-label">Responsable</div><div class="detail-value">${c.caso||'—'}</div></div>
+                <div><div class="detail-label">Boleta emitida</div><div class="detail-value">${c.boleta||'—'}</div></div>
+              </div>
+            </section>
           </div>
+          ${(c.relato||c.obs)?`<div class="detail-textos">
+            ${c.relato?`<div><div class="detail-label">Relato de los hechos</div><div class="detail-value">${c.relato}</div></div>`:''}
+            ${c.obs?`<div><div class="detail-label">Observaciones</div><div class="detail-value">${c.obs}</div></div>`:''}
+          </div>`:''}
           ${c.monto?`
           <div class="commission-row">
-            <div class="comm-item"><div class="comm-label">Monto indemnizado</div><div class="comm-value">${fmtCLP(c.monto)}</div></div>
+            <div class="comm-item total"><div class="comm-label">Monto indemnizado</div><div class="comm-value">${fmtCLP(c.monto)}</div></div>
             <div class="comm-item"><div class="comm-label">% CR</div><div class="comm-value">${Math.round((c.porcentaje||0)*100)}%</div></div>
             <div class="comm-item"><div class="comm-label">Comisión CR</div><div class="comm-value">${fmtCLP(c.comision)}</div></div>
             <div class="comm-item"><div class="comm-label">Fondo CR</div><div class="comm-value">${fmtCLP(c.fondo)}</div></div>
             <div class="comm-item"><div class="comm-label">Retiro c/u</div><div class="comm-value">${fmtCLP(c.retiro)}</div></div>
           </div>`:''}
           <div class="action-row" onclick="event.stopPropagation()">
-            <button class="btn" onclick="editCase('${c.id}')"><i class="ti ti-edit"></i> Editar</button>
-            <button class="btn" onclick="toggleBoleta('${c.id}','${c.boleta}')" style="color:${c.boleta==='SI'?'var(--green)':'var(--text-3)'};border-color:${c.boleta==='SI'?'var(--green)':'var(--border)'}"><i class="ti ti-receipt"></i> Boleta: ${c.boleta==='SI'?'Sí':'No'}</button>
-            <button class="btn" onclick="openMandato('${c.id}')" style="color:var(--teal);border-color:var(--teal)"><i class="ti ti-file-text"></i> Mandato</button>
-            <button class="btn" onclick="openContrato('${c.id}')" style="color:var(--navy);border-color:var(--navy)"><i class="ti ti-file-description"></i> Contrato</button>
-            <button class="btn" onclick="deleteCase('${c.id}')" style="color:var(--red)"><i class="ti ti-trash"></i> Eliminar</button>
-            <button class="btn" onclick="openEmail('${c.id}')" style="color:var(--green);border-color:var(--green)"><i class="ti ti-mail"></i> Enviar correo</button>
-            <button class="btn" onclick="toggleArchivar('${c.id}')" style="color:var(--text-2)"><i class="ti ti-${isArchivado(c.id)?'archive-off':'archive'}"></i> ${isArchivado(c.id)?'Desarchivar':'Archivar'}</button>
+            <button class="btn btn-primary" onclick="editCase('${c.id}')"><i class="ti ti-edit"></i> Editar</button>
+            <button class="btn" style="color:var(--green);border-color:var(--green)" onclick="openEmail('${c.id}')"><i class="ti ti-mail"></i> Enviar correo</button>
+            <button class="btn" style="color:var(--teal);border-color:var(--teal)" onclick="openMandato('${c.id}')"><i class="ti ti-file-text"></i> Mandato</button>
+            <button class="btn" style="color:var(--navy);border-color:var(--navy)" onclick="openContrato('${c.id}')"><i class="ti ti-file-description"></i> Contrato</button>
+            <span class="der">
+              <span class="boleta-txt">Boleta: <b>${c.boleta==='SI'?'Sí':'No'}</b></span>
+              <span class="case-menu" id="menu-${c.id}">
+                <button class="btn" onclick="toggleMenu(event,'${c.id}')"><i class="ti ti-dots"></i> Más</button>
+                <ul class="case-menu-list">
+                  <li><button onclick="toggleBoleta('${c.id}','${c.boleta}')"><i class="ti ti-receipt"></i> Boleta: marcar ${c.boleta==='SI'?'No':'Sí'}</button></li>
+                  <li><button onclick="toggleArchivar('${c.id}')"><i class="ti ti-${arch?'archive-off':'archive'}"></i> ${arch?'Desarchivar':'Archivar'}</button></li>
+                  <li><button class="peligro" onclick="deleteCase('${c.id}')"><i class="ti ti-trash"></i> Eliminar</button></li>
+                </ul>
+              </span>
+            </span>
           </div>
         </div>
       </div>`;
   }).join('');
 }
+
+// Menú "Más" de cada tarjeta (abre/cierra sin re-render; se cierra al hacer clic fuera)
+function toggleMenu(ev, id){
+  ev.stopPropagation();
+  const m = document.getElementById('menu-'+id);
+  if(!m) return;
+  const abierto = m.classList.contains('open');
+  document.querySelectorAll('.case-menu.open').forEach(x => x.classList.remove('open'));
+  if(!abierto) m.classList.add('open');
+}
+document.addEventListener('click', () => {
+  document.querySelectorAll('.case-menu.open').forEach(x => x.classList.remove('open'));
+});
 
 function toggleCard(id) {
   expandedId = expandedId===String(id)?null:String(id);
