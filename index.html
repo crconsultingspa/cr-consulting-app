@@ -529,10 +529,10 @@
     .modal-footer { display: flex; justify-content: flex-end; gap: 11px; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); }
 
     /* ── Documentos del caso (subida a Drive) ── */
-    .docs-section { grid-column: 1 / -1; border-top: 1px dashed var(--border); padding-top: 18px; margin-top: 4px; }
-    .docs-section > .docs-head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
-    .docs-section .docs-title { font-size: 10.5px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing:.05em; display:flex; align-items:center; gap:6px; }
-    .docs-section .docs-title i { font-size: 15px; color: var(--teal); }
+    /* Botón Documentos + estado al arrastrar archivos encima */
+    .btn-docs { color: var(--teal); border-color: var(--teal); transition: background .15s, border-color .15s, transform .1s; }
+    .btn-docs.btn-drop { background: var(--teal); color: #fff; border-color: var(--teal); border-style: dashed; transform: scale(1.04); box-shadow: 0 4px 14px rgba(0,101,126,.3); }
+    .btn-docs.btn-drop * { pointer-events: none; }
     .dropzone {
       border: 2px dashed var(--teal); border-radius: var(--radius-sm);
       background: rgba(0,101,126,.04); padding: 20px 16px; text-align:center;
@@ -1138,20 +1138,6 @@
         </div>
         <div class="form-group full"><label>Relato de los hechos</label><textarea id="f-relato" placeholder="Breve descripción de lo sucedido…"></textarea></div>
         <div class="form-group full"><label>Observaciones</label><textarea id="f-obs" placeholder="Notas adicionales…"></textarea></div>
-
-        <div class="docs-section" id="docs-section" style="display:none;">
-          <div class="docs-head">
-            <span class="docs-title"><i class="ti ti-folder"></i> Documentos del caso (Drive)</span>
-          </div>
-          <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-            <i class="ti ti-cloud-upload"></i>
-            <span class="dz-main">Arrastra archivos aquí o haz clic para subir</span>
-            <span class="dz-sub">Se guardan directo en la carpeta del asegurado</span>
-          </div>
-          <input type="file" id="file-input" multiple style="display:none" onchange="onFilesSelected(event)"/>
-          <div class="docs-uploading" id="docs-uploading" style="display:none"><i class="ti ti-loader"></i> <span id="docs-uploading-txt">Subiendo…</span></div>
-          <ul class="docs-list" id="docs-list"></ul>
-        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
@@ -1165,7 +1151,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzQisjVWEV7Ryxtg1wqdQUfVrfd01mlZc_ombVovs48812NFXijIUyirqe8dDcLwpcdkQ/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx8hs4pk6fECDTObTsT7rhagxqooPouXgWyCKTZYSbyAhxpjllc_w0pFxBSYG3y0lCedw/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1662,6 +1648,7 @@ function renderCases() {
             <button class="btn" style="color:var(--green);border-color:var(--green)" onclick="openEmail('${c.id}')"><i class="ti ti-mail"></i> Enviar correo</button>
             <button class="btn" style="color:var(--teal);border-color:var(--teal)" onclick="openMandato('${c.id}')"><i class="ti ti-file-text"></i> Mandato</button>
             <button class="btn" style="color:var(--navy);border-color:var(--navy)" onclick="openContrato('${c.id}')"><i class="ti ti-file-description"></i> Contrato</button>
+            <button class="btn btn-docs" onclick="openDocs('${c.id}')" ondragover="docBtnDragOver(event,this)" ondragleave="docBtnDragLeave(event,this)" ondrop="docBtnDrop(event,'${c.id}',this)" title="Ver y subir documentos (también puedes arrastrar archivos aquí)"><i class="ti ti-folder"></i> Documentos</button>
             <span class="der">
               <span class="boleta-txt">Boleta: <b>${c.boleta==='SI'?'Sí':'No'}</b></span>
               <span class="case-menu" id="menu-${c.id}">
@@ -1724,6 +1711,30 @@ async function descargarDoc(id, tipo) {
 
 // ── DOCUMENTOS DEL CASO (subida a Drive) ─────────────────────────────────────
 const MAX_FILE_MB = 25; // límite por archivo
+let docsCaseId = null;  // caso activo para la subida/lista de documentos
+
+function openDocs(id) {
+  docsCaseId = String(id);
+  const c = cases.find(x => String(x.id) === String(id));
+  document.getElementById('docs-modal-nombre').textContent = c?.nombre || '—';
+  document.getElementById('docs-modal-rut').textContent    = c?.rut    || '—';
+  const up = document.getElementById('docs-uploading');
+  if (up) up.style.display = 'none';
+  document.getElementById('modal-docs').classList.add('open');
+  cargarArchivosCaso(docsCaseId);
+}
+function closeDocs() { document.getElementById('modal-docs').classList.remove('open'); }
+function closeDocsOutside(e) { if (e.target === document.getElementById('modal-docs')) closeDocs(); }
+
+// Drag & drop directamente sobre el botón "Documentos" de cada caso
+function docBtnDragOver(e, el) { e.preventDefault(); e.stopPropagation(); el.classList.add('btn-drop'); }
+function docBtnDragLeave(e, el) { e.preventDefault(); e.stopPropagation(); el.classList.remove('btn-drop'); }
+function docBtnDrop(e, id, el) {
+  e.preventDefault(); e.stopPropagation();
+  el.classList.remove('btn-drop');
+  const files = Array.from(e.dataTransfer?.files || []);
+  if (files.length) { docsCaseId = String(id); subirArchivos(files); }
+}
 
 function fmtBytes(n) {
   n = Number(n) || 0;
@@ -1793,7 +1804,7 @@ function onFilesSelected(ev) {
 }
 
 async function subirArchivos(files) {
-  if (!editingId) { showToast('Guarda el caso antes de subir archivos', 'error'); return; }
+  if (!docsCaseId) { showToast('Selecciona un caso primero', 'error'); return; }
   const upBox = document.getElementById('docs-uploading');
   const upTxt = document.getElementById('docs-uploading-txt');
   let subidos = 0, fallidos = 0;
@@ -1811,7 +1822,7 @@ async function subirArchivos(files) {
       const dataBase64 = await fileToBase64(file);
       await formPost(SHEETS_URL, {
         action: 'uploadArchivo',
-        id: String(editingId),
+        id: String(docsCaseId),
         fileName: file.name,
         mimeType: file.type || 'application/octet-stream',
         dataBase64
@@ -1827,16 +1838,16 @@ async function subirArchivos(files) {
   if (fallidos && !subidos) showToast('No se pudo subir', 'error');
 
   // Confirmar leyendo la carpeta (el POST es no-cors: refrescamos para verificar)
-  setTimeout(() => cargarArchivosCaso(editingId), 1600);
+  setTimeout(() => cargarArchivosCaso(docsCaseId), 1600);
 }
 
 async function eliminarArchivo(fileId, nombre) {
-  if (!editingId) return;
+  if (!docsCaseId) return;
   if (!confirm(`¿Eliminar "${nombre}" de la carpeta del caso?\nSe enviará a la papelera de Drive.`)) return;
   try {
-    await formPost(SHEETS_URL, { action: 'deleteArchivo', id: String(editingId), fileId: String(fileId) });
+    await formPost(SHEETS_URL, { action: 'deleteArchivo', id: String(docsCaseId), fileId: String(fileId) });
     showToast('Archivo eliminado');
-    setTimeout(() => cargarArchivosCaso(editingId), 1400);
+    setTimeout(() => cargarArchivosCaso(docsCaseId), 1400);
   } catch(e) {
     showToast('Error al eliminar', 'error');
   }
@@ -1905,20 +1916,6 @@ function openModal(prefill) {
   } else {
     document.querySelectorAll('#modal-backdrop input,#modal-backdrop textarea').forEach(i=>i.value='');
     document.getElementById('f-porcentaje').value='0.25';
-  }
-  // Sección de documentos: solo para casos existentes (ya tienen carpeta Drive)
-  const docsSec = document.getElementById('docs-section');
-  const upBox   = document.getElementById('docs-uploading');
-  if (upBox) upBox.style.display = 'none';
-  if (docsSec) {
-    if (editingId) {
-      docsSec.style.display = '';
-      cargarArchivosCaso(editingId);
-    } else {
-      docsSec.style.display = 'none';
-      const list = document.getElementById('docs-list');
-      if (list) list.innerHTML = '';
-    }
   }
   document.getElementById('modal-backdrop').classList.add('open');
 }
@@ -2523,6 +2520,28 @@ setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 
 </div>
 
 <!-- MODAL MANDATO -->
+<div class="modal-backdrop" id="modal-docs" onclick="closeDocsOutside(event)">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title-text"><i class="ti ti-folder" style="color:var(--teal)"></i> Documentos del caso</div>
+      <button class="btn" onclick="closeDocs()" style="padding:4px 8px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:18px;">
+      <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;font-weight:600;">Asegurado</div>
+      <div id="docs-modal-nombre" style="font-size:14px;font-weight:600;color:var(--navy);">—</div>
+      <div id="docs-modal-rut" style="font-size:12px;color:var(--text-3);margin-top:2px;">—</div>
+    </div>
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+      <i class="ti ti-cloud-upload"></i>
+      <span class="dz-main">Arrastra archivos aquí o haz clic para subir</span>
+      <span class="dz-sub">Se guardan directo en la carpeta del asegurado</span>
+    </div>
+    <input type="file" id="file-input" multiple style="display:none" onchange="onFilesSelected(event)"/>
+    <div class="docs-uploading" id="docs-uploading" style="display:none"><i class="ti ti-loader"></i> <span id="docs-uploading-txt">Subiendo…</span></div>
+    <ul class="docs-list" id="docs-list"></ul>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="modal-mandato">
   <div class="modal">
     <div class="modal-header">
