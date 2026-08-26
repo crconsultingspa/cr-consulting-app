@@ -169,6 +169,41 @@
     }
     .sidebar-footer button:hover { color: var(--cream); background: rgba(255,247,238,0.12); }
 
+    /* ─────────────────────── SIDEBAR COLLAPSE (desktop) ─────────────────────── */
+    .sidebar { transition: width .3s cubic-bezier(.4,0,.2,1); overflow: visible; }
+    .main    { transition: margin .3s cubic-bezier(.4,0,.2,1); }
+
+    /* Botón que vive DENTRO del sidebar, pegado al borde derecho */
+    .sb-toggle {
+      position: absolute; top: 22px; right: -13px; z-index: 102;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--teal); border: 2px solid #fff;
+      color: #fff; font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,27,43,.3);
+      transition: opacity .2s, transform .2s, background .15s;
+    }
+    .sb-toggle:hover { background: var(--teal-2); }
+    .sb-toggle i { transition: transform .3s; }
+
+    /* Estado colapsado: sidebar a 0, main ocupa todo y se centra */
+    .sidebar.sb-collapsed { width: 0 !important; overflow: hidden; }
+    .main.sb-collapsed     { margin-left: auto !important; margin-right: auto !important; }
+
+    /* Cuando está colapsado, el botón sale del sidebar (que tiene overflow:hidden)
+       y se convierte en un tab pegado al borde izquierdo de la pantalla */
+    .sidebar.sb-collapsed .sb-toggle {
+      position: fixed; left: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 22px; height: 44px; border-radius: 0 8px 8px 0;
+      right: auto; border-left: none;
+      box-shadow: 2px 0 10px rgba(0,27,43,.25);
+    }
+    .sidebar.sb-collapsed .sb-toggle i { transform: rotate(180deg); }
+
+    /* Ocultar en móvil — ya tiene su propio drawer */
+    @media (max-width: 760px) { .sb-toggle { display: none; } }
+
     /* ─────────────────────────── TOPBAR (mobile) ─────────────────────────── */
     .topbar {
       display: none;
@@ -735,7 +770,10 @@
 <div class="layout">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="main-sidebar">
+    <button class="sb-toggle" onclick="toggleSidebar()" title="Colapsar menú" aria-label="Colapsar menú">
+      <i class="ti ti-chevron-left"></i>
+    </button>
     <div class="sidebar-brand">
       <span class="brand-logo" role="img" aria-label="CR Consulting"></span>
     </div>
@@ -835,7 +873,7 @@
       <div class="toolbar">
         <div class="search-box">
           <i class="ti ti-search"></i>
-          <input type="text" id="search" placeholder="Buscar por nombre, RUT, banco, ciudad…" oninput="renderCases()"/>
+          <input type="text" id="search" placeholder="Buscar por nombre, RUT, banco, ciudad, N° siniestro…" oninput="renderCases()"/>
         </div>
         <button class="filter-toggle-btn" id="filter-toggle-btn" onclick="toggleFilterPanel()">
           <i class="ti ti-adjustments-horizontal"></i> Filtros
@@ -1054,6 +1092,8 @@
           </select>
         </div>
         <div class="form-group"><label>Fecha de ocurrencia</label><input type="date" id="f-fechaSiniestro"/></div>
+        <div class="form-group"><label>Fecha de agendamiento</label><input type="datetime-local" id="f-fechaAgendamiento"/></div>
+        <div class="form-group"><label>Nombre de inspector</label><input type="text" id="f-inspector" placeholder="Nombre del inspector"/></div>
         <div class="form-group"><label>Liquidador</label><input type="text" id="f-liquidador" placeholder="Nombre de la liquidadora"/></div>
         <div class="form-group"><label>Cobertura (código CAD)</label><input type="text" id="f-cobertura" placeholder="CAD120130926"/></div>
         <div class="form-group"><label>Responsable</label><select id="f-caso"><option value="">Seleccionar…</option></select></div>
@@ -1081,7 +1121,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx8hs4pk6fECDTObTsT7rhagxqooPouXgWyCKTZYSbyAhxpjllc_w0pFxBSYG3y0lCedw/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzWamYX3F7dxaZ94iqnNSjOophDzY0xgn4XnmTdhj7xfufrXsTIUuprZGmNw21xqHtcRA/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1123,6 +1163,16 @@ function formatFechaSin(f) {
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   return m ? `${m[3]}/${m[2]}/${m[1]}` : s;
 }
+// Formatea fecha+hora de agendamiento: 'aaaa-mm-ddThh:mm' → 'dd/mm/aaaa · HH:mm hrs'
+function formatFechaHora(f) {
+  if (!f) return '—';
+  const s = String(f).trim();
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]} · ${m[4].padStart(2,'0')}:${m[5]} hrs`;
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  return s;
+}
 // Normaliza cualquier formato de fecha (ISO con hora, aaaa-mm-dd o dd/mm/aaaa)
 // al valor 'aaaa-mm-dd' que exige <input type="date">. Evita que la fecha
 // de ocurrencia se borre al editar un caso.
@@ -1133,6 +1183,24 @@ function toDateInput(f) {
   if (m) return `${m[1]}-${m[2]}-${m[3]}`;
   m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);   // dd/mm/aaaa
   if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  return '';
+}
+// Convierte un valor guardado a formato datetime-local (aaaa-mm-ddThh:mm)
+function toDateTimeInput(f) {
+  if (!f) return '';
+  const s = String(f).trim();
+  // Ya viene en formato datetime-local o ISO
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}T${m[4].padStart(2,'0')}:${m[5]}`;
+  // Solo fecha aaaa-mm-dd → agrega 00:00
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}T00:00`;
+  // dd/mm/aaaa hh:mm
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})[ ,]+(\d{1,2}):(\d{2})/);
+  if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}T${m[4].padStart(2,'0')}:${m[5]}`;
+  // dd/mm/aaaa (sin hora)
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}T00:00`;
   return '';
 }
 const initials = n => (n||'?').split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
@@ -1454,7 +1522,15 @@ function renderCases() {
     // Archivados: solo se ven en su pestaña; en el resto quedan ocultos
     if(activeFilter==='archivados') { if(!isArchivado(c.id)) return false; }
     else if(isArchivado(c.id)) return false;
-    const mq = !q || [c.nombre,c.rut,c.banco,c.dir,c.caso,c.siniestro,c.ciudad,c.comuna,c.nrosin,c.cobertura].some(v=>norm(v).includes(q));
+    const mq = !q || (() => {
+      // Coincidencia normal por texto
+      if ([c.nombre,c.rut,c.banco,c.dir,c.caso,c.siniestro,c.ciudad,c.comuna,c.nrosin,c.cobertura,c.inspector,c.liquidador].some(v=>norm(v).includes(q))) return true;
+      // Coincidencia flexible del N° de siniestro: ignora guiones, espacios y demás separadores
+      const digits = s => String(s||'').replace(/[^0-9a-z]/gi,'').toLowerCase();
+      const qd = digits(q);
+      if (qd && digits(c.nrosin).includes(qd)) return true;
+      return false;
+    })();
     if(!mq) return false;
     if(activeFilter==='pendiente' && (c.estado==='Pagado'||c.estado==='Rechazado')) return false;
     if(activeFilter!=='todos' && activeFilter!=='pendiente' && activeFilter!=='archivados' && c.estado!==activeFilter) return false;
@@ -1517,6 +1593,8 @@ function renderCases() {
                 <div><div class="detail-label">Correlativo / Folio</div><div class="detail-value">${c.correlativo||'—'}</div></div>
                 <div><div class="detail-label">Cobertura (CAD)</div><div class="detail-value">${c.cobertura||'—'}</div></div>
                 <div><div class="detail-label">Fecha de ocurrencia</div><div class="detail-value">${c.fechaSiniestro?formatFechaSin(c.fechaSiniestro):'—'}</div></div>
+                <div><div class="detail-label">Fecha de agendamiento</div><div class="detail-value">${c.fechaAgendamiento?formatFechaHora(c.fechaAgendamiento):'—'}</div></div>
+                <div><div class="detail-label">Inspector</div><div class="detail-value">${c.inspector||'—'}</div></div>
                 <div><div class="detail-label">Liquidador</div><div class="detail-value">${c.liquidador||'—'}</div></div>
                 <div><div class="detail-label">Responsable</div><div class="detail-value">${c.caso||'—'}</div></div>
                 <div><div class="detail-label">Boleta emitida</div><div class="detail-value">${c.boleta||'—'}</div></div>
@@ -1608,10 +1686,12 @@ function openModal(prefill) {
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if (typeof fillCaseSelects === 'function') fillCaseSelects(prefill || null);
   if(prefill) {
-    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento','inspector']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     const fs = document.getElementById('f-fechaSiniestro');
     if(fs) fs.value = toDateInput(prefill.fechaSiniestro);
+    const fa = document.getElementById('f-fechaAgendamiento');
+    if(fa) fa.value = toDateTimeInput(prefill.fechaAgendamiento);
     document.getElementById('f-monto').value = prefill.monto || '';
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
   } else {
@@ -1655,6 +1735,8 @@ async function saveCase(e) {
     telefono: document.getElementById('f-telefono').value,
     nrosin:   document.getElementById('f-nrosin').value,
     fechaSiniestro: document.getElementById('f-fechaSiniestro')?.value || '',
+    fechaAgendamiento: document.getElementById('f-fechaAgendamiento')?.value || '',
+    inspector: document.getElementById('f-inspector')?.value || '',
   };
   try {
     if(editingId) {
@@ -1937,6 +2019,26 @@ function closeDrawer() {
   document.querySelector('.sidebar')?.classList.remove('open');
   document.getElementById('drawer-backdrop')?.classList.remove('open');
 }
+
+// ── Sidebar collapse (desktop) ──────────────────────────────────────────────
+function toggleSidebar() {
+  const sb   = document.getElementById('main-sidebar');
+  const main = document.querySelector('.main');
+  const collapsed = sb.classList.toggle('sb-collapsed');
+  if (main) main.classList.toggle('sb-collapsed', collapsed);
+  try { localStorage.setItem('sb_collapsed', collapsed ? '1' : '0'); } catch(e) {}
+}
+// Restaurar estado guardado
+(function restoreSidebar() {
+  try {
+    if (localStorage.getItem('sb_collapsed') === '1') {
+      const sb   = document.getElementById('main-sidebar');
+      const main = document.querySelector('.main');
+      if (sb)   sb.classList.add('sb-collapsed');
+      if (main) main.classList.add('sb-collapsed');
+    }
+  } catch(e) {}
+})();
 
 
 // ── PERÍODOS ──────────────────────────────────────────────────────────────────
