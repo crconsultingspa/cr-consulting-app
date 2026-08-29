@@ -1237,13 +1237,13 @@
       </div>
 
       <div class="aj-tabs">
-        <button class="aj-tab active" data-aj="bancos"       onclick="setAjustesTab('bancos',this)">Bancos</button>
-        <button class="aj-tab"        data-aj="responsables" onclick="setAjustesTab('responsables',this)">Responsables</button>
+        <button class="aj-tab active" data-aj="responsables" onclick="setAjustesTab('responsables',this)">Responsables</button>
         <button class="aj-tab"        data-aj="comunas"      onclick="setAjustesTab('comunas',this)">Comunas</button>
         <button class="aj-tab"        data-aj="ciudades"     onclick="setAjustesTab('ciudades',this)">Ciudades</button>
         <button class="aj-tab"        data-aj="estados"      onclick="setAjustesTab('estados',this)">Estados</button>
         <button class="aj-tab"        data-aj="plazos"       onclick="setAjustesTab('plazos',this)">Plazos bancarios</button>
       </div>
+      <div class="campo-hint hint-plazo" style="margin-bottom:16px"><i class="ti ti-info-circle" style="font-size:15px;margin-top:1px"></i><span>Los bancos ya no se gestionan aquí: agrega o edita bancos directamente en la pestaña <b>Plazos bancarios</b>. Cada banco que registres ahí aparecerá automáticamente en los selectores de la app.</span></div>
 
       <!-- Sub-secciones de lista simple -->
       <div id="aj-lista-wrap" class="chart-card" style="margin-bottom:0">
@@ -1339,6 +1339,18 @@
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Teléfono</label>
           <input type="text" id="f-telefono" placeholder="+56 9 1234 5678" style="font-size:13.5px;font-weight:500;color:#002b41;font-variant-numeric:tabular-nums;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Email secundario</label>
+          <input type="email" id="f-emailSecundario" placeholder="correo.alterno@ejemplo.com" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Teléfono secundario</label>
+          <input type="text" id="f-telefonoSecundario" placeholder="+56 9 8765 4321" style="font-size:13.5px;font-weight:500;color:#002b41;font-variant-numeric:tabular-nums;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">N° Serie Cédula</label>
+          <input type="text" id="f-serieCedula" placeholder="A12345678" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:500;letter-spacing:.02em;color:#002b41;font-variant-numeric:tabular-nums;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
         <div style="display:flex;flex-direction:column;gap:6px;grid-column:span 2">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Dirección</label>
           <input type="text" id="f-dir" placeholder="Calle, número" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
@@ -1382,10 +1394,6 @@
           <input type="date" id="f-fechaSiniestro" style="font-size:13.5px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Fecha de agendamiento</label>
-          <input type="datetime-local" id="f-fechaAgendamiento" style="font-size:13.5px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Cobertura (código CAD)</label>
           <input type="text" id="f-cobertura" placeholder="CAD120130926" style="font-size:13.5px;font-weight:500;color:#002b41;font-variant-numeric:tabular-nums;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
@@ -1405,12 +1413,24 @@
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px 16px">
         <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Fecha de agendamiento</label>
+          <input type="datetime-local" id="f-fechaAgendamiento" style="font-size:13.5px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Nombre de inspector</label>
           <input type="text" id="f-inspector" placeholder="Nombre del inspector" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Liquidador</label>
-          <input type="text" id="f-liquidador" placeholder="Nombre de la liquidadora" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Teléfono inspector</label>
+          <input type="text" id="f-telefonoInspector" placeholder="+56 9 1234 5678" style="font-size:13.5px;font-weight:500;color:#002b41;font-variant-numeric:tabular-nums;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Liquidadora <span style="opacity:.6;text-transform:none;font-weight:500">(empresa)</span></label>
+          <input type="text" id="f-liquidador" placeholder="Nombre de la empresa liquidadora" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Liquidador <span style="opacity:.6;text-transform:none;font-weight:500">(persona)</span></label>
+          <input type="text" id="f-liquidadorPersona" placeholder="Nombre de quien revisa el caso" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Responsable</label>
@@ -1504,7 +1524,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx5CeQSIIQDaufEsoGl3_6fhsGhx6q_hrfZfYcZk8wo7hQFBd2njzHyFijQDVJDaazQ6w/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx4glnvZnQwqEm5f7pWBaybv44TyUo4gjczckcFyHavILFG8HCV_FoYoAv_vWo9LfFVBA/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1521,7 +1541,7 @@ let cases = [], activeFilter = 'pendiente', expandedId = null, editingId = null;
 let sortDir = 'asc', customEstados = JSON.parse(localStorage.getItem('cr_estados')||'[]');
 let ajustesExtras = { banco:[], responsable:[], comuna:[], ciudad:[], estado:[] };
 let plazosData = PLAZOS.map(p => ({ banco:p.banco, compania:p.comp, dias:p.dias, imagen:'' }));
-let ajustesTab = 'bancos';
+let ajustesTab = 'responsables';
 let editingPlazoIdx = null;
 let archivados = JSON.parse(localStorage.getItem('cr_archivados')||'[]');
 function isArchivado(id){ return archivados.includes(String(id)); }
@@ -2048,8 +2068,11 @@ function renderCases() {
               <div class="detail-grid">
                 <div><div class="detail-label">RUT</div><div class="detail-value">${c.rut||'—'}</div></div>
                 <div><div class="detail-label">Tratamiento</div><div class="detail-value">${c.tratamiento||'—'}</div></div>
+                <div><div class="detail-label">N° Serie Cédula</div><div class="detail-value">${c.serieCedula||'—'}</div></div>
                 <div><div class="detail-label">Teléfono</div><div class="detail-value">${c.telefono||'—'}</div></div>
+                <div><div class="detail-label">Teléfono secundario</div><div class="detail-value">${c.telefonoSecundario||'—'}</div></div>
                 <div class="detail-full"><div class="detail-label">Email</div><div class="detail-value mail">${c.email||'—'}</div></div>
+                <div class="detail-full"><div class="detail-label">Email secundario</div><div class="detail-value mail">${c.emailSecundario||'—'}</div></div>
                 <div><div class="detail-label">Comuna</div><div class="detail-value">${c.comuna||'—'}</div></div>
                 <div><div class="detail-label">Ciudad</div><div class="detail-value">${c.ciudad||'—'}</div></div>
               </div>
@@ -2063,7 +2086,9 @@ function renderCases() {
                 <div><div class="detail-label">Fecha de ocurrencia</div><div class="detail-value">${c.fechaSiniestro?formatFechaSin(c.fechaSiniestro):'—'}</div></div>
                 <div><div class="detail-label">Fecha de agendamiento</div><div class="detail-value">${c.fechaAgendamiento?formatFechaHora(c.fechaAgendamiento):'—'}</div></div>
                 <div><div class="detail-label">Inspector</div><div class="detail-value">${c.inspector||'—'}</div></div>
-                <div><div class="detail-label">Liquidador</div><div class="detail-value">${c.liquidador||'—'}</div></div>
+                <div><div class="detail-label">Teléfono inspector</div><div class="detail-value">${c.telefonoInspector||'—'}</div></div>
+                <div><div class="detail-label">Liquidadora</div><div class="detail-value">${c.liquidador||'—'}</div></div>
+                <div><div class="detail-label">Liquidador (persona)</div><div class="detail-value">${c.liquidadorPersona||'—'}</div></div>
                 <div><div class="detail-label">Responsable</div><div class="detail-value">${c.caso||'—'}</div></div>
                 <div><div class="detail-label">Boleta emitida</div><div class="detail-value">${c.boleta||'—'}</div></div>
               </div>
@@ -2438,8 +2463,8 @@ function inspItemHTML(x, conCuando) {
         ${conCuando?`<span class="insp-cuando">${cuando}</span>`:`<span class="insp-cuando">${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</span>`}
       </div>
       <div class="insp-meta">
-        <b>Inspector:</b> ${escapeHtml(String(c.inspector||'— sin asignar'))} &nbsp;·&nbsp;
-        <b>Liquidadora:</b> ${escapeHtml(String(c.liquidador||'—'))}<br>
+        <b>Inspector:</b> ${escapeHtml(String(c.inspector||'— sin asignar'))}${c.telefonoInspector?' ('+escapeHtml(String(c.telefonoInspector))+')':''} &nbsp;·&nbsp;
+        <b>Liquidadora:</b> ${escapeHtml(String(c.liquidador||'—'))}${c.liquidadorPersona?' — '+escapeHtml(String(c.liquidadorPersona)):''}<br>
         <b>Responsable CR:</b> ${escapeHtml(String(c.caso||'—'))} &nbsp;·&nbsp;
         <b>N° siniestro:</b> ${escapeHtml(String(c.nrosin||'—'))}<br>
         ${escapeHtml(String(c.dir||'—'))}${c.comuna?', '+escapeHtml(String(c.comuna)):''}
@@ -2723,7 +2748,7 @@ function openModal(prefill) {
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if (typeof fillCaseSelects === 'function') fillCaseSelects(prefill || null);
   if(prefill) {
-    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento','inspector','estado']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento','inspector','estado','emailSecundario','telefonoSecundario','serieCedula','telefonoInspector','liquidadorPersona']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     const fs = document.getElementById('f-fechaSiniestro');
     if(fs) fs.value = toDateInput(prefill.fechaSiniestro);
@@ -2871,6 +2896,11 @@ async function saveCase(e) {
     fechaSiniestro: document.getElementById('f-fechaSiniestro')?.value || '',
     fechaAgendamiento: document.getElementById('f-fechaAgendamiento')?.value || '',
     inspector: document.getElementById('f-inspector')?.value || '',
+    emailSecundario: document.getElementById('f-emailSecundario')?.value || '',
+    telefonoSecundario: document.getElementById('f-telefonoSecundario')?.value || '',
+    serieCedula: document.getElementById('f-serieCedula')?.value || '',
+    telefonoInspector: document.getElementById('f-telefonoInspector')?.value || '',
+    liquidadorPersona: document.getElementById('f-liquidadorPersona')?.value || '',
   };
   try {
     if(editingId) {
@@ -3058,7 +3088,7 @@ function buildResumen() {
       <div class="chart-card"><div class="chart-title"><i class="ti ti-building-bank"></i>Casos por banco</div>${toggleHTML}<div id="pie-ban"></div></div>
       <div class="chart-card"><div class="chart-title"><i class="ti ti-map-pin"></i>Distribución por comuna</div>${toggleHTML}<div id="pie-ciu"></div></div>
       <div class="chart-card"><div class="chart-title"><i class="ti ti-user-cog"></i>Casos por responsable</div>${toggleHTML}<div id="pie-res"></div></div>
-      <div class="chart-card"><div class="chart-title"><i class="ti ti-clipboard-check"></i>Liquidadores (casos pagados)</div>${toggleHTML}<div id="pie-liq"></div></div>`;
+      <div class="chart-card"><div class="chart-title"><i class="ti ti-clipboard-check"></i>Liquidadoras (casos pagados)</div>${toggleHTML}<div id="pie-liq"></div></div>`;
     buildPieChart(sinTypes,   'pie-sin');
     buildPieChart(estados,    'pie-est');
     buildPieChart(bancos,     'pie-ban');
@@ -3078,7 +3108,7 @@ function buildResumen() {
       <div class="chart-card"><div class="chart-title"><i class="ti ti-building-bank"></i>Casos por banco</div>${toggleHTML}${bar(bancos,C2)}</div>
       <div class="chart-card"><div class="chart-title"><i class="ti ti-map-pin"></i>Distribución por comuna</div>${toggleHTML}${bar(ciudades,C1)}</div>
       <div class="chart-card"><div class="chart-title"><i class="ti ti-user-cog"></i>Casos por responsable</div>${toggleHTML}${bar(responsables,C2)}</div>
-      <div class="chart-card"><div class="chart-title"><i class="ti ti-clipboard-check"></i>Liquidadores (casos pagados)</div>${toggleHTML}${bar(liquidadores,C2)}</div>`;
+      <div class="chart-card"><div class="chart-title"><i class="ti ti-clipboard-check"></i>Liquidadoras (casos pagados)</div>${toggleHTML}${bar(liquidadores,C2)}</div>`;
   }
 
   const montoBanco = {};
@@ -4268,10 +4298,19 @@ function getDetectedValues(tipo) {
   return [...new Set(vals)];
 }
 
+// Nombres de banco tal como fueron registrados en Plazos bancarios.
+// Esa pestaña es ahora la fuente principal: cada banco que se agregue ahí
+// aparece automáticamente en los selectores de "Banco" de toda la app.
+function bancosDePlazos() {
+  const arr = (typeof plazosData !== 'undefined' ? plazosData : []);
+  return [...new Set(arr.map(p => String(p.banco||'').trim()).filter(Boolean))];
+}
+
 function getListaCompleta(tipo) {
   const det = getDetectedValues(tipo);
   const ext = (ajustesExtras[tipo]||[]).map(v => String(v).trim()).filter(Boolean);
-  return [...new Set([...det, ...ext])].sort((a,b)=>a.localeCompare(b,'es'));
+  const plz = (tipo === 'banco') ? bancosDePlazos() : [];
+  return [...new Set([...plz, ...det, ...ext])].sort((a,b)=>a.localeCompare(b,'es'));
 }
 
 // ── Carga desde la nube ──
