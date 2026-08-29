@@ -601,7 +601,7 @@ let DB=[
 </script>
 <script>
  CAPS=()=>[...new Set(DB.map(x=>x.c))];
- SHEETS_URL='https://script.google.com/macros/s/AKfycbzQisjVWEV7Ryxtg1wqdQUfVrfd01mlZc_ombVovs48812NFXijIUyirqe8dDcLwpcdkQ/exec';
+ SHEETS_URL='https://script.google.com/macros/s/AKfycbx4glnvZnQwqEm5f7pWBaybv44TyUo4gjczckcFyHavILFG8HCV_FoYoAv_vWo9LfFVBA/exec';
 const PARTIDAS_SHEET_ID='1PEVPvNUiTXXOEviVi_BRX-5ZEq3ysngE';
 const PARTIDAS_EXPORT_URL='https://docs.google.com/spreadsheets/d/'+PARTIDAS_SHEET_ID+'/export?format=xlsx';
 let S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0,showGG:true,showIVA:true};
@@ -610,25 +610,25 @@ let editRid=null,editPid=null,pidCtr=1,ridCtr=1,activeCap='Todos';
 let dbActiveCap='Todos',dbEditIdx=null,logoPngB64=null;
 let casosCache=null;
 
-const fmt=n=>'$ '+Math.round(n).toLocaleString('es-CL');
-const fmtN=n=>Math.round(n).toLocaleString('es-CL');
-const UNITS=['m2','ml','gl','un','m3'];
-const val=id=>{const el=document.getElementById(id);return el?el.value:'';};
-const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ fmt=n=>'$ '+Math.round(n).toLocaleString('es-CL');
+ fmtN=n=>Math.round(n).toLocaleString('es-CL');
+ UNITS=['m2','ml','gl','un','m3'];
+ val=id=>{ el=document.getElementById(id);return el?el.value:'';};
+ esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-const TAB_ORDER=['tab-datos','tab-recintos','tab-resumen','tab-exportar','tab-config'];
+ TAB_ORDER=['tab-datos','tab-recintos','tab-resumen','tab-exportar','tab-config'];
 function showTab(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const idx=TAB_ORDER.indexOf(id);
+   idx=TAB_ORDER.indexOf(id);
   if(idx>=0) document.querySelectorAll('.tab')[idx].classList.add('active');
   if(id==='tab-resumen') renderResumen();
   if(id==='tab-recintos') renderRecintos();
   if(id==='tab-config') renderDB();
 }
 
-const SIN_CFG={
+ SIN_CFG={
   caneria:{btn:'btn-can',cls:'ac',label:'Cañerías',disp:'sd-can',excel:'ROTURA DE CAÑERIAS'},
   viento:{btn:'btn-vie',cls:'ac',label:'Viento y Lluvia',disp:'sd-can',excel:'VIENTO Y LLUVIA'},
   sismo:{btn:'btn-sis',cls:'ac-sismo',label:'Sismo',disp:'sd-sis',excel:'SISMO'},
