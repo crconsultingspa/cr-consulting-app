@@ -526,6 +526,96 @@
     }
     input:focus, select:focus, textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,101,126,.12); }
     textarea { resize: vertical; min-height: 74px; }
+    /* ── INSPECCIONES ── */
+    .insp-wrap { display:grid; grid-template-columns: 1.5fr 1fr; gap:18px; align-items:start; }
+    .insp-cal-head { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+    .insp-cal-head .btn { padding:6px 10px; }
+    .insp-cal-title { font-family:var(--disp); font-size:16px; font-weight:700; color:var(--navy); flex:1; text-align:center; text-transform:capitalize; }
+    .insp-cal-dow { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
+    .insp-cal-dow span { text-align:center; font-size:10px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; }
+    .insp-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .insp-day {
+      min-height:62px; border:1px solid var(--border); border-radius:8px; padding:5px 6px;
+      background:var(--surface); display:flex; flex-direction:column; gap:3px; cursor:pointer;
+      transition:border-color .15s, background .15s;
+    }
+    .insp-day:hover { border-color:var(--teal); background:rgba(0,101,126,.04); }
+    .insp-day.otro-mes { opacity:.35; }
+    .insp-day.hoy { border-color:var(--teal); border-width:2px; background:rgba(0,101,126,.06); }
+    .insp-day.sel { border-color:var(--navy); border-width:2px; }
+    .insp-day-num { font-size:11.5px; font-weight:700; color:var(--text-2); }
+    .insp-day.hoy .insp-day-num { color:var(--teal); }
+    .insp-pill {
+      font-size:9.5px; font-weight:700; padding:2px 5px; border-radius:5px;
+      background:var(--teal); color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .insp-mas { font-size:9.5px; color:var(--text-3); font-weight:700; }
+    .insp-day-num { display:flex; align-items:center; justify-content:space-between; gap:3px; }
+    .insp-day.con-evento { background:rgba(74,95,208,.05); }
+    /* Pastilla con el icono del evento, siempre en crema CR sobre color */
+    .ev-ico {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:17px; height:17px; padding:2.5px; border-radius:5px;
+      flex-shrink:0; color:var(--cream);
+    }
+    .ev-ico svg { width:100%; height:100%; }
+    .ev-ico.ev-clima { background:#4a5fd0; }
+    .ev-ico.ev-sismo { background:#b5651d; }
+    .ev-ico.ev-agua  { background:#00657e; }
+    .ev-ico.ev-fuego { background:#c0392b; }
+    .ev-banner {
+      display:flex; align-items:center; gap:9px; padding:9px 12px; margin-bottom:10px;
+      border-radius:8px; font-size:12px; color:var(--navy); line-height:1.5;
+    }
+    .ev-banner .ev-ico { width:24px; height:24px; padding:4px; border-radius:7px; }
+    .ev-banner.ev-clima { background:#eceefb; border:1px solid #c9cff2; }
+    .ev-banner.ev-sismo { background:#f7ece1; border:1px solid #e6cdb0; }
+    .ev-banner.ev-agua  { background:#e0f0f4; border:1px solid #a8cfda; }
+    .ev-banner.ev-fuego { background:#fbeae8; border:1px solid #f0c4bf; }
+    .insp-side-title { font-size:11px; font-weight:800; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; display:flex; align-items:center; gap:7px; margin-bottom:13px; }
+    .insp-side-title i { font-size:16px; color:var(--teal); }
+    .insp-item { border:1px solid var(--border); border-left:3px solid var(--teal); border-radius:8px; padding:11px 13px; margin-bottom:9px; background:var(--surface2); }
+    .insp-item.urgente { border-left-color:#c0392b; }
+    .insp-item.hoy-item { border-left-color:#c98a00; }
+    .insp-item-top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:5px; }
+    .insp-nombre { font-size:13px; font-weight:700; color:var(--navy); }
+    .insp-cuando { font-size:11px; font-weight:700; color:var(--teal); white-space:nowrap; }
+    .insp-meta { font-size:11.5px; color:var(--text-3); line-height:1.6; }
+    .insp-meta b { color:var(--text-2); font-weight:700; }
+    .insp-acts { display:flex; gap:7px; margin-top:9px; flex-wrap:wrap; }
+    .insp-acts .btn { padding:5px 10px; font-size:11px; }
+    .insp-vacio { font-size:12.5px; color:var(--text-3); text-align:center; padding:18px 0; }
+    @media (max-width: 900px) { .insp-wrap { grid-template-columns:1fr; } }
+
+    /* Sugerencias bajo campos del formulario */
+    .campo-hint {
+      display:flex; align-items:flex-start; gap:7px; margin-top:2px;
+      font-size:11.5px; line-height:1.5; padding:7px 10px; border-radius:7px;
+      background:#eceefb; border:1px solid #c9cff2; color:var(--navy);
+    }
+    .campo-hint .ev-ico { width:20px; height:20px; padding:3px; border-radius:6px; margin-top:0; }
+    .campo-hint.hint-sismo { background:#f7ece1; border-color:#e6cdb0; }
+    .campo-hint.hint-agua  { background:#e0f0f4; border-color:#a8cfda; }
+    .campo-hint.hint-fuego { background:#fbeae8; border-color:#f0c4bf; }
+    .campo-hint.hint-plazo { background:#e0f0f4; border-color:#a8cfda; }
+    .campo-hint.hint-alerta { background:#fbeae8; border-color:#f0c4bf; }
+    .campo-hint b { font-weight:700; }
+    .plazo-titulo { display:block; font-weight:700; margin-bottom:4px; }
+    .plazo-fila { display:flex; align-items:center; gap:8px; padding:2px 0; }
+    .plazo-fila + .plazo-fila { border-top:1px dashed rgba(0,43,65,.14); }
+    .plazo-banco { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .plazo-dias { font-weight:700; white-space:nowrap; }
+    .plazo-cola { font-size:10.5px; font-weight:700; padding:1px 6px; border-radius:20px; white-space:nowrap; }
+    .plazo-ok      .plazo-cola { background:#e4f5ed; color:#1a7a52; }
+    .plazo-pronto  .plazo-cola { background:#fdf4dd; color:#c98a00; }
+    .plazo-vencido .plazo-cola { background:#fbeae8; color:#c0392b; }
+
+    /* Badge de días en estado (semáforo PPTO / agendamiento) */
+    .dias-badge { flex-shrink:0; font-size:11px; font-weight:800; padding:3px 7px; border-radius:20px; letter-spacing:.02em; }
+    .dias-verde { color:#1a7a52; background:#e4f5ed; }
+    .dias-ambar { color:#c98a00; background:#fdf4dd; }
+    .dias-rojo  { color:#c0392b; background:#fbeae8; }
+
     .modal-footer { display: flex; justify-content: flex-end; gap: 11px; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); }
 
     /* ── Documentos del caso (subida a Drive) ── */
@@ -816,6 +906,7 @@
     <div class="nav-section">
       <div class="nav-label">Gestión</div>
       <button class="nav-item active" onclick="showSection('casos')"><i class="ti ti-folder-open"></i> Casos</button>
+      <button class="nav-item" onclick="showSection('inspecciones')"><i class="ti ti-calendar-clock"></i> Inspecciones</button>
       <button class="nav-item" onclick="showSection('resumen')"><i class="ti ti-chart-histogram"></i> Estadísticas</button>
       <button class="nav-item" onclick="showSection('plazos')"><i class="ti ti-clock-hour-4"></i> Plazos bancarios</button>
       <button class="nav-item" onclick="showSection('periodos')"><i class="ti ti-calendar-event"></i> Períodos</button>
@@ -848,6 +939,7 @@
   <!-- BOTTOM NAV MOBILE -->
   <nav class="bottom-nav" id="bottom-nav">
     <button class="bn-item active" data-sec="casos" onclick="showSection('casos')"><i class="ti ti-folder-open"></i><span>Casos</span></button>
+    <button class="bn-item" data-sec="inspecciones" onclick="showSection('inspecciones')"><i class="ti ti-calendar-clock"></i><span>Inspec.</span></button>
     <button class="bn-item" data-sec="resumen" onclick="showSection('resumen')"><i class="ti ti-chart-histogram"></i><span>Stats</span></button>
     <button class="bn-item" data-sec="plazos" onclick="showSection('plazos')"><i class="ti ti-clock-hour-4"></i><span>Plazos</span></button>
     <button class="bn-item" data-sec="periodos" onclick="showSection('periodos')"><i class="ti ti-calendar-event"></i><span>Períodos</span></button>
@@ -970,6 +1062,7 @@
         <div class="filter-sort-row">
           <label>Ordenar por:</label>
           <select id="sort-field" onchange="renderCases()" style="font-size:12.5px;padding:7px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--navy);font-family:inherit">
+            <option value="prioridad">Prioridad (por defecto)</option>
             <option value="fechaCreacion">Antigüedad</option>
             <option value="monto">Monto indemnizado</option>
             <option value="nombre">Nombre</option>
@@ -987,6 +1080,45 @@
     </div>
 
     <!-- ESTADÍSTICAS -->
+    <!-- ══════════════════ INSPECCIONES ══════════════════ -->
+    <div id="sec-inspecciones" class="view">
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Agenda</div>
+          <h1 class="page-title">Inspecciones</h1>
+          <p class="page-sub" id="insp-count">—</p>
+        </div>
+      </div>
+
+      <div class="insp-wrap">
+        <!-- Calendario -->
+        <div class="chart-card">
+          <div class="insp-cal-head">
+            <button class="btn" onclick="inspMes(-1)"><i class="ti ti-chevron-left"></i></button>
+            <div class="insp-cal-title" id="insp-cal-title">—</div>
+            <button class="btn" onclick="inspMes(1)"><i class="ti ti-chevron-right"></i></button>
+            <button class="btn" onclick="inspHoy()" style="margin-left:8px">Hoy</button>
+          </div>
+          <div class="insp-cal-dow">
+            <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
+          </div>
+          <div class="insp-cal-grid" id="insp-cal-grid"></div>
+        </div>
+
+        <!-- Próximas inspecciones -->
+        <div class="chart-card">
+          <div class="insp-side-title"><i class="ti ti-bell-ringing"></i> Próximas inspecciones</div>
+          <div id="insp-proximas"></div>
+        </div>
+      </div>
+
+      <!-- Detalle del día seleccionado -->
+      <div class="chart-card" id="insp-dia-card" style="display:none">
+        <div class="insp-side-title"><i class="ti ti-calendar-event"></i> <span id="insp-dia-title">—</span></div>
+        <div id="insp-dia-lista"></div>
+      </div>
+    </div>
+
     <div id="sec-resumen" class="view">
       <div class="page-header">
         <div>
@@ -1112,6 +1244,7 @@
             <option>Consorcio</option><option>MetLife</option><option>Caja los Andes</option>
             <option>Renta Nacional</option><option>Otro</option>
           </select>
+          <div class="campo-hint" id="hint-banco" style="display:none"></div>
         </div>
         <div class="form-group">
           <label>Tipo de siniestro</label>
@@ -1121,7 +1254,9 @@
             <option>Incendio</option><option>Inundación</option><option>Sismo</option><option>Otro</option>
           </select>
         </div>
-        <div class="form-group"><label>Fecha de ocurrencia</label><input type="date" id="f-fechaSiniestro"/></div>
+        <div class="form-group"><label>Fecha de ocurrencia</label><input type="date" id="f-fechaSiniestro"/>
+          <div class="campo-hint" id="hint-evento" style="display:none"></div>
+        </div>
         <div class="form-group"><label>Fecha de agendamiento</label><input type="datetime-local" id="f-fechaAgendamiento"/></div>
         <div class="form-group"><label>Nombre de inspector</label><input type="text" id="f-inspector" placeholder="Nombre del inspector"/></div>
         <div class="form-group"><label>Liquidador</label><input type="text" id="f-liquidador" placeholder="Nombre de la liquidadora"/></div>
@@ -1258,14 +1393,77 @@ const ESTADO_COLORS = {
   'Rechazado':                       { b:'#c0392b', bg:'#fbeae8' },
   'Espera de Contacto Liquidadora':  { b:'#8f9fe0', bg:'#eef1fc' },
   'Pendiente mandato y contrato':    { b:'#9b59b6', bg:'#f5ecf8' },
-  'Espera de pago':                  { b:'#56c271', bg:'#e9f8ef' }
+  'Espera de pago':                  { b:'#56c271', bg:'#e9f8ef' },
+  'Pendiente agendar inspección':    { b:'#00657e', bg:'#e0f0f4' },
+  'Pendiente inspección liquidadora':{ b:'#4a5fd0', bg:'#eceefb' }
 };
+// ── SEMÁFORO DE ANTIGÜEDAD DE ESTADO ────────────────────────────────────────
+// Los estados "de trabajo" (PPTO, agendamiento) cambian de color con los días:
+// 0-1 día verde · 2-4 días ámbar · 5+ días rojo.
+const SEMAFORO_VERDE  = { b:'#1a7a52', bg:'#e4f5ed' };
+const SEMAFORO_AMBAR  = { b:'#c98a00', bg:'#fdf4dd' };
+const SEMAFORO_ROJO   = { b:'#c0392b', bg:'#fbeae8' };
+
+const norm2 = t => String(t||'').toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+
+// ¿El estado debe llevar semáforo de antigüedad?
+// Solo los estados donde la pelota está en nuestra cancha: PPTO y agendar inspección.
+// "Pendiente inspección liquidadora" NO lleva semáforo (dependemos de terceros).
+function estadoConSemaforo(e) {
+  const n = norm2(e);
+  if (n.includes('ppto') || n.includes('presupuesto')) return true;
+  if (n.includes('agendar') || n.includes('agendamiento')) return true;
+  return false;
+}
+
+// Días transcurridos desde que se puso el estado actual.
+// Usa fechaEstado; si el caso es antiguo y no la tiene, cae a fechaCreacion.
+function diasEnEstado(c) {
+  const raw = c.fechaEstado || '';
+  if (!raw) return null;   // caso antiguo: sin sello de estado, no se cuenta
+  let d = null;
+  const s = String(raw).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) d = new Date(s);
+  else {
+    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if (m) d = new Date(+m[3], +m[2]-1, +m[1]);
+  }
+  if (!d || isNaN(d)) return null;
+  const ms = Date.now() - d.getTime();
+  return Math.max(0, Math.floor(ms / 86400000));
+}
+
+function semaforoEstado(c) {
+  if (!estadoConSemaforo(c.estado)) return null;
+  const d = diasEnEstado(c);
+  if (d === null) return null;   // sin fechaEstado todavía: se activa al cambiar el estado
+  if (d >= 5) return { ...SEMAFORO_ROJO,  dias: d, nivel: 'rojo'  };
+  if (d >= 2) return { ...SEMAFORO_AMBAR, dias: d, nivel: 'ambar' };
+  return         { ...SEMAFORO_VERDE, dias: d, nivel: 'verde' };
+}
+
+// ── PRIORIDAD DE ORDEN ──────────────────────────────────────────────────────
+// 1) Pendiente PPTO · 2) Pendiente agendamiento · 3) resto de pendientes/esperas
+// 4) cerrados (Pagado / Rechazado). Dentro de cada grupo, los más antiguos primero.
+function prioridadEstado(e) {
+  const n = norm2(e);
+  if (n.includes('ppto') || n.includes('presupuesto')) return 1;
+  if (n.includes('agendar') || n.includes('agendamiento')) return 2;
+  if (n.includes('espera') || n.startsWith('pendiente')) return 3;
+  if (n === 'pagado' || n === 'rechazado') return 5;
+  return 4;
+}
+
 const ESTADO_FALLBACK = { b:'#00657e', bg:'#e9f2f5' };
 function estadoColor(e){ return ESTADO_COLORS[e] || ESTADO_FALLBACK; }
+// Color efectivo del caso: si el estado lleva semáforo, manda el semáforo.
+function colorCaso(c){ return semaforoEstado(c) || estadoColor(c.estado); }
 
 // Lista de estados para el selector de la tarjeta (base + detectados + nube + locales)
 function estadoOptionsList() {
-  const base = ['Pendiente denuncio','Espera de informe final','Pendiente antecedentes',
+  const base = ['Pendiente denuncio','Pendiente agendar inspección','Pendiente inspección liquidadora',
+    'Espera de informe final','Pendiente antecedentes',
     'Pendiente firma','Pendiente PPTO','Pagado','Rechazado'];
   const conColor = Object.keys(ESTADO_COLORS);
   const detect = (typeof cases!=='undefined') ? cases.map(c=>c.estado).filter(Boolean) : [];
@@ -1276,7 +1474,7 @@ function estadoOptionsList() {
 
 // <select> de estado dentro de la tarjeta, con el color del estado actual
 function estadoSelectHTML(c) {
-  const col = estadoColor(c.estado);
+  const col = colorCaso(c);
   const opts = estadoOptionsList().map(e =>
     `<option value="${String(e).replace(/"/g,'&quot;')}"${e===c.estado?' selected':''}>${e}</option>`).join('');
   return `<select class="status-select" style="color:${col.b};background-color:${col.bg}"
@@ -1289,7 +1487,9 @@ async function cambiarEstado(id, nuevo) {
   const c = cases.find(x => String(x.id) === String(id));
   if (!c || c.estado === nuevo) return;
   c.estado = nuevo;
+  c.fechaEstado = new Date().toISOString();  // reinicia el semáforo al instante
   buildMetrics(); renderCases(); buildResumen();
+  if (document.getElementById('sec-inspecciones')?.classList.contains('active')) renderInspecciones();
   try {
     await formPost(SHEETS_URL, { action:'update', id:String(id), estado:nuevo });
     showToast('Estado actualizado ✓');
@@ -1515,7 +1715,7 @@ function clearFilters() {
   sortDir='asc';
   document.getElementById('sort-asc')?.classList.add('active');
   document.getElementById('sort-desc')?.classList.remove('active');
-  document.getElementById('sort-field').value='fechaCreacion';
+  document.getElementById('sort-field').value='prioridad';
   updateFilterBadge();
   renderCases();
 }
@@ -1546,7 +1746,7 @@ function renderCases() {
   const fAntMin    = parseInt(document.getElementById('flt-antiguedad')?.value||'0')||0;
   const fMontoMin  = parseFloat(document.getElementById('flt-monto-min')?.value||'0')||0;
   const fMontoMax  = parseFloat(document.getElementById('flt-monto-max')?.value||'0')||0;
-  const sortField  = document.getElementById('sort-field')?.value||'fechaCreacion';
+  const sortField  = document.getElementById('sort-field')?.value||'prioridad';
 
   let filtered = cases.filter(c => {
     // Archivados: solo se ven en su pestaña; en el resto quedan ocultos
@@ -1576,23 +1776,36 @@ function renderCases() {
   });
 
   // Ordenar
-  filtered.sort((a,b) => {
-    let va, vb;
-    if(sortField==='monto')   { va=a.monto||0; vb=b.monto||0; }
-    else if(sortField==='nombre') { va=(a.nombre||'').toLowerCase(); vb=(b.nombre||'').toLowerCase(); }
-    else if(sortField==='estado') { va=(a.estado||'').toLowerCase(); vb=(b.estado||'').toLowerCase(); }
-    else { va=getDaysOld(a.fechaCreacion); vb=getDaysOld(b.fechaCreacion); }
-    if(va<vb) return sortDir==='asc'?-1:1;
-    if(va>vb) return sortDir==='asc'?1:-1;
-    return 0;
-  });
+  if (sortField === 'prioridad') {
+    // Orden por defecto: primero lo que hay que trabajar (PPTO, agendamiento,
+    // esperas), y dentro de cada grupo lo más antiguo primero.
+    filtered.sort((a,b) => {
+      const pa = prioridadEstado(a.estado), pb = prioridadEstado(b.estado);
+      if (pa !== pb) return pa - pb;
+      const da = diasEnEstado(a) ?? -1, db = diasEnEstado(b) ?? -1;
+      if (da !== db) return db - da;              // más días esperando, más arriba
+      return getDaysOld(b.fechaCreacion) - getDaysOld(a.fechaCreacion);
+    });
+  } else {
+    filtered.sort((a,b) => {
+      let va, vb;
+      if(sortField==='monto')   { va=a.monto||0; vb=b.monto||0; }
+      else if(sortField==='nombre') { va=(a.nombre||'').toLowerCase(); vb=(b.nombre||'').toLowerCase(); }
+      else if(sortField==='estado') { va=(a.estado||'').toLowerCase(); vb=(b.estado||'').toLowerCase(); }
+      else { va=getDaysOld(a.fechaCreacion); vb=getDaysOld(b.fechaCreacion); }
+      if(va<vb) return sortDir==='asc'?-1:1;
+      if(va>vb) return sortDir==='asc'?1:-1;
+      return 0;
+    });
+  }
 
   document.getElementById('casos-count').textContent = `${filtered.length} caso${filtered.length!==1?'s':''} encontrado${filtered.length!==1?'s':''}`;
   const el = document.getElementById('case-list');
   if(!filtered.length){ el.innerHTML=`<div class="empty-state"><i class="ti ti-folder-off"></i><p>Sin casos que coincidan.</p></div>`; return; }
   const cols = `<div class="case-cols"><span></span><span>Cliente</span><span class="num">Monto</span><span>Estado</span><span></span></div>`;
   el.innerHTML = cols + filtered.map(c => {
-    const col = estadoColor(c.estado);
+    const col = colorCaso(c);
+    const sem = semaforoEstado(c);
     const arch = isArchivado(c.id);
     return `
       <div class="case-card${expandedId===String(c.id)?' open':''}${arch?' case-arch':''}" id="card-${c.id}" style="border-left-color:${col.b}">
@@ -1600,6 +1813,7 @@ function renderCases() {
           <span class="case-dot" style="background:${col.b}"></span>
           <span class="case-info"><b class="case-name">${c.nombre||'—'}</b><span class="case-meta">${c.banco||'—'} · ${c.siniestro||'—'} · ${c.dir||'—'}</span></span>
           <span class="case-monto">${c.monto?fmtCLP(c.monto):'—'}</span>
+          ${sem?`<span class="dias-badge dias-${sem.nivel}" title="Lleva ${sem.dias} día${sem.dias===1?'':'s'} en este estado">${sem.dias}d</span>`:''}
           ${estadoSelectHTML(c)}
           <span class="chevron"><i class="ti ti-chevron-down"></i></span>
         </div>
@@ -1709,6 +1923,304 @@ async function descargarDoc(id, tipo) {
   }
 }
 
+// ── INSPECCIONES ─────────────────────────────────────────────────────────────
+let inspRef = new Date();      // mes visible en el calendario
+let inspSel = null;            // 'aaaa-mm-dd' del día seleccionado
+
+const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio',
+                  'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+// Convierte fechaAgendamiento a objeto Date (o null si no hay/está mal)
+function parseAgenda(v) {
+  if (!v) return null;
+  const s = String(v).trim();
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]);
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3], 0, 0);
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:[ ,]+(\d{1,2}):(\d{2}))?/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0));
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+// Todos los casos con inspección agendada, ordenados por fecha
+function inspecciones() {
+  return (typeof cases !== 'undefined' ? cases : [])
+    .filter(c => !isArchivado(c.id))
+    .map(c => ({ c, d: parseAgenda(c.fechaAgendamiento) }))
+    .filter(x => x.d)
+    .sort((a,b) => a.d - b.d);
+}
+
+// ── EVENTOS (períodos) EN EL CALENDARIO ─────────────────────────────────────
+// Clasifica un período según su nombre/observación.
+function tipoEvento(p) {
+  const t = norm2((p.nombre || '') + ' ' + (p.obs || ''));
+  if (/sismo|terremoto|temblor|seismo|telurico/.test(t))              return 'sismo';
+  if (/incendio|fuego|quema|siniestro de fuego/.test(t))              return 'fuego';
+  if (/rotura|caneria|cañeria|filtracion|inundacion|agua|humedad/.test(t)) return 'agua';
+  return 'clima';
+}
+
+// Iconos inline (no dependen del set de iconos cargado). Se pintan en crema CR
+// sobre una pastilla de color, siguiendo la línea del presupuestador.
+const EV_ICONOS = {
+  clima: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.6 4.4 0 0 1 0-9 5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"/><path d="M13 14l-2 4h3l-2 4"/></svg>',
+  sismo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21v-9l7-6 4 3.5"/><path d="M20 21v-8"/><path d="M11 6l-1.5 5 3 1.5-2 3 2.5 3"/></svg>',
+  agua:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 5 6.7 5 9.2a5 5 0 0 1-10 0c0-2.5 2-5.2 5-9.2z"/></svg>',
+  fuego: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a6 6 0 0 0 6-6c0-3-2-5-3.5-7.5C13.5 6 13 4.5 12 3c-1 2.5-2 3.5-3.5 5.5C7 11 6 13 6 15a6 6 0 0 0 6 6z"/><path d="M12 21a2.5 2.5 0 0 0 2.5-2.5c0-1.4-1-2.3-1.6-3.2-.4-.6-.7-1.2-.9-1.8-.6 1.1-1 1.6-1.6 2.4-.5.8-.9 1.6-.9 2.6A2.5 2.5 0 0 0 12 21z"/></svg>'
+};
+const EV_NOMBRE = { clima:'Evento climático', sismo:'Sismo', agua:'Rotura de cañería', fuego:'Incendio' };
+function evIco(t) { return EV_ICONOS[t] || EV_ICONOS.clima; }
+
+// Devuelve los períodos que caen en un día 'aaaa-mm-dd'
+function eventosDelDia(k) {
+  return (typeof periodos !== 'undefined' ? periodos : [])
+    .filter(p => String(p.fecha || '').slice(0,10) === k);
+}
+
+// Encuentra el evento climático/sísmico más cercano a una fecha dada.
+// Devuelve { p, dias, direccion } donde dias es la diferencia absoluta.
+function eventoMasCercano(fechaStr) {
+  const lista = (typeof periodos !== 'undefined' ? periodos : [])
+    .filter(p => p.fecha);
+  if (!lista.length || !fechaStr) return null;
+  const f = new Date(String(fechaStr).slice(0,10) + 'T00:00');
+  if (isNaN(f)) return null;
+  let mejor = null;
+  lista.forEach(p => {
+    const d = new Date(String(p.fecha).slice(0,10) + 'T00:00');
+    if (isNaN(d)) return;
+    const diff = Math.round((f - d) / 86400000);
+    const abs = Math.abs(diff);
+    if (!mejor || abs < mejor.abs) mejor = { p, abs, diff };
+  });
+  return mejor;
+}
+
+// ── SUGERENCIAS EN EL FORMULARIO DE CASO ────────────────────────────────────
+
+// Al escribir la fecha de ocurrencia, sugiere el evento registrado más cercano.
+function sugerirEvento() {
+  const box = document.getElementById('hint-evento');
+  if (!box) return;
+  const f = document.getElementById('f-fechaSiniestro')?.value || '';
+  const m = f ? eventoMasCercano(f) : null;
+  if (!m) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  const t = tipoEvento(m.p);
+  const ico = evIco(t);
+  let cuando;
+  if (m.diff === 0)      cuando = 'el mismo día';
+  else if (m.diff > 0)   cuando = `${m.diff} día${m.diff!==1?'s':''} después del evento`;
+  else                   cuando = `${Math.abs(m.diff)} día${Math.abs(m.diff)!==1?'s':''} antes del evento`;
+  box.className = 'campo-hint hint-' + t;
+  box.innerHTML = `<span class="ev-ico ev-${t}" title="${EV_NOMBRE[t]}">${ico}</span>
+    <span>Evento más cercano: <b>${escapeHtml(String(m.p.nombre||'—'))}</b>
+    (${formatFechaSin(m.p.fecha)}) · la ocurrencia es ${cuando}.</span>`;
+  box.style.display = 'flex';
+}
+
+// Al elegir banco, muestra el plazo para denunciar según Plazos bancarios.
+function sugerirPlazo() {
+  const box = document.getElementById('hint-banco');
+  if (!box) return;
+  const banco = document.getElementById('f-banco')?.value || '';
+  if (!banco) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  const nb = norm2(banco);
+  const lista = (typeof plazosData !== 'undefined' ? plazosData : [])
+    .filter(p => {
+      const pb = norm2(p.banco);
+      return pb && (pb === nb || pb.includes(nb) || nb.includes(pb));
+    });
+  if (!lista.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  // Días transcurridos desde la ocurrencia (si ya se ingresó la fecha)
+  const f = document.getElementById('f-fechaSiniestro')?.value || '';
+  let transcurridos = null;
+  if (f) {
+    const fo = new Date(f + 'T00:00');
+    if (!isNaN(fo)) transcurridos = Math.floor((Date.now() - fo.getTime()) / 86400000);
+  }
+
+  // Una línea por combinación banco + compañía, cada una con su propio plazo
+  let alerta = false;
+  const filas = lista.map(p => {
+    const dias = Number(p.dias) || 0;
+    const comp = String(p.compania || '').trim();
+    const etiqueta = `${escapeHtml(String(p.banco))}${comp ? ' · ' + escapeHtml(comp) : ''}`;
+    let cola = '';
+    let clase = '';
+    if (transcurridos !== null && dias > 0) {
+      const quedan = dias - transcurridos;
+      if (quedan < 0)       { cola = `vencido hace ${Math.abs(quedan)}d`;  clase = ' plazo-vencido'; alerta = true; }
+      else if (quedan === 0){ cola = 'último día';                         clase = ' plazo-vencido'; alerta = true; }
+      else if (quedan <= 5) { cola = `quedan ${quedan}d`;                  clase = ' plazo-pronto';  alerta = true; }
+      else                  { cola = `quedan ${quedan}d`;                  clase = ' plazo-ok'; }
+    }
+    return `<div class="plazo-fila${clase}">
+      <span class="plazo-banco">${etiqueta}</span>
+      <span class="plazo-dias">${dias} días</span>
+      ${cola ? `<span class="plazo-cola">${cola}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  box.className = 'campo-hint ' + (alerta ? 'hint-alerta' : 'hint-plazo');
+  box.innerHTML = `<i class="ti ti-clock-hour-4" style="font-size:15px;margin-top:1px"></i>
+    <span style="flex:1"><span class="plazo-titulo">Plazo para denunciar</span>${filas}</span>`;
+  box.style.display = 'flex';
+}
+
+// Cablea los dos campos (se llama al abrir el modal)
+function initSugerencias() {
+  const fb = document.getElementById('f-banco');
+  const ff = document.getElementById('f-fechaSiniestro');
+  if (fb && !fb.dataset.hintReady) { fb.dataset.hintReady = '1'; fb.addEventListener('change', () => { sugerirPlazo(); }); }
+  if (ff && !ff.dataset.hintReady) { ff.dataset.hintReady = '1'; ff.addEventListener('change', () => { sugerirEvento(); sugerirPlazo(); }); }
+}
+
+function inspMes(delta) {
+  inspRef = new Date(inspRef.getFullYear(), inspRef.getMonth() + delta, 1);
+  renderInspecciones();
+}
+function inspHoy() { inspRef = new Date(); inspSel = ymd(new Date()); renderInspecciones(); }
+
+function inspSelDia(k) {
+  inspSel = (inspSel === k) ? null : k;
+  renderInspecciones();
+}
+
+function renderInspecciones() {
+  const grid = document.getElementById('insp-cal-grid');
+  if (!grid) return;
+  const todas = inspecciones();
+
+  // ── Encabezado del mes ──
+  document.getElementById('insp-cal-title').textContent =
+    `${MESES_ES[inspRef.getMonth()]} ${inspRef.getFullYear()}`;
+
+  // Agrupar por día
+  const porDia = {};
+  todas.forEach(x => { const k = ymd(x.d); (porDia[k] = porDia[k] || []).push(x); });
+
+  // ── Rejilla del mes (semana parte en lunes) ──
+  const primero = new Date(inspRef.getFullYear(), inspRef.getMonth(), 1);
+  let offset = primero.getDay() - 1; if (offset < 0) offset = 6;   // Do=0 -> 6
+  const inicio = new Date(primero); inicio.setDate(primero.getDate() - offset);
+  const hoyK = ymd(new Date());
+
+  let html = '';
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(inicio); d.setDate(inicio.getDate() + i);
+    const k = ymd(d);
+    const delMes = d.getMonth() === inspRef.getMonth();
+    const items = porDia[k] || [];
+    const pills = items.slice(0,2).map(x =>
+      `<span class="insp-pill" title="${escapeHtml(String(x.c.nombre||''))}">${escapeHtml(String(x.c.nombre||'').split(' ')[0])}</span>`).join('');
+    const mas = items.length > 2 ? `<span class="insp-mas">+${items.length-2} más</span>` : '';
+    // Eventos (períodos) marcados con su icono
+    const evs = eventosDelDia(k);
+    const evIco = evs.map(p => {
+      const t = tipoEvento(p);
+      return `<span class="ev-ico ev-${t}" title="${EV_NOMBRE[t]}: ${escapeHtml(String(p.nombre||'Evento'))}">${evIco(t)}</span>`;
+    }).join('');
+    html += `<div class="insp-day${delMes?'':' otro-mes'}${k===hoyK?' hoy':''}${k===inspSel?' sel':''}${evs.length?' con-evento':''}" onclick="inspSelDia('${k}')">
+      <span class="insp-day-num">${d.getDate()}${evIco}</span>${pills}${mas}</div>`;
+  }
+  grid.innerHTML = html;
+
+  // ── Próximas (desde hoy) ──
+  const ahora = new Date(); ahora.setHours(0,0,0,0);
+  const proximas = todas.filter(x => x.d >= ahora).slice(0, 6);
+  document.getElementById('insp-count').textContent =
+    `${todas.length} inspección${todas.length!==1?'es':''} agendada${todas.length!==1?'s':''} · ${proximas.length} próxima${proximas.length!==1?'s':''}`;
+  document.getElementById('insp-proximas').innerHTML = proximas.length
+    ? proximas.map(x => inspItemHTML(x, true)).join('')
+    : '<div class="insp-vacio">No hay inspecciones agendadas próximamente.</div>';
+
+  // ── Detalle del día seleccionado ──
+  const card = document.getElementById('insp-dia-card');
+  if (inspSel) {
+    const [Y,M,D] = inspSel.split('-');
+    const delDia = porDia[inspSel] || [];
+    document.getElementById('insp-dia-title').textContent = delDia.length
+      ? `${+D} de ${MESES_ES[+M-1]} de ${Y} · ${delDia.length} inspección${delDia.length!==1?'es':''}`
+      : `${+D} de ${MESES_ES[+M-1]} de ${Y}`;
+    const evs = eventosDelDia(inspSel).map(p => {
+      const t = tipoEvento(p);
+      return `<div class="ev-banner ev-${t}">
+        <span class="ev-ico ev-${t}" title="${EV_NOMBRE[t]}">${evIco(t)}</span>
+        <span><b>${escapeHtml(String(p.nombre||'Evento'))}</b>${p.obs?' — '+escapeHtml(String(p.obs)):''}</span>
+      </div>`;
+    }).join('');
+    document.getElementById('insp-dia-lista').innerHTML = evs + (delDia.length
+      ? delDia.map(x => inspItemHTML(x, false)).join('')
+      : '<div class="insp-vacio">Sin inspecciones este día.</div>');
+    card.style.display = '';
+  } else {
+    card.style.display = 'none';
+  }
+}
+
+function inspItemHTML(x, conCuando) {
+  const c = x.c, d = x.d;
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const dia = new Date(d); dia.setHours(0,0,0,0);
+  const diff = Math.round((dia - hoy) / 86400000);
+  let cuando = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  let clase = '';
+  if (diff === 0)      { cuando = `HOY · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; clase = ' hoy-item'; }
+  else if (diff === 1) { cuando = `MAÑANA · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; clase = ' urgente'; }
+  else if (diff < 0)   { clase = ' urgente'; }
+  return `
+    <div class="insp-item${clase}">
+      <div class="insp-item-top">
+        <span class="insp-nombre">${escapeHtml(String(c.nombre||'—'))}</span>
+        ${conCuando?`<span class="insp-cuando">${cuando}</span>`:`<span class="insp-cuando">${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</span>`}
+      </div>
+      <div class="insp-meta">
+        <b>Inspector:</b> ${escapeHtml(String(c.inspector||'— sin asignar'))} &nbsp;·&nbsp;
+        <b>Liquidadora:</b> ${escapeHtml(String(c.liquidador||'—'))}<br>
+        <b>Responsable CR:</b> ${escapeHtml(String(c.caso||'—'))} &nbsp;·&nbsp;
+        <b>N° siniestro:</b> ${escapeHtml(String(c.nrosin||'—'))}<br>
+        ${escapeHtml(String(c.dir||'—'))}${c.comuna?', '+escapeHtml(String(c.comuna)):''}
+      </div>
+      <div class="insp-acts">
+        <button class="btn" onclick="irAlCaso('${c.id}')"><i class="ti ti-eye"></i> Ver caso</button>
+        <button class="btn btn-primary" onclick="subirActa('${c.id}')"><i class="ti ti-file-upload"></i> Subir acta</button>
+        <button class="btn" onclick="openDocs('${c.id}')"><i class="ti ti-folder"></i> Documentos</button>
+      </div>
+    </div>`;
+}
+
+// Salta a la sección Casos y abre la tarjeta correspondiente
+function irAlCaso(id) {
+  showSection('casos');
+  expandedId = String(id);
+  renderCases();
+  setTimeout(() => {
+    document.getElementById('card-'+id)?.scrollIntoView({ behavior:'smooth', block:'center' });
+  }, 120);
+}
+
+// Sube el acta de inspección directo a la carpeta Drive del caso
+function subirActa(id) {
+  const inp = document.getElementById('acta-input');
+  inp.onchange = async (ev) => {
+    const files = Array.from(ev.target.files || []);
+    ev.target.value = '';
+    if (!files.length) return;
+    const c = cases.find(x => String(x.id) === String(id));
+    const fecha = new Date().toISOString().slice(0,10);
+    await subirArchivos(files, {
+      casoId: id,
+      prefijo: `Acta de Inspeccion ${fecha} - ${(c?.nombre||'').trim()} - `
+    });
+  };
+  inp.click();
+}
+
 // ── DOCUMENTOS DEL CASO (subida a Drive) ─────────────────────────────────────
 const MAX_FILE_MB = 25; // límite por archivo
 let docsCaseId = null;  // caso activo para la subida/lista de documentos
@@ -1803,42 +2315,90 @@ function onFilesSelected(ev) {
   if (files.length) subirArchivos(files);
 }
 
-async function subirArchivos(files) {
-  if (!docsCaseId) { showToast('Selecciona un caso primero', 'error'); return; }
-  const upBox = document.getElementById('docs-uploading');
-  const upTxt = document.getElementById('docs-uploading-txt');
-  let subidos = 0, fallidos = 0;
-  if (upBox) upBox.style.display = 'flex';
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (file.size > MAX_FILE_MB * 1024 * 1024) {
-      showToast(`"${file.name}" supera ${MAX_FILE_MB} MB y no se subió`, 'error');
-      fallidos++;
-      continue;
-    }
-    if (upTxt) upTxt.textContent = `Subiendo ${i+1} de ${files.length}: ${file.name}`;
+// Sube UN archivo directo a Drive con sesión reanudable (rápido: sin base64 y
+// sin pasar los bytes por Apps Script). Si falla, cae al método antiguo.
+async function subirUnArchivo(file, casoId, nombreDestino) {
+  const nombre = nombreDestino || file.name;
+  const mime   = file.type || 'application/octet-stream';
+  try {
+    const url = SHEETS_URL
+      + '?action=iniciarSubida&id=' + encodeURIComponent(casoId)
+      + '&fileName=' + encodeURIComponent(nombre)
+      + '&mimeType=' + encodeURIComponent(mime);
+    const ini = await jsonpOnce(url, 'cr_up', 20000);
+    if (!ini || !ini.ok || !ini.uploadUrl) throw new Error(ini?.error || 'Sin URL de subida');
+    const put = await fetch(ini.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': mime },
+      body: file
+    });
+    if (!put.ok) throw new Error('PUT ' + put.status);
+    return true;
+  } catch (e) {
+    // Fallback: método antiguo vía Apps Script (más lento pero seguro)
     try {
       const dataBase64 = await fileToBase64(file);
       await formPost(SHEETS_URL, {
         action: 'uploadArchivo',
-        id: String(docsCaseId),
-        fileName: file.name,
-        mimeType: file.type || 'application/octet-stream',
+        id: String(casoId),
+        fileName: nombre,
+        mimeType: mime,
         dataBase64
       });
-      subidos++;
-    } catch(e) {
-      fallidos++;
+      return true;
+    } catch (e2) {
+      return false;
     }
   }
+}
+
+async function subirArchivos(files, opts) {
+  opts = opts || {};
+  const casoId = opts.casoId || docsCaseId;
+  if (!casoId) { showToast('Selecciona un caso primero', 'error'); return; }
+  const upBox = document.getElementById('docs-uploading');
+  const upTxt = document.getElementById('docs-uploading-txt');
+
+  const validos = [];
+  let fallidos = 0;
+  Array.from(files).forEach(f => {
+    if (f.size > MAX_FILE_MB * 1024 * 1024) {
+      showToast(`"${f.name}" supera ${MAX_FILE_MB} MB y no se subió`, 'error');
+      fallidos++;
+    } else validos.push(f);
+  });
+  if (!validos.length) return;
+
+  const modalAbierto = document.getElementById('modal-docs')?.classList.contains('open');
+  if (upBox && modalAbierto) upBox.style.display = 'flex';
+  else showToast(`Subiendo ${validos.length} archivo${validos.length>1?'s':''}…`);
+  let hechos = 0;
+  const marcar = () => {
+    hechos++;
+    if (upTxt) upTxt.textContent = `Subiendo ${hechos} de ${validos.length}…`;
+  };
+  if (upTxt) upTxt.textContent = `Subiendo 0 de ${validos.length}…`;
+
+  // Subida en paralelo (hasta 3 a la vez) — mucho más rápido que en serie
+  let subidos = 0;
+  const cola = validos.slice();
+  async function worker() {
+    while (cola.length) {
+      const f = cola.shift();
+      const nombre = opts.prefijo ? (opts.prefijo + f.name) : f.name;
+      const ok = await subirUnArchivo(f, casoId, nombre);
+      if (ok) subidos++; else fallidos++;
+      marcar();
+    }
+  }
+  await Promise.all([worker(), worker(), worker()]);
 
   if (upBox) upBox.style.display = 'none';
   if (subidos) showToast(`${subidos} archivo${subidos>1?'s':''} subido${subidos>1?'s':''} ✓`);
   if (fallidos && !subidos) showToast('No se pudo subir', 'error');
 
-  // Confirmar leyendo la carpeta (el POST es no-cors: refrescamos para verificar)
-  setTimeout(() => cargarArchivosCaso(docsCaseId), 1600);
+  if (String(casoId) === String(docsCaseId)) cargarArchivosCaso(casoId);
+  if (typeof renderInspecciones === 'function' && document.getElementById('sec-inspecciones')?.classList.contains('active')) renderInspecciones();
 }
 
 async function eliminarArchivo(fileId, nombre) {
@@ -1917,6 +2477,9 @@ function openModal(prefill) {
     document.querySelectorAll('#modal-backdrop input,#modal-backdrop textarea').forEach(i=>i.value='');
     document.getElementById('f-porcentaje').value='0.25';
   }
+  initSugerencias();
+  sugerirEvento();
+  sugerirPlazo();
   document.getElementById('modal-backdrop').classList.add('open');
 }
 
@@ -1982,7 +2545,8 @@ function syncEstadoSelects() {
     if(!sel) return;
     const cur = sel.value;
     const baseOpts = ['Pendiente denuncio','Espera de informe final','Pendiente antecedentes',
-      'Pendiente firma','Pendiente PPTO','Pagado','Rechazado'];
+      'Pendiente firma','Pendiente PPTO','Pagado','Rechazado',
+      'Pendiente agendar inspección','Pendiente inspección liquidadora'];
     const detected = (typeof cases !== 'undefined') ? cases.map(c=>c.estado).filter(Boolean) : [];
     const cloud = (ajustesExtras && ajustesExtras.estado) ? ajustesExtras.estado : [];
     const allOpts = [...new Set([...baseOpts, ...detected, ...cloud, ...customEstados])];
@@ -2215,12 +2779,13 @@ function showSection(sec) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('sec-'+sec).classList.add('active');
-  const idx = ['casos','resumen','plazos','periodos','ajustes'].indexOf(sec);
+  const idx = ['casos','inspecciones','resumen','plazos','periodos','ajustes'].indexOf(sec);
   document.querySelectorAll('.nav-item')[idx]?.classList.add('active');
   // Sincronizar bottom-nav móvil
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.toggle('active', b.dataset.sec===sec));
   closeDrawer();
   window.scrollTo({ top: 0 });
+  if(sec==='inspecciones') renderInspecciones();
   if(sec==='resumen') buildResumen();
   if(sec==='periodos') renderPeriodos();
   if(sec==='ajustes' && typeof renderAjustes==='function') renderAjustes();
@@ -2537,6 +3102,7 @@ setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 
       <span class="dz-sub">Se guardan directo en la carpeta del asegurado</span>
     </div>
     <input type="file" id="file-input" multiple style="display:none" onchange="onFilesSelected(event)"/>
+    <input type="file" id="acta-input" multiple style="display:none"/>
     <div class="docs-uploading" id="docs-uploading" style="display:none"><i class="ti ti-loader"></i> <span id="docs-uploading-txt">Subiendo…</span></div>
     <ul class="docs-list" id="docs-list"></ul>
   </div>
@@ -3296,7 +3862,7 @@ function showEmailStatus(msg, type) {
 const TIPO_FIELD = { banco:'banco', responsable:'caso', comuna:'comuna', ciudad:'ciudad', estado:'estado' };
 const TAB_TIPO   = { bancos:'banco', responsables:'responsable', comunas:'comuna', ciudades:'ciudad', estados:'estado' };
 const TIPO_LABEL = { banco:'banco', responsable:'responsable', comuna:'comuna', ciudad:'ciudad', estado:'estado' };
-const BASE_ESTADOS = ['Pendiente denuncio','Espera de informe final','Pendiente antecedentes','Pendiente firma','Pendiente PPTO','Pagado','Rechazado'];
+const BASE_ESTADOS = ['Pendiente denuncio','Pendiente agendar inspección','Pendiente inspección liquidadora','Espera de informe final','Pendiente antecedentes','Pendiente firma','Pendiente PPTO','Pagado','Rechazado'];
 let ajCurrentList = [];
 
 function getDetectedValues(tipo) {
