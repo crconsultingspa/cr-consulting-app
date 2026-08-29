@@ -319,6 +319,22 @@
       text-overflow: ellipsis; white-space:nowrap; overflow:hidden;
     }
     .status-select:focus { outline:none; box-shadow: 0 0 0 3px rgba(0,101,126,.15); }
+
+    /* ── Modal de caso (rediseño Claude Design) ── */
+    .mform select {
+      appearance:none; -webkit-appearance:none; background-repeat:no-repeat;
+      background-position:right 12px center; background-size:15px; padding-right:30px;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b93a3' stroke-width='2.5' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");
+    }
+    .mform ::placeholder { color:#9fbac5; font-weight:400; }
+    .mform input:focus, .mform select:focus, .mform textarea:focus {
+      border-color:#00657e !important; background:#fff !important; box-shadow:0 0 0 3px rgba(0,101,126,.13);
+    }
+    .modal-tab { transition: color .15s, border-color .15s; }
+    .modal-tab:hover { color:#fff7ee !important; }
+    #modal-backdrop .btn-cancelar:hover { background:#f4f9fb; border-color:#00657e; }
+    #modal-backdrop .btn-guardar:hover { background:#002b41 !important; border-color:#002b41 !important; }
+    #modal-backdrop .modal-close-btn:hover { background:rgba(255,247,238,.12); color:#fff7ee; }
     .badge { font-size: 10.5px; font-weight: 700; padding: 4px 11px; border-radius: 20px; white-space: nowrap; letter-spacing:.01em; }
     .badge-pagado    { background: var(--green-bg); color: var(--green); }
     .badge-rechazado { background: var(--red-bg);   color: var(--red); }
@@ -1262,73 +1278,226 @@
 
 <!-- MODAL NUEVO/EDITAR CASO -->
 <div class="modal-backdrop" id="modal-backdrop" onclick="closeModalOutside(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title-text" id="modal-title-text">Nuevo caso</div>
-      <button class="btn" onclick="closeModal()" style="padding:6px 9px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
+<div onclick="event.stopPropagation()" style="width:100%;max-width:1240px;background:#fff;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 40px);box-shadow:0 1px 2px rgba(0,43,65,.06), 0 34px 80px rgba(0,27,43,.26)">
+
+  <div style="background:#002b41;padding:11px 24px 0;color:#fff7ee;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:30px;height:30px;border-radius:9px;background:rgba(0,101,126,.55);border:1px solid rgba(255,247,238,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-home-cog" style="font-size:17px;color:#fff7ee"></i></div>
+      <div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;overflow:hidden">
+        <div style="display:flex;align-items:baseline;gap:7px;flex-shrink:0">
+          <span id="modal-title-text" style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8fc0cf">Nuevo caso</span>
+          <span id="modal-nrosin-wrap" style="display:none;align-items:baseline;gap:7px"><span style="opacity:.45">·</span><span id="modal-nrosin" style="font-family:'Oswald',sans-serif;letter-spacing:.04em;font-size:17px;color:#cfe6ed"></span></span>
+        </div>
+        <div id="modal-nombre-display" style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;letter-spacing:.01em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:60px"></div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto">
+          <span id="badge-rut" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#cfe6ed;background:rgba(255,247,238,.09);border:1px solid rgba(255,247,238,.14);padding:2px 8px;border-radius:20px;white-space:nowrap"><i class="ti ti-id" style="font-size:13px"></i><span></span></span>
+          <span id="badge-banco" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#cfe6ed;background:rgba(255,247,238,.09);border:1px solid rgba(255,247,238,.14);padding:2px 8px;border-radius:20px;white-space:nowrap"><i class="ti ti-building-bank" style="font-size:13px"></i><span></span></span>
+          <span id="badge-estado" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap"><i class="ti ti-circle-check-filled" style="font-size:13px"></i><span></span></span>
+        </div>
+      </div>
+      <button type="button" class="modal-close-btn" onclick="closeModal()" style="width:30px;height:30px;flex-shrink:0;border-radius:10px;border:1px solid rgba(255,247,238,.16);background:transparent;color:#cfe6ed;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x" style="font-size:18px"></i></button>
     </div>
-    <form onsubmit="saveCase(event)">
-      <div class="form-grid">
-        <div class="form-group full"><label>Nombre completo</label><input type="text" id="f-nombre" required placeholder="Nombre y apellidos"/></div>
-        <div class="form-group"><label>RUT</label><input type="text" id="f-rut" placeholder="12.345.678-9"/></div>
-        <div class="form-group"><label>Tratamiento</label>
-          <select id="f-tratamiento">
-            <option value="">Sin especificar</option>
-            <option value="Sr.">Sr.</option>
-            <option value="Sra.">Sra.</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Email</label><input type="email" id="f-email" placeholder="correo@ejemplo.com"/></div>
-        <div class="form-group full"><label>Dirección</label><input type="text" id="f-dir" placeholder="Calle, número"/></div>
-        <div class="form-group"><label>Comuna</label><select id="f-comuna"><option value="">Seleccionar…</option></select></div>
-        <div class="form-group"><label>Ciudad</label><select id="f-ciudad"><option value="">Seleccionar…</option></select></div>
-        <div class="form-group"><label>Teléfono</label><input type="text" id="f-telefono" placeholder="+56 9 1234 5678"/></div>
-        <div class="form-group"><label>N° Siniestro</label><input type="text" id="f-nrosin" placeholder="SIN-2024-001"/></div>
-        <div class="form-group">
-          <label>Banco</label>
-          <select id="f-banco">
-            <option value="">Seleccionar…</option>
-            <option>Banco Estado</option><option>BCI</option><option>Banco de Chile</option>
-            <option>Banco Itaú</option><option>Scotiabank</option><option>Coopeuch</option>
-            <option>Consorcio</option><option>MetLife</option><option>Caja los Andes</option>
-            <option>Renta Nacional</option><option>Otro</option>
-          </select>
-          <div class="campo-hint" id="hint-banco" style="display:none"></div>
-        </div>
-        <div class="form-group">
-          <label>Tipo de siniestro</label>
-          <select id="f-siniestro">
-            <option value="">Seleccionar…</option>
-            <option>Viento y Lluvia</option><option>Rotura de Cañerías</option>
-            <option>Incendio</option><option>Inundación</option><option>Sismo</option><option>Otro</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Fecha de ocurrencia</label><input type="date" id="f-fechaSiniestro"/>
-          <div class="campo-hint" id="hint-evento" style="display:none"></div>
-        </div>
-        <div class="form-group"><label>Fecha de agendamiento</label><input type="datetime-local" id="f-fechaAgendamiento"/></div>
-        <div class="form-group"><label>Nombre de inspector</label><input type="text" id="f-inspector" placeholder="Nombre del inspector"/></div>
-        <div class="form-group"><label>Liquidador</label><input type="text" id="f-liquidador" placeholder="Nombre de la liquidadora"/></div>
-        <div class="form-group"><label>Cobertura (código CAD)</label><input type="text" id="f-cobertura" placeholder="CAD120130926"/></div>
-        <div class="form-group"><label>Responsable</label><select id="f-caso"><option value="">Seleccionar…</option></select></div>
-        <div class="form-group"><label>Correlativo / Folio</label><input type="text" id="f-correlativo" placeholder="FOLIO 00000"/></div>
-        <div class="form-group"><label>Monto indemnizado ($)</label><input type="number" id="f-monto" placeholder="0" min="0"/></div>
-        <div class="form-group">
-          <label>% Comisión CR</label>
-          <select id="f-porcentaje">
-            <option value="0.25">25%</option><option value="0.20">20%</option>
-            <option value="0.15">15%</option><option value="0.10">10%</option>
-          </select>
-        </div>
-        <div class="form-group full"><label>Relato de los hechos</label><textarea id="f-relato" placeholder="Breve descripción de lo sucedido…"></textarea></div>
-        <div class="form-group full"><label>Observaciones</label><textarea id="f-obs" placeholder="Notas adicionales…"></textarea></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="save-btn"><i class="ti ti-check"></i> Guardar</button>
-      </div>
-    </form>
+
+    <div style="display:flex;gap:2px;margin-top:6px;overflow-x:auto" id="modal-tabs">
+      <button type="button" class="modal-tab" data-tab="titular" onclick="modalGoTab('titular',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid rgba(255,247,238,.5);color:#fff7ee;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-user" style="font-size:15px"></i>Titular</button>
+      <button type="button" class="modal-tab" data-tab="siniestro" onclick="modalGoTab('siniestro',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8fc0cf;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-alert-triangle" style="font-size:15px"></i>Siniestro</button>
+      <button type="button" class="modal-tab" data-tab="gestion" onclick="modalGoTab('gestion',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8fc0cf;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-clipboard-check" style="font-size:15px"></i>Gestión</button>
+      <button type="button" class="modal-tab" data-tab="liquidacion" onclick="modalGoTab('liquidacion',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8fc0cf;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-cash-banknote" style="font-size:15px"></i>Liquidación</button>
+      <button type="button" class="modal-tab" data-tab="notas" onclick="modalGoTab('notas',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8fc0cf;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-notes" style="font-size:15px"></i>Notas</button>
+    </div>
   </div>
+
+  <div id="modal-scroller" style="flex:1;overflow-y:auto;background:#fff;position:relative">
+  <form id="case-form" class="mform" onsubmit="saveCase(event)">
+
+    <section data-sec="titular" style="padding:24px 28px 26px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="width:27px;height:27px;border-radius:9px;background:#e3f0f4;color:#00657e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-user" style="font-size:15px"></i></span>
+        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Datos del titular</span>
+        <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px 16px">
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:span 2">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Nombre completo</label>
+          <input type="text" id="f-nombre" required placeholder="Nombre y apellidos" oninput="refreshModalHeader()" style="font-size:13.5px;font-weight:600;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">RUT</label>
+          <input type="text" id="f-rut" placeholder="12.345.678-9" oninput="refreshModalHeader()" style="font-size:13.5px;font-weight:500;color:#002b41;font-variant-numeric:tabular-nums;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Tratamiento</label>
+          <select id="f-tratamiento" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%">
+            <option value="">Sin especificar</option><option value="Sr.">Sr.</option><option value="Sra.">Sra.</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Email</label>
+          <input type="email" id="f-email" placeholder="correo@ejemplo.com" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Teléfono</label>
+          <input type="text" id="f-telefono" placeholder="+56 9 1234 5678" style="font-size:13.5px;font-weight:500;color:#002b41;font-variant-numeric:tabular-nums;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:span 2">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Dirección</label>
+          <input type="text" id="f-dir" placeholder="Calle, número" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:span 2">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Comuna</label>
+          <select id="f-comuna" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%"><option value="">Seleccionar…</option></select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:span 2">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Ciudad</label>
+          <select id="f-ciudad" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%"><option value="">Seleccionar…</option></select>
+        </div>
+      </div>
+    </section>
+
+    <section data-sec="siniestro" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08);background:#fbfdfe">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="width:27px;height:27px;border-radius:9px;background:#fbf0dc;color:#ad6a13;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-alert-triangle" style="font-size:15px"></i></span>
+        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Siniestro y plazos</span>
+        <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px 16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">N° Siniestro</label>
+          <input type="text" id="f-nrosin" placeholder="SIN-2024-001" oninput="refreshModalHeader()" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:500;letter-spacing:.02em;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Tipo de siniestro</label>
+          <select id="f-siniestro" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%">
+            <option value="">Seleccionar…</option><option>Viento y Lluvia</option><option>Rotura de Cañerías</option><option>Incendio</option><option>Inundación</option><option>Sismo</option><option>Otro</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Banco</label>
+          <select id="f-banco" onchange="refreshModalHeader()" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%">
+            <option value="">Seleccionar…</option><option>Banco Estado</option><option>BCI</option><option>Banco de Chile</option><option>Banco Itaú</option><option>Scotiabank</option><option>Coopeuch</option><option>Consorcio</option><option>MetLife</option><option>Caja los Andes</option><option>Renta Nacional</option><option>Otro</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Fecha de ocurrencia</label>
+          <input type="date" id="f-fechaSiniestro" style="font-size:13.5px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Fecha de agendamiento</label>
+          <input type="datetime-local" id="f-fechaAgendamiento" style="font-size:13.5px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Cobertura (código CAD)</label>
+          <input type="text" id="f-cobertura" placeholder="CAD120130926" style="font-size:13.5px;font-weight:500;color:#002b41;font-variant-numeric:tabular-nums;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:16px">
+        <div class="campo-hint" id="hint-banco" style="display:none"></div>
+        <div class="campo-hint" id="hint-evento" style="display:none"></div>
+      </div>
+    </section>
+
+    <section data-sec="gestion" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="width:27px;height:27px;border-radius:9px;background:#e3f0f4;color:#00657e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-clipboard-check" style="font-size:15px"></i></span>
+        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Gestión del caso</span>
+        <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px 16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Nombre de inspector</label>
+          <input type="text" id="f-inspector" placeholder="Nombre del inspector" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Liquidador</label>
+          <input type="text" id="f-liquidador" placeholder="Nombre de la liquidadora" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Responsable</label>
+          <select id="f-caso" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%"><option value="">Seleccionar…</option></select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Correlativo / Folio</label>
+          <input type="text" id="f-correlativo" placeholder="FOLIO 00000" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+      </div>
+    </section>
+
+    <section data-sec="liquidacion" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08);background:#fbfdfe">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="width:27px;height:27px;border-radius:9px;background:#e2f4ec;color:#1a7a52;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-cash-banknote" style="font-size:15px"></i></span>
+        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Liquidación</span>
+        <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px 16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Monto indemnizado ($)</label>
+          <input type="number" min="0" id="f-monto" placeholder="0" oninput="updateResumenLive()" style="font-family:'Oswald',sans-serif;font-size:19px;font-weight:600;color:#002b41;font-variant-numeric:tabular-nums;padding:8px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid #00657e;border-radius:10px;background:#fff;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">% Comisión CR</label>
+          <select id="f-porcentaje" onchange="updateResumenLive()" style="font-size:13.5px;font-weight:600;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%">
+            <option value="0.25">25%</option><option value="0.20">20%</option><option value="0.15">15%</option><option value="0.10">10%</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Estado del caso</label>
+          <select id="f-estado" onchange="refreshModalHeader()" style="font-size:13.5px;font-weight:600;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%"></select>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;background:#002b41;border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 8px">
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#7ba9ba">Monto indemnizado</span>
+          <span id="resumen-monto" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;color:#fff7ee;font-variant-numeric:tabular-nums;line-height:1.1">—</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;border-left:1px solid rgba(255,247,238,.14);padding-left:14px">
+          <span style="font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#7ba9ba">Comisión CR <span id="resumen-pct" style="color:#7fd6ab">—</span></span>
+          <span id="resumen-comision" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;color:#7fd6ab;font-variant-numeric:tabular-nums;line-height:1.1">—</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;border-left:1px solid rgba(255,247,238,.14);padding-left:14px">
+          <span style="font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#7ba9ba">Fondo CR (90%)</span>
+          <span id="resumen-fondo" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;color:#cfe6ed;font-variant-numeric:tabular-nums;line-height:1.1">—</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;border-left:1px solid rgba(255,247,238,.14);padding-left:14px">
+          <span style="font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#7ba9ba">Retiro c/u (¼ fondo)</span>
+          <span id="resumen-retiro" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;color:#cfe6ed;font-variant-numeric:tabular-nums;line-height:1.1">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section data-sec="notas" style="padding:24px 28px 30px;border-top:1px solid rgba(0,43,65,.08)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="width:27px;height:27px;border-radius:9px;background:#e3f0f4;color:#00657e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-notes" style="font-size:15px"></i></span>
+        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Relato y observaciones</span>
+        <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px 16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Relato de los hechos</label>
+          <textarea id="f-relato" placeholder="Breve descripción de lo sucedido…" style="font-size:13.5px;font-weight:400;line-height:1.6;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%;min-height:96px;resize:vertical"></textarea>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Observaciones</label>
+          <textarea id="f-obs" placeholder="Notas adicionales…" style="font-size:13.5px;font-weight:400;line-height:1.6;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%;min-height:96px;resize:vertical"></textarea>
+        </div>
+      </div>
+    </section>
+
+  </form>
+  </div>
+
+  <div style="flex-shrink:0;padding:14px 28px;border-top:1px solid rgba(0,43,65,.1);background:#fff;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;box-shadow:0 -6px 18px rgba(0,43,65,.05)">
+    <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:#6b93a3">
+      <i class="ti ti-history" style="font-size:15px"></i><span id="modal-lastedit-text">—</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button type="button" class="btn-cancelar" onclick="closeModal()" style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;border:1px solid rgba(0,43,65,.2);background:#fff;color:#002b41;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
+      <button type="submit" form="case-form" id="save-btn" class="btn-guardar" style="display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;border:1px solid #00657e;background:#00657e;color:#fff7ee;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 5px 16px rgba(0,101,126,.3)"><i class="ti ti-check"></i> Guardar cambios</button>
+    </div>
+  </div>
+
+</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -2554,7 +2723,7 @@ function openModal(prefill) {
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if (typeof fillCaseSelects === 'function') fillCaseSelects(prefill || null);
   if(prefill) {
-    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento','inspector']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento','inspector','estado']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     const fs = document.getElementById('f-fechaSiniestro');
     if(fs) fs.value = toDateInput(prefill.fechaSiniestro);
@@ -2565,11 +2734,105 @@ function openModal(prefill) {
   } else {
     document.querySelectorAll('#modal-backdrop input,#modal-backdrop textarea').forEach(i=>i.value='');
     document.getElementById('f-porcentaje').value='0.25';
+    const fe = document.getElementById('f-estado'); if (fe) fe.value = '';
   }
   initSugerencias();
   sugerirEvento();
   sugerirPlazo();
+  refreshModalHeader();
+  updateResumenLive();
+  renderModalFooterMeta(prefill);
+  // Reinicia la vista del modal en la pestaña "Titular" cada vez que se abre
+  const scroller = document.getElementById('modal-scroller');
+  if (scroller) scroller.scrollTop = 0;
+  const firstTab = document.querySelector('#modal-tabs button[data-tab="titular"]');
+  if (firstTab) modalGoTab('titular', firstTab);
   document.getElementById('modal-backdrop').classList.add('open');
+}
+
+// ── Cabecera dinámica del modal (nombre, N° siniestro, badges RUT/banco/estado) ──
+function refreshModalHeader() {
+  const nombre = document.getElementById('f-nombre')?.value || '';
+  const disp = document.getElementById('modal-nombre-display');
+  if (disp) disp.textContent = nombre || (editingId ? '—' : 'Nuevo caso');
+
+  const nrosin = document.getElementById('f-nrosin')?.value || '';
+  const nrWrap = document.getElementById('modal-nrosin-wrap');
+  if (nrWrap) {
+    if (nrosin) { nrWrap.style.display = 'inline-flex'; document.getElementById('modal-nrosin').textContent = 'N° ' + nrosin; }
+    else nrWrap.style.display = 'none';
+  }
+
+  const rut = document.getElementById('f-rut')?.value || '';
+  const bRut = document.getElementById('badge-rut');
+  if (bRut) {
+    if (rut) { bRut.style.display = 'inline-flex'; bRut.querySelector('span').textContent = rut; }
+    else bRut.style.display = 'none';
+  }
+
+  const banco = document.getElementById('f-banco')?.value || '';
+  const bBanco = document.getElementById('badge-banco');
+  if (bBanco) {
+    if (banco) { bBanco.style.display = 'inline-flex'; bBanco.querySelector('span').textContent = banco; }
+    else bBanco.style.display = 'none';
+  }
+
+  const estado = document.getElementById('f-estado')?.value || '';
+  const bEstado = document.getElementById('badge-estado');
+  if (bEstado) {
+    if (estado && typeof estadoColor === 'function') {
+      const col = estadoColor(estado);
+      bEstado.style.display = 'inline-flex';
+      bEstado.style.background = col.bg;
+      bEstado.style.color = col.b;
+      bEstado.querySelector('span').textContent = estado;
+    } else bEstado.style.display = 'none';
+  }
+}
+
+// ── Resumen de liquidación en vivo (Monto / Comisión / Fondo / Retiro) ──
+function updateResumenLive() {
+  const monto = parseFloat(document.getElementById('f-monto')?.value) || 0;
+  const pct   = parseFloat(document.getElementById('f-porcentaje')?.value) || 0;
+  const comision = monto ? monto * pct : 0;
+  const fondo    = comision ? comision * 0.9 : 0;
+  const retiro   = fondo ? fondo * 0.25 : 0;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('resumen-monto',    monto    ? fmtCLP(monto)    : '—');
+  set('resumen-pct',      pct      ? Math.round(pct * 100) + '%' : '—');
+  set('resumen-comision', comision ? fmtCLP(comision) : '—');
+  set('resumen-fondo',    fondo    ? fmtCLP(fondo)    : '—');
+  set('resumen-retiro',   retiro   ? fmtCLP(retiro)   : '—');
+}
+
+// ── Navegación entre pestañas del modal (scroll suave a cada sección) ──
+function modalGoTab(sec, btn) {
+  const box = document.getElementById('modal-scroller');
+  const el  = box?.querySelector('[data-sec="' + sec + '"]');
+  if (box && el) {
+    const target = Math.max(0, el.offsetTop - 4);
+    if (typeof box.scrollTo === 'function') box.scrollTo({ top: target, behavior: 'smooth' });
+    else box.scrollTop = target;
+  }
+  document.querySelectorAll('#modal-tabs .modal-tab').forEach(b => {
+    b.style.color = '#8fc0cf';
+    b.style.borderBottomColor = 'transparent';
+  });
+  if (btn) { btn.style.color = '#fff7ee'; btn.style.borderBottomColor = 'rgba(255,247,238,.5)'; }
+}
+
+// ── Texto de "última edición" en el pie del modal ──
+function renderModalFooterMeta(prefill) {
+  const el = document.getElementById('modal-lastedit-text');
+  if (!el) return;
+  if (!prefill) { el.textContent = 'Nuevo caso — aún no se ha guardado.'; return; }
+  if (prefill.fechaEstado && typeof formatFechaHora === 'function') {
+    el.textContent = 'Última actualización: ' + formatFechaHora(prefill.fechaEstado);
+  } else if (prefill.fechaCreacion) {
+    el.textContent = 'Creado el ' + prefill.fechaCreacion;
+  } else {
+    el.textContent = '—';
+  }
 }
 
 function editCase(id) { const c=cases.find(x=>String(x.id)===String(id)); if(c) openModal(c); }
@@ -2611,8 +2874,12 @@ async function saveCase(e) {
   };
   try {
     if(editingId) {
-      // El estado ya no se edita en el modal (se cambia en la tarjeta): se preserva
-      await apiCall({action:'update', id:editingId, ...data});
+      // El estado ahora sí se edita desde el modal (pestaña Liquidación).
+      // Si no hay selección (por ejemplo el select aún no cargó), se preserva el actual.
+      const estadoSel = document.getElementById('f-estado')?.value || '';
+      const payload = { action:'update', id:editingId, ...data };
+      if (estadoSel) payload.estado = estadoSel;
+      await apiCall(payload);
       showToast('Caso actualizado ✓');
     } else {
       await apiCall({action:'add', ...data, estado:'Pendiente denuncio'});
