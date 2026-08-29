@@ -1614,6 +1614,7 @@ async function loadFromSheets() {
       setSyncStatus('ok', `${cases.length} casos · sync ✓`);
       if (json.version) { const vEl = document.getElementById('app-version'); if (vEl) vEl.textContent = '· ' + json.version; }
       buildMetrics(); renderCases(); buildResumen();
+      if (typeof renderInspecciones === 'function') renderInspecciones();
     } else {
       setSyncStatus('error', 'Error al cargar');
     }
@@ -1926,6 +1927,7 @@ async function descargarDoc(id, tipo) {
 // ── INSPECCIONES ─────────────────────────────────────────────────────────────
 let inspRef = new Date();      // mes visible en el calendario
 let inspSel = null;            // 'aaaa-mm-dd' del día seleccionado
+let inspAutoSalto = false;     // solo saltamos de mes una vez, al primer render con datos
 
 const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio',
                   'julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -2096,6 +2098,19 @@ function renderInspecciones() {
   if (!grid) return;
   const todas = inspecciones();
 
+  // La primera vez que hay datos, si el mes actual no tiene nada, saltamos al
+  // mes de la próxima inspección (o de la última, si todas ya pasaron).
+  if (!inspAutoSalto && todas.length) {
+    inspAutoSalto = true;
+    const hayEsteMes = todas.some(x =>
+      x.d.getMonth() === inspRef.getMonth() && x.d.getFullYear() === inspRef.getFullYear());
+    if (!hayEsteMes) {
+      const hoy0 = new Date(); hoy0.setHours(0,0,0,0);
+      const obj = todas.find(x => x.d >= hoy0) || todas[todas.length - 1];
+      inspRef = new Date(obj.d.getFullYear(), obj.d.getMonth(), 1);
+    }
+  }
+
   // ── Encabezado del mes ──
   document.getElementById('insp-cal-title').textContent =
     `${MESES_ES[inspRef.getMonth()]} ${inspRef.getFullYear()}`;
@@ -2121,23 +2136,41 @@ function renderInspecciones() {
     const mas = items.length > 2 ? `<span class="insp-mas">+${items.length-2} más</span>` : '';
     // Eventos (períodos) marcados con su icono
     const evs = eventosDelDia(k);
-    const evIco = evs.map(p => {
+    const evsHTML = evs.map(p => {
       const t = tipoEvento(p);
       return `<span class="ev-ico ev-${t}" title="${EV_NOMBRE[t]}: ${escapeHtml(String(p.nombre||'Evento'))}">${evIco(t)}</span>`;
     }).join('');
     html += `<div class="insp-day${delMes?'':' otro-mes'}${k===hoyK?' hoy':''}${k===inspSel?' sel':''}${evs.length?' con-evento':''}" onclick="inspSelDia('${k}')">
-      <span class="insp-day-num">${d.getDate()}${evIco}</span>${pills}${mas}</div>`;
+      <span class="insp-day-num">${d.getDate()}${evsHTML}</span>${pills}${mas}</div>`;
   }
   grid.innerHTML = html;
 
   // ── Próximas (desde hoy) ──
   const ahora = new Date(); ahora.setHours(0,0,0,0);
-  const proximas = todas.filter(x => x.d >= ahora).slice(0, 6);
+  const futuras  = todas.filter(x => x.d >= ahora);
+  const pasadas  = todas.length - futuras.length;
+  const proximas = futuras.slice(0, 6);
+  const nPer = (typeof periodos !== 'undefined' ? periodos : []).filter(p => p.fecha).length;
+  const nCasos = (typeof cases !== 'undefined' ? cases.length : 0);
+
   document.getElementById('insp-count').textContent =
-    `${todas.length} inspección${todas.length!==1?'es':''} agendada${todas.length!==1?'s':''} · ${proximas.length} próxima${proximas.length!==1?'s':''}`;
+    `${todas.length} agendada${todas.length!==1?'s':''} · ${futuras.length} próxima${futuras.length!==1?'s':''}`
+    + (pasadas ? ` · ${pasadas} pasada${pasadas!==1?'s':''}` : '')
+    + ` · ${nPer} evento${nPer!==1?'s':''} registrado${nPer!==1?'s':''}`;
+
+  let vacio;
+  if (!nCasos) {
+    vacio = '<div class="insp-vacio"><i class="ti ti-loader"></i> Cargando casos…</div>';
+  } else if (!todas.length) {
+    vacio = `<div class="insp-vacio">Ningún caso tiene <b>fecha de agendamiento</b> todavía.<br>
+      Edita un caso y completa ese campo para que aparezca aquí.</div>`;
+  } else {
+    vacio = `<div class="insp-vacio">No hay inspecciones próximas.<br>
+      Las ${pasadas} agendada${pasadas!==1?'s':''} ya ocurrieron — búscalas en el calendario.</div>`;
+  }
   document.getElementById('insp-proximas').innerHTML = proximas.length
     ? proximas.map(x => inspItemHTML(x, true)).join('')
-    : '<div class="insp-vacio">No hay inspecciones agendadas próximamente.</div>';
+    : vacio;
 
   // ── Detalle del día seleccionado ──
   const card = document.getElementById('insp-dia-card');
@@ -3903,6 +3936,7 @@ async function loadAjustes() {
       }
       buildPlazos();
       syncEstadoSelects();
+      if (typeof renderInspecciones === 'function') renderInspecciones();
       if (typeof renderCases === 'function') renderCases();
       const perView = document.getElementById('sec-periodos');
       if (perView && perView.classList.contains('active') && typeof renderPeriodos==='function') renderPeriodos();
