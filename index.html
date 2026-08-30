@@ -683,6 +683,32 @@
     .docs-uploading { font-size:12px; color: var(--teal); display:flex; align-items:center; gap:7px; margin-top:10px; }
     .docs-uploading i { animation: blink 1s infinite; }
 
+    /* ── Inspección de terreno ── */
+    .insp-chip-row { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 16px; }
+    .insp-chip { padding:8px 14px; border-radius:20px; border:1.5px solid var(--border-strong); background:var(--surface2); color:var(--navy); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .insp-chip.active { background:var(--teal); border-color:var(--teal); color:#fff; }
+    .insp-info-box { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:16px; font-size:12.5px; color:var(--navy); }
+    .insp-recinto-card { border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:12px; overflow:hidden; }
+    .insp-recinto-head { display:flex; align-items:center; gap:8px; padding:10px 12px; background:var(--surface2); cursor:pointer; }
+    .insp-recinto-head i.ti-chevron-right { color:var(--text-3); flex-shrink:0; }
+    .insp-recinto-head input { flex:1; min-width:0; border:none; background:transparent; font-weight:600; color:var(--navy); font-size:13.5px; font-family:inherit; outline:none; }
+    .insp-recinto-body { padding:14px; display:none; }
+    .insp-recinto-card.open .insp-recinto-body { display:block; }
+    .insp-field-row { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+    .insp-field { display:flex; flex-direction:column; gap:3px; flex:1; min-width:90px; }
+    .insp-field label { font-size:9.5px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.03em; }
+    .insp-field input, .insp-field select { font-size:12.5px; padding:7px 9px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface); color:var(--navy); font-family:inherit; width:100%; }
+    .insp-cat-row { border:1px solid var(--border); border-radius:8px; padding:10px 10px 4px; margin-bottom:8px; background:var(--surface2); position:relative; }
+    .insp-cat-remove { position:absolute; top:6px; right:6px; background:none; border:none; color:var(--text-3); cursor:pointer; font-size:16px; line-height:1; padding:2px 6px; }
+    .insp-cat-remove:hover { color:var(--red); }
+    .insp-photo-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .insp-photo-tile { width:74px; height:74px; border-radius:8px; overflow:hidden; position:relative; border:1px solid var(--border); background:var(--navy); flex-shrink:0; }
+    .insp-photo-tile img { width:100%; height:100%; object-fit:cover; display:block; }
+    .insp-photo-tile .insp-photo-del { position:absolute; top:2px; right:2px; background:rgba(0,43,65,.7); color:#fff; border:none; border-radius:50%; width:18px; height:18px; font-size:11px; line-height:1; cursor:pointer; }
+    .insp-photo-add { width:74px; height:74px; border-radius:8px; border:2px dashed var(--teal); display:flex; align-items:center; justify-content:center; color:var(--teal); font-size:26px; cursor:pointer; background:rgba(0,101,126,.04); flex-shrink:0; }
+    .insp-recinto-actions { display:flex; gap:8px; margin-top:12px; }
+    .insp-empty { text-align:center; padding:20px; color:var(--text-3); font-size:12.5px; }
+
     /* ─────────────────────────── TOAST ─────────────────────────── */
     .toast { position: fixed; bottom: 26px; right: 26px; background: var(--navy); color: var(--cream); padding: 13px 20px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight:600; z-index: 999; opacity: 0; transform: translateY(12px); transition: all 0.3s; pointer-events: none; box-shadow: var(--shadow-lg); display:flex; align-items:center; gap:9px; }
     .toast::before { content:'\2713'; font-weight:700; }
@@ -1524,7 +1550,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx4glnvZnQwqEm5f7pWBaybv44TyUo4gjczckcFyHavILFG8HCV_FoYoAv_vWo9LfFVBA/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby4IyN7nD25-XJ_P7eocsw9-8RuQrRtMcFRGxkehYf4uOZs2hhWNOja3LGYmbILhPG00A/exec';
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -2119,6 +2145,7 @@ function renderCases() {
                 <ul class="case-menu-list">
                   <li><button onclick="descargarDoc('${c.id}','mandato')"><i class="ti ti-file-download"></i> Descargar Mandato (PDF)</button></li>
                   <li><button onclick="descargarDoc('${c.id}','contrato')"><i class="ti ti-file-download"></i> Descargar Contrato (PDF)</button></li>
+                  <li><button onclick="openInspeccion('${c.id}')"><i class="ti ti-clipboard-list"></i> Inspección de terreno</button></li>
                   <li><button onclick="toggleBoleta('${c.id}','${c.boleta}')"><i class="ti ti-receipt"></i> Boleta: marcar ${c.boleta==='SI'?'No':'Sí'}</button></li>
                   <li><button onclick="toggleArchivar('${c.id}')"><i class="ti ti-${arch?'archive-off':'archive'}"></i> ${arch?'Desarchivar':'Archivar'}</button></li>
                   <li><button class="peligro" onclick="deleteCase('${c.id}')"><i class="ti ti-trash"></i> Eliminar</button></li>
@@ -2693,6 +2720,352 @@ async function eliminarArchivo(fileId, nombre) {
     setTimeout(() => cargarArchivosCaso(docsCaseId), 1400);
   } catch(e) {
     showToast('Error al eliminar', 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INSPECCIÓN DE TERRENO — ficha por caso: recintos, daños y fotografías
+// ═══════════════════════════════════════════════════════════════════════════
+const INSP_TIPOS          = ['Viento y Lluvia', 'Inundación', 'Sismo', 'Incendio'];
+const INSP_CATEGORIAS     = ['Cielo', 'Muro', 'Piso', 'Cubierta', 'Otros'];
+const INSP_MATERIALIDADES = ['Yeso Cartón','Tablero MDF','MDF Ranurado','Aglomerado MDP','Fibrocemento','OSB','Terciado Estructural','Terciado Ranurado','Madera Machihembrada','Albañilería','Hormigón'];
+const INSP_TERMINACIONES  = ['Pintura', 'Pintura Texturada', 'Barniz', 'Papel Mural'];
+
+let inspState = null;          // { casoId, inspeccionId, tipoSiniestro, fechaOcurrencia, folderId, recintos:[...] }
+let inspTipoSel = '';
+let inspFotosTargetIndex = null;
+
+function draftKeyInsp() { return 'insp_draft_' + (inspState ? inspState.casoId : ''); }
+function guardarDraftLocal() {
+  if (!inspState) return;
+  try {
+    const nuevos = inspState.recintos.filter(r => !r.id);
+    if (nuevos.length) localStorage.setItem(draftKeyInsp(), JSON.stringify(nuevos));
+    else localStorage.removeItem(draftKeyInsp());
+  } catch(e) {}
+}
+function borrarDraftLocal() { try { localStorage.removeItem(draftKeyInsp()); } catch(e) {} }
+function restaurarDraftLocal() {
+  try {
+    const raw = localStorage.getItem(draftKeyInsp());
+    if (!raw) return;
+    const nuevos = JSON.parse(raw);
+    if (Array.isArray(nuevos) && nuevos.length) inspState.recintos = inspState.recintos.concat(nuevos);
+  } catch(e) {}
+}
+
+async function openInspeccion(casoId) {
+  const c = cases.find(x => String(x.id) === String(casoId));
+  document.getElementById('insp-caso-nombre').textContent = c?.nombre || '—';
+  document.getElementById('insp-caso-detalle').textContent = `N° Siniestro: ${c?.siniestro || '—'}${c?.rut ? ' · ' + c.rut : ''}`;
+  document.getElementById('modal-inspeccion').classList.add('open');
+  document.getElementById('modal-inspeccion').dataset.casoId = String(casoId);
+
+  inspTipoSel = '';
+  const chipsBox = document.getElementById('insp-tipo-chips');
+  chipsBox.innerHTML = INSP_TIPOS.map(t =>
+    `<button type="button" class="insp-chip" onclick="seleccionarTipoSiniestro('${t}',this)">${t}</button>`).join('');
+  document.getElementById('insp-fecha-ocurrencia').value = c?.fechaSiniestro || '';
+
+  document.getElementById('insp-inicio').style.display = 'block';
+  document.getElementById('insp-main').style.display = 'none';
+  inspState = null;
+
+  try {
+    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoId);
+    const res = await jsonpOnce(url, 'cr_insp', 15000);
+    if (res && res.ok && res.inspeccion && res.inspeccion.estado === 'En proceso') {
+      inspState = {
+        casoId: String(casoId), inspeccionId: res.inspeccion.id, tipoSiniestro: res.inspeccion.tipoSiniestro,
+        fechaOcurrencia: res.inspeccion.fechaOcurrencia, folderId: res.inspeccion.folderId,
+        recintos: (res.recintos || []).map(r => ({ ...r, _open: false, _fotos: null }))
+      };
+      restaurarDraftLocal();
+      mostrarInspMain();
+    }
+  } catch(e) { /* si falla la consulta, se queda en el paso inicial */ }
+}
+function closeInspeccion() { document.getElementById('modal-inspeccion').classList.remove('open'); inspState = null; }
+function closeInspeccionOutside(e) { if (e.target === document.getElementById('modal-inspeccion')) closeInspeccion(); }
+
+function seleccionarTipoSiniestro(t, el) {
+  inspTipoSel = t;
+  document.querySelectorAll('#insp-tipo-chips .insp-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+async function iniciarInspeccionUI() {
+  const casoId = document.getElementById('modal-inspeccion').dataset.casoId;
+  if (!inspTipoSel) { showToast('Selecciona el tipo de siniestro', 'error'); return; }
+  const fecha = document.getElementById('insp-fecha-ocurrencia').value || '';
+  showToast('Iniciando inspección…');
+  try {
+    await formPost(SHEETS_URL, { action: 'crearInspeccion', casoId, tipoSiniestro: inspTipoSel, fechaOcurrencia: fecha });
+    await new Promise(r => setTimeout(r, 1300));
+    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoId);
+    const data = await jsonpOnce(url, 'cr_insp2', 15000);
+    if (data && data.ok && data.inspeccion && data.inspeccion.estado === 'En proceso') {
+      inspState = {
+        casoId: String(casoId), inspeccionId: data.inspeccion.id, tipoSiniestro: data.inspeccion.tipoSiniestro,
+        fechaOcurrencia: data.inspeccion.fechaOcurrencia, folderId: data.inspeccion.folderId, recintos: []
+      };
+      restaurarDraftLocal();
+      mostrarInspMain();
+      showToast('Inspección iniciada ✓');
+    } else {
+      showToast('No se pudo iniciar la inspección', 'error');
+    }
+  } catch(e) {
+    showToast('Error al iniciar inspección', 'error');
+  }
+}
+
+function mostrarInspMain() {
+  document.getElementById('insp-inicio').style.display = 'none';
+  document.getElementById('insp-main').style.display = 'block';
+  renderRecintosInsp();
+}
+
+function renderRecintosInsp() {
+  const box = document.getElementById('insp-recintos-list');
+  if (!inspState.recintos.length) {
+    box.innerHTML = '<div class="insp-empty">Aún no hay recintos. Agrega el primero.</div>';
+    return;
+  }
+  box.innerHTML = inspState.recintos.map((r, i) => renderRecintoCard(r, i)).join('');
+  inspState.recintos.forEach((r, i) => {
+    if (r._open && r.id && r._fotos === null) cargarFotosRecinto(i);
+  });
+}
+
+function renderRecintoCard(r, i) {
+  const catsHtml = (r.categorias || []).map((cat, ci) => renderCategoriaRow(cat, i, ci)).join('');
+  const fotosHtml = r._fotos ? r._fotos.map(f => `
+      <div class="insp-photo-tile">
+        <img src="https://drive.google.com/thumbnail?id=${f.id}" onerror="this.style.display='none'"/>
+        <button class="insp-photo-del" onclick="eliminarFotoRecintoUI(${i},'${f.id}')" title="Eliminar foto">&times;</button>
+      </div>`).join('') : '';
+  const puedeSubirFotos = !!r.id;
+  return `
+  <div class="insp-recinto-card ${r._open ? 'open' : ''}" id="insp-recinto-${i}">
+    <div class="insp-recinto-head" onclick="toggleRecintoUI(${i})">
+      <i class="ti ti-chevron-right" style="transition:transform .2s;${r._open ? 'transform:rotate(90deg)' : ''}"></i>
+      <input type="text" value="${escapeHtml(r.nombre || '')}" placeholder="Nombre del recinto"
+        oninput="updRecintoField(${i},'nombre',this.value)" onclick="event.stopPropagation()"/>
+      <button class="btn" style="padding:4px 8px;border:none;color:var(--red)" onclick="event.stopPropagation();eliminarRecintoUI(${i})" title="Eliminar recinto"><i class="ti ti-trash"></i></button>
+    </div>
+    <div class="insp-recinto-body">
+      <div class="insp-field-row">
+        <div class="insp-field"><label>Ancho (m)</label><input type="number" step="0.01" value="${r.ancho || ''}" oninput="updRecintoField(${i},'ancho',this.value)"/></div>
+        <div class="insp-field"><label>Largo (m)</label><input type="number" step="0.01" value="${r.largo || ''}" oninput="updRecintoField(${i},'largo',this.value)"/></div>
+        <div class="insp-field"><label>Alto (m)</label><input type="number" step="0.01" value="${r.alto || ''}" oninput="updRecintoField(${i},'alto',this.value)"/></div>
+        <div class="insp-field"><label>M² piso</label><input type="number" step="0.01" value="${r.m2 || ''}" oninput="updRecintoField(${i},'m2',this.value)"/></div>
+      </div>
+
+      <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)">Categorías / daños</label>
+      <div id="insp-cats-${i}">${catsHtml}</div>
+      <button class="btn" style="margin:6px 0 12px" onclick="agregarCategoriaUI(${i})"><i class="ti ti-plus"></i> Agregar categoría</button>
+
+      <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)">Fotografías</label>
+      <div class="insp-photo-grid" id="insp-fotos-${i}">
+        ${fotosHtml}
+        ${puedeSubirFotos ? `<div class="insp-photo-add" onclick="abrirSelectorFotos(${i})" title="Agregar foto"><i class="ti ti-plus"></i></div>` : ''}
+      </div>
+      ${!puedeSubirFotos ? '<div style="font-size:11px;color:var(--text-3);margin-top:6px">Guarda el recinto para poder agregar fotos.</div>' : ''}
+
+      <div class="insp-recinto-actions">
+        <button class="btn btn-primary" onclick="guardarRecintoUI(${i})"><i class="ti ti-device-floppy"></i> Guardar recinto</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCategoriaRow(cat, i, ci) {
+  return `
+  <div class="insp-cat-row">
+    <button type="button" class="insp-cat-remove" onclick="quitarCategoriaUI(${i},${ci})" title="Quitar categoría">&times;</button>
+    <div class="insp-field-row">
+      <div class="insp-field">
+        <label>Categoría</label>
+        <select onchange="updCategoriaField(${i},${ci},'categoria',this.value)">
+          ${INSP_CATEGORIAS.map(c => `<option value="${c}" ${cat.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      ${cat.categoria === 'Otros' ? `<div class="insp-field"><label>Especifica</label><input type="text" value="${escapeHtml(cat.otroNombre || '')}" oninput="updCategoriaField(${i},${ci},'otroNombre',this.value)"/></div>` : ''}
+      <div class="insp-field">
+        <label>M² dañados</label>
+        <input type="number" step="0.01" value="${cat.m2 || ''}" oninput="updCategoriaField(${i},${ci},'m2',this.value)"/>
+      </div>
+    </div>
+    <div class="insp-field-row">
+      <div class="insp-field">
+        <label>Materialidad</label>
+        <select onchange="updCategoriaField(${i},${ci},'materialidad',this.value)">
+          <option value="">—</option>
+          ${INSP_MATERIALIDADES.map(m => `<option value="${m}" ${cat.materialidad === m ? 'selected' : ''}>${m}</option>`).join('')}
+        </select>
+      </div>
+      <div class="insp-field">
+        <label>Terminación</label>
+        <select onchange="updCategoriaField(${i},${ci},'terminacion',this.value)">
+          <option value="">—</option>
+          ${INSP_TERMINACIONES.map(t => `<option value="${t}" ${cat.terminacion === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="insp-field" style="margin-bottom:10px">
+      <label>Daño</label>
+      <input type="text" value="${escapeHtml(cat.dano || '')}" placeholder="Descripción del daño" oninput="updCategoriaField(${i},${ci},'dano',this.value)"/>
+    </div>
+  </div>`;
+}
+
+function toggleRecintoUI(i) {
+  inspState.recintos[i]._open = !inspState.recintos[i]._open;
+  if (inspState.recintos[i]._open && inspState.recintos[i].id && inspState.recintos[i]._fotos === null) cargarFotosRecinto(i);
+  renderRecintosInsp();
+}
+function updRecintoField(i, campo, val) {
+  inspState.recintos[i][campo] = val;
+  guardarDraftLocal();
+}
+function agregarRecintoUI() {
+  inspState.recintos.push({ id: null, nombre: '', ancho: '', largo: '', alto: '', m2: '', categorias: [], folderId: '', _open: true, _fotos: null });
+  renderRecintosInsp();
+  guardarDraftLocal();
+}
+async function eliminarRecintoUI(i) {
+  const r = inspState.recintos[i];
+  if (!confirm(`¿Eliminar el recinto "${r.nombre || 'sin nombre'}"? También se eliminarán sus fotos.`)) return;
+  if (r.id) {
+    try { await formPost(SHEETS_URL, { action: 'eliminarRecinto', id: r.id }); } catch(e) {}
+  }
+  inspState.recintos.splice(i, 1);
+  renderRecintosInsp();
+  guardarDraftLocal();
+  showToast('Recinto eliminado');
+}
+function agregarCategoriaUI(i) {
+  inspState.recintos[i].categorias = inspState.recintos[i].categorias || [];
+  inspState.recintos[i].categorias.push({ categoria: 'Cielo', materialidad: '', terminacion: '', dano: '', m2: '' });
+  renderRecintosInsp();
+  guardarDraftLocal();
+}
+function quitarCategoriaUI(i, ci) {
+  inspState.recintos[i].categorias.splice(ci, 1);
+  renderRecintosInsp();
+  guardarDraftLocal();
+}
+function updCategoriaField(i, ci, campo, val) {
+  inspState.recintos[i].categorias[ci][campo] = val;
+  guardarDraftLocal();
+  if (campo === 'categoria') renderRecintosInsp();
+}
+
+async function guardarRecintoUI(i) {
+  const r = inspState.recintos[i];
+  const body = {
+    action: 'guardarRecinto', inspeccionId: inspState.inspeccionId,
+    nombre: r.nombre, ancho: r.ancho, largo: r.largo, alto: r.alto, m2: r.m2,
+    categorias: r.categorias || []
+  };
+  if (r.id) body.id = r.id;
+  showToast('Guardando recinto…');
+  try {
+    await formPost(SHEETS_URL, body);
+    await new Promise(res => setTimeout(res, 1300));
+    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(inspState.casoId);
+    const data = await jsonpOnce(url, 'cr_insp3', 15000);
+    if (data && data.ok && data.inspeccion && data.inspeccion.id === inspState.inspeccionId) {
+      const abiertos = new Set(inspState.recintos.filter(x => x._open).map(x => x.id || x.nombre));
+      inspState.recintos = (data.recintos || []).map(nr => ({ ...nr, _open: abiertos.has(nr.id) || abiertos.has(nr.nombre), _fotos: null }));
+      renderRecintosInsp();
+      showToast('Recinto guardado ✓');
+      guardarDraftLocal();
+    } else {
+      showToast('Guardado, pero no se pudo confirmar', 'error');
+    }
+  } catch(e) {
+    showToast('Error al guardar el recinto', 'error');
+  }
+}
+
+async function cargarFotosRecinto(i) {
+  const r = inspState.recintos[i];
+  if (!r || !r.id) return;
+  try {
+    const url = SHEETS_URL + '?action=getArchivosRecinto&recintoId=' + encodeURIComponent(r.id);
+    const res = await jsonpOnce(url, 'cr_fotos', 15000);
+    r._fotos = (res && res.ok) ? (res.archivos || []) : [];
+  } catch(e) { r._fotos = []; }
+  renderRecintosInsp();
+}
+
+function abrirSelectorFotos(i) {
+  inspFotosTargetIndex = i;
+  document.getElementById('insp-file-input').click();
+}
+
+async function onInspFilesSelected(ev) {
+  const files = Array.from(ev.target.files || []);
+  ev.target.value = '';
+  const i = inspFotosTargetIndex;
+  if (i === null || !files.length) return;
+  const r = inspState.recintos[i];
+  if (!r || !r.id) return;
+  showToast(`Subiendo ${files.length} foto${files.length > 1 ? 's' : ''}…`);
+  let ok = 0;
+  for (const f of files) {
+    const subida = await subirFotoRecinto(f, r.id);
+    if (subida) ok++;
+  }
+  if (ok) showToast(`${ok} foto${ok > 1 ? 's' : ''} subida${ok > 1 ? 's' : ''} ✓`);
+  else showToast('No se pudo subir la foto', 'error');
+  await cargarFotosRecinto(i);
+}
+
+async function subirFotoRecinto(file, recintoId) {
+  const nombre = file.name;
+  const mime = file.type || 'image/jpeg';
+  try {
+    const url = SHEETS_URL + '?action=iniciarSubidaRecinto&recintoId=' + encodeURIComponent(recintoId)
+      + '&fileName=' + encodeURIComponent(nombre) + '&mimeType=' + encodeURIComponent(mime);
+    const ini = await jsonpOnce(url, 'cr_upr', 20000);
+    if (!ini || !ini.ok || !ini.uploadUrl) throw new Error(ini?.error || 'sin url de subida');
+    const put = await fetch(ini.uploadUrl, { method: 'PUT', headers: { 'Content-Type': mime }, body: file });
+    if (!put.ok) throw new Error('PUT ' + put.status);
+    return true;
+  } catch(e) {
+    try {
+      const dataBase64 = await fileToBase64(file);
+      await formPost(SHEETS_URL, { action: 'uploadArchivoRecinto', recintoId, fileName: nombre, mimeType: mime, dataBase64 });
+      return true;
+    } catch(e2) { return false; }
+  }
+}
+
+async function eliminarFotoRecintoUI(i, fileId) {
+  if (!confirm('¿Eliminar esta foto? Se enviará a la papelera de Drive.')) return;
+  const r = inspState.recintos[i];
+  try {
+    await formPost(SHEETS_URL, { action: 'deleteArchivoRecinto', recintoId: r.id, fileId });
+    showToast('Foto eliminada');
+    await cargarFotosRecinto(i);
+  } catch(e) {
+    showToast('Error al eliminar', 'error');
+  }
+}
+
+async function finalizarInspeccionUI() {
+  if (!inspState || !inspState.inspeccionId) return;
+  if (!confirm('¿Finalizar esta inspección? Ya no aparecerá como "en curso" al volver a abrirla.')) return;
+  try {
+    await formPost(SHEETS_URL, { action: 'finalizarInspeccion', id: inspState.inspeccionId });
+    showToast('Inspección finalizada ✓');
+    borrarDraftLocal();
+    closeInspeccion();
+  } catch(e) {
+    showToast('Error al finalizar', 'error');
   }
 }
 
@@ -3531,6 +3904,40 @@ setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 
     <input type="file" id="acta-input" multiple style="display:none"/>
     <div class="docs-uploading" id="docs-uploading" style="display:none"><i class="ti ti-loader"></i> <span id="docs-uploading-txt">Subiendo…</span></div>
     <ul class="docs-list" id="docs-list"></ul>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-inspeccion" onclick="closeInspeccionOutside(event)">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div class="modal-title-text"><i class="ti ti-clipboard-list" style="color:var(--teal)"></i> Inspección de terreno</div>
+      <button class="btn" onclick="closeInspeccion()" style="padding:4px 8px;border:none"><i class="ti ti-x" style="font-size:18px"></i></button>
+    </div>
+
+    <div class="insp-info-box">
+      <div id="insp-caso-nombre" style="font-weight:600;">—</div>
+      <div id="insp-caso-detalle" style="color:var(--text-3);margin-top:2px;">—</div>
+    </div>
+
+    <div id="insp-inicio">
+      <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)">Tipo de siniestro</label>
+      <div class="insp-chip-row" id="insp-tipo-chips"></div>
+      <div class="insp-field" style="max-width:220px;margin-bottom:18px">
+        <label>Fecha de ocurrencia</label>
+        <input type="text" id="insp-fecha-ocurrencia" placeholder="dd/mm/aaaa"/>
+      </div>
+      <button class="btn btn-primary" onclick="iniciarInspeccionUI()"><i class="ti ti-player-play"></i> Iniciar Inspección</button>
+    </div>
+
+    <div id="insp-main" style="display:none">
+      <div id="insp-recintos-list"></div>
+      <button class="btn" onclick="agregarRecintoUI()"><i class="ti ti-plus"></i> Agregar recinto</button>
+      <div class="modal-footer" style="margin-top:18px">
+        <button class="btn" style="color:var(--green);border-color:var(--green)" onclick="finalizarInspeccionUI()"><i class="ti ti-check"></i> Finalizar Inspección</button>
+      </div>
+    </div>
+
+    <input type="file" id="insp-file-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onInspFilesSelected(event)"/>
   </div>
 </div>
 
