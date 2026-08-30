@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Inspección de Terreno · CR Consulting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root{
+  --navy:#002b41; --navy-2:#013852; --navy-deep:#001b2b;
+  --teal:#00657e; --teal-2:#00819e; --teal-soft:#e3f0f4;
+  --cream:#fff7ee; --cream2:#fdeedd;
+  --surface:#fff; --surface2:#f4f9fb;
+  --border:rgba(0,43,65,.10); --border-strong:rgba(0,43,65,.22);
+  --text:#002b41; --text-2:#335f73; --text-3:#6b93a3;
+  --green:#1a7a52; --green-bg:#e2f4ec;
+  --red:#c0392b; --red-bg:#fbeae8;
+  --amber:#ad6a13;
+  --radius:14px; --radius-sm:9px;
+  --shadow:0 1px 2px rgba(0,43,65,.04),0 4px 16px rgba(0,43,65,.05);
+  --shadow-lg:0 8px 40px rgba(0,43,65,.16);
+  --disp:'Oswald','Arial Narrow',sans-serif;
+  --ui:'Open Sans','Segoe UI',Tahoma,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ui);background:var(--cream);color:var(--text);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+
+/* ── Header ── */
+.app-header{background:linear-gradient(120deg,var(--navy) 0%,var(--navy-2) 60%,var(--teal) 160%);padding:12px 15px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 14px rgba(0,27,43,.35)}
+.hbrand{display:flex;align-items:center;gap:11px}
+.brand-logo{display:block;width:130px;height:34px;background-color:var(--cream);-webkit-mask:url("https://i.imgur.com/USzJtPh.png") left center / contain no-repeat;mask:url("https://i.imgur.com/USzJtPh.png") left center / contain no-repeat;filter:drop-shadow(0 2px 6px rgba(0,0,0,.30))}
+.hmeta{line-height:1}
+.htitle{font-family:var(--disp);font-size:15px;font-weight:600;color:var(--cream);letter-spacing:.02em}
+.hsub{font-family:var(--disp);font-size:9px;color:var(--teal-2);margin-top:2px;letter-spacing:.30em;text-transform:uppercase}
+.back-btn{background:rgba(255,247,238,.10);border:1px solid rgba(255,247,238,.28);color:var(--cream);padding:7px 13px;border-radius:var(--radius-sm);font-family:var(--ui);font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.back-btn:hover{background:rgba(255,247,238,.22)}
+
+/* ── Page / Cards ── */
+.page{padding:14px 13px 80px;max-width:720px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:13px;box-shadow:var(--shadow)}
+.card-title{font-family:var(--disp);font-size:12px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.10em;margin-bottom:13px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.card-title i{font-size:16px}
+
+/* ── Forms ── */
+.ig{margin-bottom:11px}
+label{display:block;font-size:10px;color:var(--text-3);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--ui);font-size:13.5px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── Buttons ── */
+.btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:var(--ui);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:9px}
+.btn:hover{background:var(--surface2);border-color:var(--teal)}
+.btn i{font-size:17px}
+.btn-teal{background:var(--teal);color:#fff;border-color:var(--teal);box-shadow:0 4px 14px rgba(0,101,126,.26)}
+.btn-teal:hover{background:var(--navy);border-color:var(--navy)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.35)}
+.btn-danger:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-save{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,82,.32)}
+.btn-save:hover{background:var(--green);color:#fff}
+.btn-sm{width:auto;display:inline-flex;align-items:center;gap:4px;padding:7px 10px;font-size:11.5px;border-radius:7px;border:1px solid var(--border-strong);cursor:pointer;font-family:var(--ui);font-weight:600;transition:all .15s;white-space:nowrap;background:var(--surface);margin-bottom:0}
+.btn-sm i{font-size:14px}
+
+/* ── Search box (import case) ── */
+.sw{position:relative;margin-bottom:9px}
+.sw input{padding-left:34px}
+.sw-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:15px;pointer-events:none}
+.sw-ico i{font-size:15px}
+.picker-list{max-height:420px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}
+.aseg-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.aseg-row:last-child{border:none}
+.aseg-row:hover{background:var(--surface2)}
+.aseg-nom{font-size:12.5px;font-weight:600;color:var(--navy)}
+.aseg-meta{font-size:10.5px;color:var(--text-3);margin-top:2px}
+.aseg-go{color:var(--teal);font-size:18px;flex-shrink:0}
+
+/* ── Chips (tipo de siniestro) ── */
+.sin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sin-btn{padding:13px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text-2);font-family:var(--ui);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .18s}
+.sin-btn:hover{border-color:var(--teal)}
+.sin-btn.ac{border-color:var(--teal);background:var(--teal-soft);color:var(--teal)}
+.sin-icon{font-size:20px;display:block;margin-bottom:4px;line-height:1}
+.sin-icon i{font-size:20px}
+
+/* ── Inspección: recintos ── */
+.insp-recinto-card{border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden}
+.insp-recinto-head{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);cursor:pointer}
+.insp-recinto-head i.ti-chevron-right{color:var(--text-3);flex-shrink:0}
+.insp-recinto-head input{flex:1;min-width:0;border:none;background:transparent;font-weight:600;color:var(--navy);font-size:13.5px;font-family:inherit;outline:none;padding:0}
+.insp-recinto-body{padding:14px;display:none}
+.insp-recinto-card.open .insp-recinto-body{display:block}
+.insp-field-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.insp-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:90px}
+.insp-field label{margin-bottom:0}
+.insp-cat-row{border:1px solid var(--border);border-radius:8px;padding:10px 10px 0;margin-bottom:8px;background:var(--surface2);position:relative}
+.insp-cat-remove{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px}
+.insp-cat-remove:hover{color:var(--red)}
+.insp-photo-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.insp-photo-tile{width:74px;height:74px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--border);background:var(--navy);flex-shrink:0}
+.insp-photo-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.insp-photo-tile .insp-photo-del{position:absolute;top:2px;right:2px;background:rgba(0,43,65,.7);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:1;cursor:pointer}
+.insp-photo-add{width:74px;height:74px;border-radius:8px;border:2px dashed var(--teal);display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:26px;cursor:pointer;background:rgba(0,101,126,.04);flex-shrink:0}
+.insp-recinto-actions{display:flex;gap:8px;margin-top:12px}
+.insp-empty{text-align:center;padding:20px;color:var(--text-3);font-size:12.5px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:var(--cream);padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .25s;pointer-events:none;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+
+@media (max-width:480px){
+  .sin-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="hbrand">
+    <span class="brand-logo" role="img" aria-label="CR Consulting"></span>
+    <div class="hmeta"><div class="htitle">Inspección de Terreno</div><div class="hsub">Recintos y daños</div></div>
+  </div>
+  <a href="index.html" class="back-btn"><i class="ti ti-arrow-left"></i> Dashboard</a>
+</div>
+
+<div class="page">
+
+  <!-- Paso 0: elegir caso -->
+  <div class="card" id="card-caso-picker">
+    <div class="card-title"><i class="ti ti-search"></i>Selecciona un caso</div>
+    <div class="sw"><span class="sw-ico"><i class="ti ti-search"></i></span>
+      <input type="text" id="caso-search" placeholder="Buscar por nombre, RUT o N° siniestro…" oninput="renderCasoPicker()">
+    </div>
+    <div id="caso-status" style="font-size:12px;color:var(--text-3);padding:6px 2px;">Cargando casos…</div>
+    <div class="picker-list" id="caso-picker-list"></div>
+  </div>
+
+  <!-- Caso seleccionado -->
+  <div class="card" id="card-caso-info" style="display:none">
+    <div class="card-title"><i class="ti ti-user"></i>Caso
+      <button type="button" class="btn-sm" style="margin-left:auto" onclick="cambiarCaso()"><i class="ti ti-replace"></i> Cambiar caso</button>
+    </div>
+    <div id="insp-caso-nombre" style="font-weight:600;font-size:14px;color:var(--navy)">—</div>
+    <div id="insp-caso-detalle" style="color:var(--text-3);font-size:12.5px;margin-top:3px;">—</div>
+  </div>
+
+  <!-- Paso inicial: tipo de siniestro + fecha -->
+  <div class="card" id="card-inicio" style="display:none">
+    <div class="card-title"><i class="ti ti-alert-triangle"></i>Iniciar inspección</div>
+    <label>Tipo de siniestro</label>
+    <div class="sin-grid" id="insp-tipo-chips" style="margin-bottom:14px"></div>
+    <div class="ig" style="max-width:220px">
+      <label>Fecha de ocurrencia</label>
+      <input type="text" id="insp-fecha-ocurrencia" placeholder="dd/mm/aaaa">
+    </div>
+    <button class="btn btn-teal" onclick="iniciarInspeccionUI()"><i class="ti ti-player-play"></i> Iniciar Inspección</button>
+  </div>
+
+  <!-- Vista principal: recintos -->
+  <div id="insp-main" style="display:none">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-building-warehouse"></i>Recintos</div>
+      <div id="insp-recintos-list"></div>
+      <button class="btn" onclick="agregarRecintoUI()"><i class="ti ti-plus"></i> Agregar recinto</button>
+    </div>
+    <button class="btn btn-save" onclick="finalizarInspeccionUI()"><i class="ti ti-check"></i> Finalizar Inspección</button>
+  </div>
+
+</div>
+
+<input type="file" id="insp-file-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onInspFilesSelected(event)">
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────
+// Config y utilidades compartidas con el dashboard
+// ─────────────────────────────────────────────────────────────────────────
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx4glnvZnQwqEm5f7pWBaybv44TyUo4gjczckcFyHavILFG8HCV_FoYoAv_vWo9LfFVBA/exec';
+
+function escapeHtml(t) {
+  return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || 'success');
+  setTimeout(() => { t.className = 'toast'; }, 2800);
+}
+
+function jsonpOnce(fullUrl, cbPrefix, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const cb = cbPrefix + '_' + Date.now() + '_' + Math.floor(Math.random() * 1e4);
+    const script = document.createElement('script');
+    let settled = false;
+    const cleanup = () => { try { document.head.removeChild(script); } catch(e) {} };
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      window[cb] = function(){ delete window[cb]; };
+      cleanup();
+      reject(new Error('timeout'));
+    }, timeoutMs);
+    window[cb] = (data) => {
+      if (settled) { delete window[cb]; return; }
+      settled = true; clearTimeout(timer);
+      delete window[cb]; cleanup();
+      resolve(data);
+    };
+    script.onerror = () => {
+      if (settled) return;
+      settled = true; clearTimeout(timer);
+      window[cb] = function(){ delete window[cb]; };
+      cleanup();
+      reject(new Error('JSONP failed'));
+    };
+    script.src = fullUrl + (fullUrl.includes('?') ? '&' : '?') + 'callback=' + cb + '&t=' + Date.now();
+    document.head.appendChild(script);
+  });
+}
+async function jsonpFetch(url, cbPrefix) {
+  const prefix = cbPrefix || 'insp_cb';
+  try {
+    return await jsonpOnce(url, prefix, 15000);
+  } catch(e) {
+    await new Promise(r => setTimeout(r, 1500));
+    return jsonpOnce(url, prefix, 20000);
+  }
+}
+function formPost(url, data) {
+  return fetch(url, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  }).catch(() => {});
+}
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const res = String(reader.result || '');
+      const comma = res.indexOf(',');
+      resolve(comma >= 0 ? res.slice(comma + 1) : res);
+    };
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Paso 0: cargar y elegir el caso a inspeccionar
+// ─────────────────────────────────────────────────────────────────────────
+let casosCache = null;
+let casoActual = null;
+
+async function initApp() {
+  try {
+    const json = await jsonpFetch(SHEETS_URL, 'insp_casos');
+    if (json && json.ok && Array.isArray(json.data)) {
+      casosCache = json.data;
+      document.getElementById('caso-status').textContent = casosCache.length + ' casos disponibles';
+      renderCasoPicker();
+
+      const params = new URLSearchParams(location.search);
+      const casoId = params.get('casoId');
+      if (casoId) {
+        const c = casosCache.find(x => String(x.id) === String(casoId));
+        if (c) { selectCaso(c.id); return; }
+      }
+    } else {
+      document.getElementById('caso-status').textContent = 'No se pudieron cargar los casos.';
+    }
+  } catch(e) {
+    document.getElementById('caso-status').textContent = 'Sin conexión con el dashboard.';
+  }
+}
+
+function renderCasoPicker() {
+  const q = (document.getElementById('caso-search').value || '').toLowerCase();
+  const el = document.getElementById('caso-picker-list');
+  if (!casosCache) { el.innerHTML = ''; return; }
+  const f = casosCache.filter(c => !q || [(c.nombre||''), (c.rut||''), (c.siniestro||''), (c.nrosin||'')].join(' ').toLowerCase().includes(q));
+  if (!f.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-3);font-size:12px;">Sin resultados</div>'; return; }
+  el.innerHTML = f.slice(0, 100).map(c => {
+    const meta = [c.rut, c.nrosin ? 'N° ' + c.nrosin : '', c.siniestro].filter(Boolean).join(' · ');
+    return `<div class="aseg-row" onclick="selectCaso('${escapeHtml(String(c.id))}')">
+      <div style="flex:1;"><div class="aseg-nom">${escapeHtml(c.nombre || '(sin nombre)')}</div><div class="aseg-meta">${escapeHtml(meta)}</div></div>
+      <i class="ti ti-chevron-right aseg-go"></i>
+    </div>`;
+  }).join('');
+}
+
+async function selectCaso(id) {
+  const c = casosCache.find(x => String(x.id) === String(id));
+  if (!c) return;
+  casoActual = c;
+  document.getElementById('card-caso-picker').style.display = 'none';
+  document.getElementById('card-caso-info').style.display = 'block';
+  document.getElementById('insp-caso-nombre').textContent = c.nombre || '—';
+  document.getElementById('insp-caso-detalle').textContent = `N° Siniestro: ${c.siniestro || '—'}${c.rut ? ' · ' + c.rut : ''}`;
+
+  // Actualiza la URL para poder compartir/recargar directo sobre este caso
+  try {
+    const url = new URL(location.href);
+    url.searchParams.set('casoId', c.id);
+    history.replaceState(null, '', url);
+  } catch(e) {}
+
+  await cargarEstadoInspeccion();
+}
+
+function cambiarCaso() {
+  casoActual = null;
+  inspState = null;
+  document.getElementById('card-caso-info').style.display = 'none';
+  document.getElementById('card-inicio').style.display = 'none';
+  document.getElementById('insp-main').style.display = 'none';
+  document.getElementById('card-caso-picker').style.display = 'block';
+  try {
+    const url = new URL(location.href);
+    url.searchParams.delete('casoId');
+    history.replaceState(null, '', url);
+  } catch(e) {}
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Inspección de terreno — recintos, daños y fotografías
+// ─────────────────────────────────────────────────────────────────────────
+const INSP_TIPOS          = ['Viento y Lluvia', 'Inundación', 'Sismo', 'Incendio'];
+const INSP_CATEGORIAS     = ['Cielo', 'Muro', 'Piso', 'Cubierta', 'Otros'];
+const INSP_MATERIALIDADES = ['Yeso Cartón','Tablero MDF','MDF Ranurado','Aglomerado MDP','Fibrocemento','OSB','Terciado Estructural','Terciado Ranurado','Madera Machihembrada','Albañilería','Hormigón'];
+const INSP_TERMINACIONES  = ['Pintura', 'Pintura Texturada', 'Barniz', 'Papel Mural'];
+
+let inspState = null; // { casoId, inspeccionId, tipoSiniestro, fechaOcurrencia, folderId, recintos:[...] }
+let inspTipoSel = '';
+let inspFotosTargetIndex = null;
+
+function draftKeyInsp() { return 'insp_draft_' + (casoActual ? casoActual.id : ''); }
+function guardarDraftLocal() {
+  if (!inspState) return;
+  try {
+    const nuevos = inspState.recintos.filter(r => !r.id);
+    if (nuevos.length) localStorage.setItem(draftKeyInsp(), JSON.stringify(nuevos));
+    else localStorage.removeItem(draftKeyInsp());
+  } catch(e) {}
+}
+function borrarDraftLocal() { try { localStorage.removeItem(draftKeyInsp()); } catch(e) {} }
+function restaurarDraftLocal() {
+  try {
+    const raw = localStorage.getItem(draftKeyInsp());
+    if (!raw) return;
+    const nuevos = JSON.parse(raw);
+    if (Array.isArray(nuevos) && nuevos.length) inspState.recintos = inspState.recintos.concat(nuevos);
+  } catch(e) {}
+}
+
+async function cargarEstadoInspeccion() {
+  inspTipoSel = '';
+  const chipsBox = document.getElementById('insp-tipo-chips');
+  chipsBox.innerHTML = INSP_TIPOS.map(t =>
+    `<button type="button" class="sin-btn" onclick="seleccionarTipoSiniestro('${t}',this)"><span class="sin-icon"><i class="ti ti-alert-triangle"></i></span>${t}</button>`).join('');
+  document.getElementById('insp-fecha-ocurrencia').value = casoActual.fechaSiniestro || '';
+
+  document.getElementById('card-inicio').style.display = 'none';
+  document.getElementById('insp-main').style.display = 'none';
+  inspState = null;
+
+  try {
+    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoActual.id);
+    const res = await jsonpOnce(url, 'insp_get', 15000);
+    if (res && res.ok && res.inspeccion && res.inspeccion.estado === 'En proceso') {
+      inspState = {
+        casoId: String(casoActual.id), inspeccionId: res.inspeccion.id, tipoSiniestro: res.inspeccion.tipoSiniestro,
+        fechaOcurrencia: res.inspeccion.fechaOcurrencia, folderId: res.inspeccion.folderId,
+        recintos: (res.recintos || []).map(r => ({ ...r, _open: false, _fotos: null }))
+      };
+      restaurarDraftLocal();
+      mostrarInspMain();
+      return;
+    }
+  } catch(e) { /* si falla, cae al paso inicial */ }
+  document.getElementById('card-inicio').style.display = 'block';
+}
+
+function seleccionarTipoSiniestro(t, el) {
+  inspTipoSel = t;
+  document.querySelectorAll('#insp-tipo-chips .sin-btn').forEach(b => b.classList.remove('ac'));
+  el.classList.add('ac');
+}
+
+async function iniciarInspeccionUI() {
+  if (!inspTipoSel) { showToast('Selecciona el tipo de siniestro', 'error'); return; }
+  const fecha = document.getElementById('insp-fecha-ocurrencia').value || '';
+  showToast('Iniciando inspección…');
+  try {
+    await formPost(SHEETS_URL, { action: 'crearInspeccion', casoId: casoActual.id, tipoSiniestro: inspTipoSel, fechaOcurrencia: fecha });
+    await new Promise(r => setTimeout(r, 1300));
+    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoActual.id);
+    const data = await jsonpOnce(url, 'insp_get2', 15000);
+    if (data && data.ok && data.inspeccion && data.inspeccion.estado === 'En proceso') {
+      inspState = {
+        casoId: String(casoActual.id), inspeccionId: data.inspeccion.id, tipoSiniestro: data.inspeccion.tipoSiniestro,
+        fechaOcurrencia: data.inspeccion.fechaOcurrencia, folderId: data.inspeccion.folderId, recintos: []
+      };
+      restaurarDraftLocal();
+      document.getElementById('card-inicio').style.display = 'none';
+      mostrarInspMain();
+      showToast('Inspección iniciada ✓');
+    } else {
+      showToast('No se pudo iniciar la inspección', 'error');
+    }
+  } catch(e) {
+    showToast('Error al iniciar inspección', 'error');
+  }
+}
+
+function mostrarInspMain() {
+  document.getElementById('card-inicio').style.display = 'none';
+  document.getElementById('insp-main').style.display = 'block';
+  renderRecintosInsp();
+}
+
+function renderRecintosInsp() {
+  const box = document.getElementById('insp-recintos-list');
+  if (!inspState.recintos.length) {
+    box.innerHTML = '<div class="insp-empty">Aún no hay recintos. Agrega el primero.</div>';
+    return;
+  }
+  box.innerHTML = inspState.recintos.map((r, i) => renderRecintoCard(r, i)).join('');
+  inspState.recintos.forEach((r, i) => {
+    if (r._open && r.id && r._fotos === null) cargarFotosRecinto(i);
+  });
+}
+
+function renderRecintoCard(r, i) {
+  const catsHtml = (r.categorias || []).map((cat, ci) => renderCategoriaRow(cat, i, ci)).join('');
+  const fotosHtml = r._fotos ? r._fotos.map(f => `
+      <div class="insp-photo-tile">
+        <img src="https://drive.google.com/thumbnail?id=${f.id}" onerror="this.style.display='none'"/>
+        <button class="insp-photo-del" onclick="eliminarFotoRecintoUI(${i},'${f.id}')" title="Eliminar foto">&times;</button>
+      </div>`).join('') : '';
+  const puedeSubirFotos = !!r.id;
+  return `
+  <div class="insp-recinto-card ${r._open ? 'open' : ''}" id="insp-recinto-${i}">
+    <div class="insp-recinto-head" onclick="toggleRecintoUI(${i})">
+      <i class="ti ti-chevron-right" style="transition:transform .2s;${r._open ? 'transform:rotate(90deg)' : ''}"></i>
+      <input type="text" value="${escapeHtml(r.nombre || '')}" placeholder="Nombre del recinto"
+        oninput="updRecintoField(${i},'nombre',this.value)" onclick="event.stopPropagation()"/>
+      <button class="btn-sm" style="border:none;color:var(--red);background:transparent" onclick="event.stopPropagation();eliminarRecintoUI(${i})" title="Eliminar recinto"><i class="ti ti-trash"></i></button>
+    </div>
+    <div class="insp-recinto-body">
+      <div class="insp-field-row">
+        <div class="insp-field"><label>Ancho (m)</label><input type="number" step="0.01" value="${r.ancho || ''}" oninput="updRecintoField(${i},'ancho',this.value)"/></div>
+        <div class="insp-field"><label>Largo (m)</label><input type="number" step="0.01" value="${r.largo || ''}" oninput="updRecintoField(${i},'largo',this.value)"/></div>
+        <div class="insp-field"><label>Alto (m)</label><input type="number" step="0.01" value="${r.alto || ''}" oninput="updRecintoField(${i},'alto',this.value)"/></div>
+        <div class="insp-field"><label>M² piso</label><input type="number" step="0.01" value="${r.m2 || ''}" oninput="updRecintoField(${i},'m2',this.value)"/></div>
+      </div>
+
+      <label>Categorías / daños</label>
+      <div id="insp-cats-${i}">${catsHtml}</div>
+      <button class="btn" style="margin:2px 0 12px" onclick="agregarCategoriaUI(${i})"><i class="ti ti-plus"></i> Agregar categoría</button>
+
+      <label>Fotografías</label>
+      <div class="insp-photo-grid" id="insp-fotos-${i}">
+        ${fotosHtml}
+        ${puedeSubirFotos ? `<div class="insp-photo-add" onclick="abrirSelectorFotos(${i})" title="Agregar foto"><i class="ti ti-plus"></i></div>` : ''}
+      </div>
+      ${!puedeSubirFotos ? '<div style="font-size:11px;color:var(--text-3);margin-top:6px">Guarda el recinto para poder agregar fotos.</div>' : ''}
+
+      <div class="insp-recinto-actions">
+        <button class="btn btn-teal" onclick="guardarRecintoUI(${i})"><i class="ti ti-device-floppy"></i> Guardar recinto</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCategoriaRow(cat, i, ci) {
+  return `
+  <div class="insp-cat-row">
+    <button type="button" class="insp-cat-remove" onclick="quitarCategoriaUI(${i},${ci})" title="Quitar categoría">&times;</button>
+    <div class="insp-field-row">
+      <div class="insp-field">
+        <label>Categoría</label>
+        <select onchange="updCategoriaField(${i},${ci},'categoria',this.value)">
+          ${INSP_CATEGORIAS.map(c => `<option value="${c}" ${cat.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      ${cat.categoria === 'Otros' ? `<div class="insp-field"><label>Especifica</label><input type="text" value="${escapeHtml(cat.otroNombre || '')}" oninput="updCategoriaField(${i},${ci},'otroNombre',this.value)"/></div>` : ''}
+      <div class="insp-field">
+        <label>M² dañados</label>
+        <input type="number" step="0.01" value="${cat.m2 || ''}" oninput="updCategoriaField(${i},${ci},'m2',this.value)"/>
+      </div>
+    </div>
+    <div class="insp-field-row">
+      <div class="insp-field">
+        <label>Materialidad</label>
+        <select onchange="updCategoriaField(${i},${ci},'materialidad',this.value)">
+          <option value="">—</option>
+          ${INSP_MATERIALIDADES.map(m => `<option value="${m}" ${cat.materialidad === m ? 'selected' : ''}>${m}</option>`).join('')}
+        </select>
+      </div>
+      <div class="insp-field">
+        <label>Terminación</label>
+        <select onchange="updCategoriaField(${i},${ci},'terminacion',this.value)">
+          <option value="">—</option>
+          ${INSP_TERMINACIONES.map(t => `<option value="${t}" ${cat.terminacion === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="ig">
+      <label>Daño</label>
+      <input type="text" value="${escapeHtml(cat.dano || '')}" placeholder="Descripción del daño" oninput="updCategoriaField(${i},${ci},'dano',this.value)"/>
+    </div>
+  </div>`;
+}
+
+function toggleRecintoUI(i) {
+  inspState.recintos[i]._open = !inspState.recintos[i]._open;
+  if (inspState.recintos[i]._open && inspState.recintos[i].id && inspState.recintos[i]._fotos === null) cargarFotosRecinto(i);
+  renderRecintosInsp();
+}
+function updRecintoField(i, campo, val) {
+  inspState.recintos[i][campo] = val;
+  guardarDraftLocal();
+}
+function agregarRecintoUI() {
+  inspState.recintos.push({ id: null, nombre: '', ancho: '', largo: '', alto: '', m2: '', categorias: [], folderId: '', _open: true, _fotos: null });
+  renderRecintosInsp();
+  guardarDraftLocal();
+}
+async function eliminarRecintoUI(i) {
+  const r = inspState.recintos[i];
+  if (!confirm(`¿Eliminar el recinto "${r.nombre || 'sin nombre'}"? También se eliminarán sus fotos.`)) return;
+  if (r.id) {
+    try { await formPost(SHEETS_URL, { action: 'eliminarRecinto', id: r.id }); } catch(e) {}
+  }
+  inspState.recintos.splice(i, 1);
+  renderRecintosInsp();
+  guardarDraftLocal();
+  showToast('Recinto eliminado');
+}
+function agregarCategoriaUI(i) {
+  inspState.recintos[i].categorias = inspState.recintos[i].categorias || [];
+  inspState.recintos[i].categorias.push({ categoria: 'Cielo', materialidad: '', terminacion: '', dano: '', m2: '' });
+  renderRecintosInsp();
+  guardarDraftLocal();
+}
+function quitarCategoriaUI(i, ci) {
+  inspState.recintos[i].categorias.splice(ci, 1);
+  renderRecintosInsp();
+  guardarDraftLocal();
+}
+function updCategoriaField(i, ci, campo, val) {
+  inspState.recintos[i].categorias[ci][campo] = val;
+  guardarDraftLocal();
+  if (campo === 'categoria') renderRecintosInsp();
+}
+
+async function guardarRecintoUI(i) {
+  const r = inspState.recintos[i];
+  const body = {
+    action: 'guardarRecinto', inspeccionId: inspState.inspeccionId,
+    nombre: r.nombre, ancho: r.ancho, largo: r.largo, alto: r.alto, m2: r.m2,
+    categorias: r.categorias || []
+  };
+  if (r.id) body.id = r.id;
+  showToast('Guardando recinto…');
+  try {
+    await formPost(SHEETS_URL, body);
+    await new Promise(res => setTimeout(res, 1300));
+    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(inspState.casoId);
+    const data = await jsonpOnce(url, 'insp_get3', 15000);
+    if (data && data.ok && data.inspeccion && data.inspeccion.id === inspState.inspeccionId) {
+      const abiertos = new Set(inspState.recintos.filter(x => x._open).map(x => x.id || x.nombre));
+      inspState.recintos = (data.recintos || []).map(nr => ({ ...nr, _open: abiertos.has(nr.id) || abiertos.has(nr.nombre), _fotos: null }));
+      renderRecintosInsp();
+      showToast('Recinto guardado ✓');
+      guardarDraftLocal();
+    } else {
+      showToast('Guardado, pero no se pudo confirmar', 'error');
+    }
+  } catch(e) {
+    showToast('Error al guardar el recinto', 'error');
+  }
+}
+
+async function cargarFotosRecinto(i) {
+  const r = inspState.recintos[i];
+  if (!r || !r.id) return;
+  try {
+    const url = SHEETS_URL + '?action=getArchivosRecinto&recintoId=' + encodeURIComponent(r.id);
+    const res = await jsonpOnce(url, 'insp_fotos', 15000);
+    r._fotos = (res && res.ok) ? (res.archivos || []) : [];
+  } catch(e) { r._fotos = []; }
+  renderRecintosInsp();
+}
+
+function abrirSelectorFotos(i) {
+  inspFotosTargetIndex = i;
+  document.getElementById('insp-file-input').click();
+}
+
+async function onInspFilesSelected(ev) {
+  const files = Array.from(ev.target.files || []);
+  ev.target.value = '';
+  const i = inspFotosTargetIndex;
+  if (i === null || !files.length) return;
+  const r = inspState.recintos[i];
+  if (!r || !r.id) return;
+  showToast(`Subiendo ${files.length} foto${files.length > 1 ? 's' : ''}…`);
+  let ok = 0;
+  for (const f of files) {
+    const subida = await subirFotoRecinto(f, r.id);
+    if (subida) ok++;
+  }
+  if (ok) showToast(`${ok} foto${ok > 1 ? 's' : ''} subida${ok > 1 ? 's' : ''} ✓`);
+  else showToast('No se pudo subir la foto', 'error');
+  await cargarFotosRecinto(i);
+}
+
+async function subirFotoRecinto(file, recintoId) {
+  const nombre = file.name;
+  const mime = file.type || 'image/jpeg';
+  try {
+    const url = SHEETS_URL + '?action=iniciarSubidaRecinto&recintoId=' + encodeURIComponent(recintoId)
+      + '&fileName=' + encodeURIComponent(nombre) + '&mimeType=' + encodeURIComponent(mime);
+    const ini = await jsonpOnce(url, 'insp_upr', 20000);
+    if (!ini || !ini.ok || !ini.uploadUrl) throw new Error((ini && ini.error) || 'sin url de subida');
+    const put = await fetch(ini.uploadUrl, { method: 'PUT', headers: { 'Content-Type': mime }, body: file });
+    if (!put.ok) throw new Error('PUT ' + put.status);
+    return true;
+  } catch(e) {
+    try {
+      const dataBase64 = await fileToBase64(file);
+      await formPost(SHEETS_URL, { action: 'uploadArchivoRecinto', recintoId, fileName: nombre, mimeType: mime, dataBase64 });
+      return true;
+    } catch(e2) { return false; }
+  }
+}
+
+async function eliminarFotoRecintoUI(i, fileId) {
+  if (!confirm('¿Eliminar esta foto? Se enviará a la papelera de Drive.')) return;
+  const r = inspState.recintos[i];
+  try {
+    await formPost(SHEETS_URL, { action: 'deleteArchivoRecinto', recintoId: r.id, fileId });
+    showToast('Foto eliminada');
+    await cargarFotosRecinto(i);
+  } catch(e) {
+    showToast('Error al eliminar', 'error');
+  }
+}
+
+async function finalizarInspeccionUI() {
+  if (!inspState || !inspState.inspeccionId) return;
+  if (!confirm('¿Finalizar esta inspección? Ya no aparecerá como "en curso" al volver a abrirla.')) return;
+  try {
+    await formPost(SHEETS_URL, { action: 'finalizarInspeccion', id: inspState.inspeccionId });
+    showToast('Inspección finalizada ✓');
+    borrarDraftLocal();
+    document.getElementById('insp-main').style.display = 'none';
+    document.getElementById('card-inicio').style.display = 'block';
+    inspState = null;
+  } catch(e) {
+    showToast('Error al finalizar', 'error');
+  }
+}
+
+initApp();
+</script>
+</body>
+</html>
