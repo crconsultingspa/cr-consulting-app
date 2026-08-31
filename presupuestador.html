@@ -476,6 +476,23 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 // DB_START
 let DB=[
   {c:"General",d:"Retiro de material existente",u:"m2",p:3450},
+  {c:"General",d:"Desarme y Retiro de cielo de plancha de yeso cartón",u:"m2",p:10000,l:"Crawford"},
+  {c:"General",d:"Desarme y Retiro de cubierta de techumbre de plancha zinc alum - galvanizada",u:"m2",p:5000,l:"Crawford"},
+  {c:"General",d:"Desarme y Retiro de cumbrera de techumbre de zinc alum-galvanizado",u:"gl",p:50000,l:"Crawford"},
+  {c:"General",d:"Desarme y Retiro de fieltro asfáltico en techumbre",u:"m2",p:3500,l:"Crawford"},
+  {c:"General",d:"Desarme y retiro de fieltro asfaltico en muro",u:"m2",p:10000,l:"Crawford"},
+  {c:"General",d:"Desarme y Retiro de papel mural en muro",u:"m2",p:3500,l:"Crawford"},
+  {c:"General",d:"Desarme y Retiro de siding fibro cemento en frontón",u:"m2",p:10000,l:"Crawford"},
+  {c:"General",d:"Faenas de limpieza de recinto y retiro de excedentes",u:"gl",p:55000,l:"Crawford"},
+  {c:"General",d:"Montaje de cubierta de techumbre de plancha zinc alum - galvanizada",u:"m2",p:6000,l:"Crawford"},
+  {c:"General",d:"Montaje de cumbrera de techumbre de zinc alum-galvanizado",u:"ml",p:6000,l:"Crawford"},
+  {c:"General",d:"Montaje de fieltro asfáltico en techumbre",u:"m2",p:4000,l:"Crawford"},
+  {c:"General",d:"Montaje de siding fibro cemento en frontón",u:"m2",p:6000,l:"Crawford"},
+  {c:"General",d:"Preparación de superficie para pintura látex / esmalte al agua en cielo",u:"m2",p:3500,l:"Crawford"},
+  {c:"General",d:"Provisión e Instalación de cielo de plancha de yeso cartón",u:"m2",p:12000,l:"Crawford"},
+  {c:"General",d:"Provisión e Instalación de fieltro asfaltico en muro",u:"m2",p:4000,l:"Crawford"},
+  {c:"General",d:"Provisión e Instalación de papel mural en muro",u:"m2",p:12000,l:"Crawford"},
+  {c:"General",d:"Provisión e Instalación de pintura látex / esmalte al agua en cielo",u:"m2",p:7000,l:"Crawford"},
   {c:"General",d:"Preparacion de superficie",u:"m2",p:1822},
   {c:"General",d:"Limpieza de pavimentos y muros",u:"m2",p:1822},
   {c:"General",d:"Sanitizacion de vivienda",u:"m2",p:4416},
@@ -609,7 +626,7 @@ let DB=[
 </script>
 <script>
  CAPS=()=>[...new Set(DB.map(x=>x.c))];
- SHEETS_URL='https://script.google.com/macros/s/AKfycbw-d4aTytqRe_0LPR-0FVBiEMHCXhRdC_XDCk89Tosd1vhcqyoY6IEl92PY43JjaOJT/exec';
+ SHEETS_URL='https://script.google.com/macros/s/AKfycby2XWuoudlTng0jYrGAWmlDWNWa--eVMi79GkwRIvm0oJtCROxqUO31vEm0uBH96cMEHQ/exec';
 const PARTIDAS_SHEET_ID='1PEVPvNUiTXXOEviVi_BRX-5ZEq3ysngE';
 const PARTIDAS_EXPORT_URL='https://docs.google.com/spreadsheets/d/'+PARTIDAS_SHEET_ID+'/export?format=xlsx';
 let S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0,showGG:true,showIVA:true};
