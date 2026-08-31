@@ -143,6 +143,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .picker-chk{width:17px;height:17px;accent-color:var(--teal);flex-shrink:0}
 .picker-nom{font-size:12px;flex:1}
 .picker-pre{font-size:10.5px;color:var(--green);font-weight:700;white-space:nowrap}
+.picker-right{display:flex;flex-direction:column;align-items:flex-end;gap:1px;flex-shrink:0}
+.picker-liq{font-size:9.5px;color:var(--text-3);font-weight:600;white-space:nowrap;letter-spacing:.2px}
+.db-liq{font-size:9.5px;color:var(--text-3);font-weight:600;min-width:44px;text-align:right;white-space:nowrap}
 
 /* ── Selected partidas ── */
 .sel-p{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px;margin-bottom:9px}
@@ -459,6 +462,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
       <div class="ig"><label>Unidad</label><select id="dbp-u"><option>m2</option><option>ml</option><option>gl</option><option>un</option><option>m3</option></select></div>
       <div class="ig"><label>Precio unitario</label><input type="number" id="dbp-p" placeholder="0" step="1"></div>
     </div>
+    <div class="ig">
+      <label>Liquidadora sugerida <span style="font-weight:400;text-transform:none;color:var(--text-3)">(opcional)</span></label>
+      <input type="text" id="dbp-liq" placeholder="Ej: JPV, Manual..." list="liq-dl">
+      <datalist id="liq-dl"></datalist>
+    </div>
     <button class="btn btn-teal" onclick="guardarDBPartida()">Guardar partida</button>
   </div>
 </div>
@@ -732,7 +740,8 @@ function renderPicker(q){
   if(!filtered.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px;">Sin resultados</div>';return;}
   el.innerHTML=filtered.map(p=>{
     const idx=DB.indexOf(p);
-    return'<label class="picker-item" for="chk-'+idx+'"><input class="picker-chk" type="checkbox" id="chk-'+idx+'" '+(chk[idx]?'checked':'')+' onchange="toggleChk('+idx+')"><span class="picker-nom">'+p.d+'</span><span class="picker-pre">'+fmt(p.p)+'/'+p.u+'</span></label>';
+    const liqHtml=p.l?'<span class="picker-liq">'+esc(p.l)+'</span>':'';
+    return'<label class="picker-item" for="chk-'+idx+'"><input class="picker-chk" type="checkbox" id="chk-'+idx+'" '+(chk[idx]?'checked':'')+' onchange="toggleChk('+idx+')"><span class="picker-nom">'+p.d+'</span><span class="picker-right"><span class="picker-pre">'+fmt(p.p)+'/'+p.u+'</span>'+liqHtml+'</span></label>';
   }).join('');
 }
 function toggleChk(idx){chk[idx]=!chk[idx];if(!chk[idx])delete chk[idx];renderSelPartidas();}
@@ -945,32 +954,58 @@ function renderDB(){
   if(!filtered.length){listEl.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">Sin resultados</div>';return;}
   listEl.innerHTML=filtered.map(p=>{
     const idx=DB.indexOf(p);
-    return'<div class="db-row"><span class="db-cap">'+p.c+'</span><span class="db-det">'+p.d+'</span><span class="db-u">'+p.u+'</span><span class="db-p">'+fmt(p.p)+'</span><div class="db-actions"><button class="btn-sm btn-sm-sec" onclick="abrirEditDBPartida('+idx+')" style="padding:5px 7px;">Ed</button><button class="btn-sm btn-sm-red" onclick="eliminarDBPartida('+idx+')" style="padding:5px 7px;">X</button></div></div>';
+    return'<div class="db-row"><span class="db-cap">'+p.c+'</span><span class="db-det">'+p.d+'</span><span class="db-u">'+p.u+'</span><span class="db-p">'+fmt(p.p)+'</span><span class="db-liq">'+esc(p.l||'')+'</span><div class="db-actions"><button class="btn-sm btn-sm-sec" onclick="abrirEditDBPartida('+idx+')" style="padding:5px 7px;">Ed</button><button class="btn-sm btn-sm-red" onclick="eliminarDBPartida('+idx+')" style="padding:5px 7px;">X</button></div></div>';
   }).join('');
 }
 function dbSelectCap(c){dbActiveCap=c;renderDB();}
+// ── Memoria de liquidadoras: nombres usados antes, para sugerir en nuevas partidas ──
+function liqMemoria(){
+  try{return JSON.parse(localStorage.getItem('cr_liquidadoras_memoria')||'[]');}catch(e){return [];}
+}
+function liqGuardarMemoria(nombre){
+  if(!nombre)return;
+  const mem=liqMemoria();
+  if(!mem.some(x=>x.toLowerCase()===nombre.toLowerCase())){
+    mem.push(nombre);
+    try{localStorage.setItem('cr_liquidadoras_memoria',JSON.stringify(mem));}catch(e){}
+  }
+}
+function renderLiqDatalist(){
+  const dl=document.getElementById('liq-dl');if(!dl)return;
+  const desdeDB=[...new Set(DB.map(x=>x.l).filter(Boolean))];
+  const mem=liqMemoria();
+  const set=[...new Set([...desdeDB,...mem,'Manual'])];
+  dl.innerHTML=set.map(v=>'<option value="'+esc(v)+'">').join('');
+}
 function abrirModalNuevaPartida(){
   dbEditIdx=null;
   document.getElementById('modal-db-title').textContent='Nueva partida';
   document.getElementById('dbp-det').value='';document.getElementById('dbp-p').value='';
   document.getElementById('dbp-u').selectedIndex=0;
+  document.getElementById('dbp-liq').value='';
+  renderLiqDatalist();
   document.getElementById('modal-db-partida').classList.add('open');
 }
 function abrirEditDBPartida(idx){
   dbEditIdx=idx;const p=DB[idx];
   document.getElementById('modal-db-title').textContent='Editar partida';
   document.getElementById('dbp-det').value=p.d;document.getElementById('dbp-p').value=p.p;
+  document.getElementById('dbp-liq').value=p.l||'';
   const catSel=document.getElementById('dbp-cat');
   [...catSel.options].forEach((o,i)=>{if(o.value===p.c)catSel.selectedIndex=i;});
   const uSel=document.getElementById('dbp-u');
   [...uSel.options].forEach((o,i)=>{if(o.value===p.u)uSel.selectedIndex=i;});
+  renderLiqDatalist();
   document.getElementById('modal-db-partida').classList.add('open');
 }
 function guardarDBPartida(){
   const cat=document.getElementById('dbp-cat').value,det=document.getElementById('dbp-det').value.trim();
   const u=document.getElementById('dbp-u').value,p=parseFloat(document.getElementById('dbp-p').value)||0;
+  const liq=document.getElementById('dbp-liq').value.trim();
   if(!det) return alert('Ingresa una descripcion.');if(!p) return alert('Ingresa un precio.');
-  if(dbEditIdx===null){DB.push({c:cat,d:det,u,p});}else{DB[dbEditIdx]={c:cat,d:det,u,p};}
+  if(dbEditIdx===null){DB.push({c:cat,d:det,u,p,l:liq});}else{DB[dbEditIdx]={c:cat,d:det,u,p,l:liq};}
+  if(liq&&liq.toLowerCase()!=='manual')liqGuardarMemoria(liq);
+  renderLiqDatalist();
   closeModal('modal-db-partida');renderDB();
 }
 function eliminarDBPartida(idx){if(confirm('Eliminar esta partida?')){DB.splice(idx,1);renderDB();}}
@@ -994,14 +1029,15 @@ function cargarDBdesdeDrive(){
       const nueva=[];
       for(let i=1;i<rows.length;i++){
         const r=rows[i];
-        const c=String(r[0]||'').trim(),d=String(r[1]||'').trim(),u=String(r[2]||'').trim(),p=parseFloat(r[3])||0;
-        if(c&&d) nueva.push({c:c,d:d,u:u||'m2',p:p});
+        const c=String(r[0]||'').trim(),d=String(r[1]||'').trim(),u=String(r[2]||'').trim(),p=parseFloat(r[3])||0,l=String(r[4]||'').trim();
+        if(c&&d) nueva.push({c:c,d:d,u:u||'m2',p:p,l:l});
       }
       if(nueva.length<3)throw new Error('Datos insuficientes en el archivo');
       DB=nueva;
       const hora=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
       setDBStatus('ok','Base de datos en la nube · '+DB.length+' partidas ('+hora+')');
       renderDB();
+      renderLiqDatalist();
     })
     .catch(err=>{
       DB=JSON.parse(JSON.stringify(DB_INTERNA));
@@ -1217,7 +1253,8 @@ function confirmarNuevo(){
 }
 renderRecintos();
 cargarDBdesdeDrive();
+renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v22 · 06/2026</div>
+<div class="version-tag">CR Consulting · v23 · 08/2026</div>
 </body>
 </html>
