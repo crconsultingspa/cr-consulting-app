@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Inspección de Terreno · CR Consulting</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/USzJtPh.png">
+<link rel="apple-touch-icon" href="https://i.imgur.com/USzJtPh.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,95 +21,120 @@
   --green:#1a7a52; --green-bg:#e2f4ec;
   --red:#c0392b; --red-bg:#fbeae8;
   --amber:#ad6a13;
-  --radius:14px; --radius-sm:9px;
-  --shadow:0 1px 2px rgba(0,43,65,.04),0 4px 16px rgba(0,43,65,.05);
-  --shadow-lg:0 8px 40px rgba(0,43,65,.16);
+  --radius:20px; --radius-sm:9px;
+  --shadow:0 10px 30px rgba(0,43,65,.10);
+  --shadow-lg:0 18px 44px rgba(0,27,43,.20);
   --disp:'Oswald','Arial Narrow',sans-serif;
   --ui:'Open Sans','Segoe UI',Tahoma,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--ui);background:var(--cream);color:var(--text);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--ui);background:#eef5f7;color:var(--text);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
 
-/* ── Header ── */
-.app-header{background:linear-gradient(120deg,var(--navy) 0%,var(--navy-2) 60%,var(--teal) 160%);padding:12px 15px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 14px rgba(0,27,43,.35)}
-.hbrand{display:flex;align-items:center;gap:11px}
-.brand-logo{display:block;width:130px;height:34px;background-color:var(--cream);-webkit-mask:url("https://i.imgur.com/USzJtPh.png") left center / contain no-repeat;mask:url("https://i.imgur.com/USzJtPh.png") left center / contain no-repeat;filter:drop-shadow(0 2px 6px rgba(0,0,0,.30))}
-.hmeta{line-height:1}
-.htitle{font-family:var(--disp);font-size:15px;font-weight:600;color:var(--cream);letter-spacing:.02em}
-.hsub{font-family:var(--disp);font-size:9px;color:var(--teal-2);margin-top:2px;letter-spacing:.30em;text-transform:uppercase}
-.back-btn{background:rgba(255,247,238,.10);border:1px solid rgba(255,247,238,.28);color:var(--cream);padding:7px 13px;border-radius:var(--radius-sm);font-family:var(--ui);font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+/* ── Header con escudo ── */
+.app-header{background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 130%);padding:10px 16px 18px;position:sticky;top:0;z-index:100;box-shadow:0 2px 18px rgba(0,27,43,.30)}
+.header-top{display:flex;align-items:center;justify-content:space-between}
+.back-btn{background:rgba(255,247,238,.12);border:1px solid rgba(255,247,238,.30);color:var(--cream);padding:6px 11px;border-radius:8px;font-family:var(--ui);font-size:11.5px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
 .back-btn:hover{background:rgba(255,247,238,.22)}
+.status-pill{display:flex;align-items:center;gap:5px;background:rgba(255,247,238,.10);padding:4px 10px;border-radius:20px;font-size:10.5px;color:var(--cream);font-weight:600}
+.status-pill .dot{width:6px;height:6px;border-radius:3px;background:#5ee0b0}
+.header-brand{text-align:center;margin-top:8px}
+.header-logo{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+.header-title{font-family:var(--disp);font-size:17px;font-weight:600;color:var(--cream);letter-spacing:.02em;margin-top:2px}
+.header-sub{font-family:var(--disp);font-size:9px;color:#7fd0e0;margin-top:3px;letter-spacing:.30em;text-transform:uppercase}
 
 /* ── Page / Cards ── */
-.page{padding:14px 13px 80px;max-width:720px;margin:0 auto}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:13px;box-shadow:var(--shadow)}
-.card-title{font-family:var(--disp);font-size:12px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.10em;margin-bottom:13px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
-.card-title i{font-size:16px}
+.page{padding:14px 12px 90px;max-width:640px;margin:0 auto}
+.card{background:var(--surface);border:1px solid rgba(0,43,65,.05);border-radius:var(--radius);padding:17px;margin-bottom:15px;box-shadow:var(--shadow)}
+.card-title{font-family:var(--disp);font-size:11px;font-weight:600;color:var(--teal-2);text-transform:uppercase;letter-spacing:.10em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.card-title i{font-size:15px}
 
 /* ── Forms ── */
 .ig{margin-bottom:11px}
-label{display:block;font-size:10px;color:var(--text-3);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--ui);font-size:13.5px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
-input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft)}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:9px;color:var(--text-3);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px;color:var(--text);font-family:var(--ui);font-size:12.5px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--teal-2);box-shadow:0 0 0 3px var(--teal-soft)}
+select{background:var(--surface2)}
 
 /* ── Buttons ── */
-.btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:var(--ui);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:9px}
-.btn:hover{background:var(--surface2);border-color:var(--teal)}
-.btn i{font-size:17px}
-.btn-teal{background:var(--teal);color:#fff;border-color:var(--teal);box-shadow:0 4px 14px rgba(0,101,126,.26)}
+.btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:var(--ui);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:9px}
+.btn:hover{background:var(--surface2);border-color:var(--teal-2)}
+.btn:last-child{margin-bottom:0}
+.btn i{font-size:16px}
+.btn-teal{background:var(--teal-2);color:#fff;border-color:var(--teal-2);box-shadow:0 8px 20px rgba(0,129,158,.28)}
 .btn-teal:hover{background:var(--navy);border-color:var(--navy)}
-.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.35)}
-.btn-danger:hover{background:var(--red);color:#fff;border-color:var(--red)}
-.btn-save{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,82,.32)}
-.btn-save:hover{background:var(--green);color:#fff}
-.btn-sm{width:auto;display:inline-flex;align-items:center;gap:4px;padding:7px 10px;font-size:11.5px;border-radius:7px;border:1px solid var(--border-strong);cursor:pointer;font-family:var(--ui);font-weight:600;transition:all .15s;white-space:nowrap;background:var(--surface);margin-bottom:0}
-.btn-sm i{font-size:14px}
+.btn-save{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 4px 14px rgba(26,122,82,.25)}
+.btn-save:hover{background:#155f40;border-color:#155f40}
+.btn-sm{width:auto;display:inline-flex;align-items:center;gap:4px;padding:6px 10px;font-size:11px;border-radius:8px;border:1px solid var(--border-strong);cursor:pointer;font-family:var(--ui);font-weight:600;transition:all .15s;white-space:nowrap;background:var(--surface);margin-bottom:0}
+.btn-sm i{font-size:13px}
 
-/* ── Search box (import case) ── */
+/* ── Search / picker ── */
 .sw{position:relative;margin-bottom:9px}
-.sw input{padding-left:34px}
-.sw-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:15px;pointer-events:none}
-.sw-ico i{font-size:15px}
-.picker-list{max-height:420px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}
-.aseg-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.sw input{padding-left:32px}
+.sw-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:14px;pointer-events:none}
+.sw-ico i{font-size:14px}
+.picker-list{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;max-height:340px;overflow-y:auto}
+.aseg-row{display:flex;align-items:center;gap:9px;padding:9px 11px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
 .aseg-row:last-child{border:none}
 .aseg-row:hover{background:var(--surface2)}
-.aseg-nom{font-size:12.5px;font-weight:600;color:var(--navy)}
-.aseg-meta{font-size:10.5px;color:var(--text-3);margin-top:2px}
-.aseg-go{color:var(--teal);font-size:18px;flex-shrink:0}
+.aseg-nom{font-size:12px;font-weight:600;color:var(--navy)}
+.aseg-meta{font-size:10px;color:var(--text-3);margin-top:2px}
+.aseg-go{color:var(--teal-2);font-size:17px;flex-shrink:0}
 
-/* ── Chips (tipo de siniestro) ── */
+/* ── Caso info ── */
+.caso-nombre{font-weight:700;font-size:14px;color:var(--navy)}
+.caso-detalle{color:var(--text-3);font-size:11.5px;margin-top:3px;line-height:1.5}
+
+/* ── Chips tipo de siniestro ── */
 .sin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.sin-btn{padding:13px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text-2);font-family:var(--ui);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .18s}
-.sin-btn:hover{border-color:var(--teal)}
-.sin-btn.ac{border-color:var(--teal);background:var(--teal-soft);color:var(--teal)}
-.sin-icon{font-size:20px;display:block;margin-bottom:4px;line-height:1}
-.sin-icon i{font-size:20px}
+.sin-btn{padding:13px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text-2);font-family:var(--ui);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:5px}
+.sin-btn:hover{border-color:var(--teal-2)}
+.sin-btn.ac{border-color:var(--teal-2);background:var(--teal-2);color:#fff;box-shadow:0 8px 20px rgba(0,129,158,.28)}
+.sin-btn i{font-size:20px}
 
-/* ── Inspección: recintos ── */
+/* ── Recintos ── */
 .insp-recinto-card{border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden}
-.insp-recinto-head{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);cursor:pointer}
-.insp-recinto-head i.ti-chevron-right{color:var(--text-3);flex-shrink:0}
-.insp-recinto-head input{flex:1;min-width:0;border:none;background:transparent;font-weight:600;color:var(--navy);font-size:13.5px;font-family:inherit;outline:none;padding:0}
-.insp-recinto-body{padding:14px;display:none}
+.insp-recinto-head{display:flex;align-items:center;gap:7px;padding:9px 11px;background:var(--surface2);cursor:pointer}
+.insp-recinto-head i.ti-chevron-right,.insp-recinto-head i.ti-chevron-down{color:var(--text-3);flex-shrink:0;font-size:15px}
+.insp-recinto-head input{flex:1;min-width:0;border:none;background:transparent;font-weight:600;color:var(--navy);font-size:12.5px;font-family:inherit;outline:none;padding:0}
+.insp-recinto-head input::placeholder{color:var(--text-3)}
+.insp-recinto-body{padding:12px;display:none}
 .insp-recinto-card.open .insp-recinto-body{display:block}
-.insp-field-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.insp-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:90px}
-.insp-field label{margin-bottom:0}
-.insp-cat-row{border:1px solid var(--border);border-radius:8px;padding:10px 10px 0;margin-bottom:8px;background:var(--surface2);position:relative}
-.insp-cat-remove{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px}
+.dims-row{display:flex;gap:5px;margin-bottom:6px}
+.dims-field{flex:1;min-width:0}
+.dims-field label{font-size:8px;margin-bottom:3px}
+.dims-field input{padding:7px 6px;font-size:11px;text-align:center}
+.m2-box{padding:7px 4px;border-radius:var(--radius-sm);border:1.5px solid var(--teal-soft);background:var(--teal-soft);display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:11px;font-weight:700;min-height:31px}
+
+/* Calculadora m2 auxiliar */
+.calc-m2{background:rgba(0,43,65,.03);border:1px dashed var(--border-strong);border-radius:var(--radius-sm);padding:8px 9px;margin-bottom:10px}
+.calc-m2-title{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.calc-m2-title i{font-size:12px;color:var(--teal-2)}
+.calc-m2-row{display:flex;align-items:center;gap:5px}
+.calc-m2-row input{padding:6px;font-size:11px;text-align:center;background:var(--surface)}
+.calc-m2-row .op{font-size:12px;color:var(--text-3);font-weight:700;flex-shrink:0}
+.calc-m2-res{flex:1;min-width:52px;text-align:center;font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-soft);border-radius:7px;padding:6px 4px}
+.calc-m2-apply{flex-shrink:0;background:var(--teal-2);color:#fff;border:none;border-radius:7px;padding:6px 8px;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+
+.insp-cat-row{border:1px solid var(--border);border-radius:8px;padding:9px 9px 1px;margin-bottom:8px;background:var(--surface2);position:relative}
+.insp-cat-remove{position:absolute;top:5px;right:8px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:16px;line-height:1;padding:2px}
 .insp-cat-remove:hover{color:var(--red)}
-.insp-photo-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.insp-photo-tile{width:74px;height:74px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--border);background:var(--navy);flex-shrink:0}
+.cat-fields{display:flex;gap:7px;margin-bottom:8px}
+.cat-fields .ig{flex:1;margin-bottom:0}
+
+/* ── Fotos ── */
+.insp-photo-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.insp-photo-tile{width:66px;height:66px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--border);background:#e5edf1;flex-shrink:0}
 .insp-photo-tile img{width:100%;height:100%;object-fit:cover;display:block}
-.insp-photo-tile .insp-photo-del{position:absolute;top:2px;right:2px;background:rgba(0,43,65,.7);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:1;cursor:pointer}
-.insp-photo-add{width:74px;height:74px;border-radius:8px;border:2px dashed var(--teal);display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:26px;cursor:pointer;background:rgba(0,101,126,.04);flex-shrink:0}
-.insp-recinto-actions{display:flex;gap:8px;margin-top:12px}
-.insp-empty{text-align:center;padding:20px;color:var(--text-3);font-size:12.5px}
+.insp-photo-tile .insp-photo-del{position:absolute;top:3px;right:3px;background:rgba(0,43,65,.72);color:#fff;border:none;border-radius:8px;width:16px;height:16px;font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.insp-photo-tile.pending{display:flex;align-items:center;justify-content:center}
+.insp-photo-tile.pending .spin{animation:spin 1s linear infinite;color:var(--teal-2);font-size:18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.insp-photo-add{width:66px;height:66px;border-radius:8px;border:2px dashed var(--teal-2);display:flex;align-items:center;justify-content:center;color:var(--teal-2);font-size:24px;cursor:pointer;background:rgba(0,101,126,.04);flex-shrink:0}
+.insp-empty{text-align:center;padding:22px 12px;color:var(--text-3);font-size:12px}
+.insp-empty i{font-size:26px;display:block;margin-bottom:7px;opacity:.5}
 
 /* ── Toast ── */
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:var(--cream);padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .25s;pointer-events:none;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:var(--cream);padding:11px 18px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;z-index:999;opacity:0;transition:all .25s;pointer-events:none;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.success{background:var(--green)}
 .toast.error{background:var(--red)}
@@ -115,46 +142,46 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
-
-@media (max-width:480px){
-  .sin-grid{grid-template-columns:1fr 1fr}
-}
 </style>
 </head>
 <body>
 
 <div class="app-header">
-  <div class="hbrand">
-    <span class="brand-logo" role="img" aria-label="CR Consulting"></span>
-    <div class="hmeta"><div class="htitle">Inspección de Terreno</div><div class="hsub">Recintos y daños</div></div>
+  <div class="header-top">
+    <a href="index.html" class="back-btn"><i class="ti ti-arrow-left"></i> Dashboard</a>
+    <div class="status-pill" id="status-pill" style="visibility:hidden"><span class="dot"></span>En proceso</div>
   </div>
-  <a href="index.html" class="back-btn"><i class="ti ti-arrow-left"></i> Dashboard</a>
+  <div class="header-brand">
+    <img src="https://i.imgur.com/USzJtPh.png" alt="CR Consulting" class="header-logo">
+    <div class="header-title">Inspección de Terreno</div>
+    <div class="header-sub">Recintos y daños</div>
+  </div>
 </div>
 
 <div class="page">
 
   <!-- Paso 0: elegir caso -->
   <div class="card" id="card-caso-picker">
-    <div class="card-title"><i class="ti ti-search"></i>Selecciona un caso</div>
+    <div class="card-title"><i class="ti ti-search"></i><span style="flex:1">Selecciona un caso</span></div>
     <div class="sw"><span class="sw-ico"><i class="ti ti-search"></i></span>
       <input type="text" id="caso-search" placeholder="Buscar por nombre, RUT o N° siniestro…" oninput="renderCasoPicker()">
     </div>
-    <div id="caso-status" style="font-size:12px;color:var(--text-3);padding:6px 2px;">Cargando casos…</div>
+    <div id="caso-status" style="font-size:10.5px;color:var(--text-3);padding:3px 2px 8px;">Cargando casos…</div>
     <div class="picker-list" id="caso-picker-list"></div>
   </div>
 
   <!-- Caso seleccionado -->
   <div class="card" id="card-caso-info" style="display:none">
-    <div class="card-title"><i class="ti ti-user"></i>Caso
-      <button type="button" class="btn-sm" style="margin-left:auto" onclick="cambiarCaso()"><i class="ti ti-replace"></i> Cambiar caso</button>
+    <div class="card-title"><i class="ti ti-user"></i><span style="flex:1">Caso</span>
+      <button type="button" class="btn-sm" onclick="cambiarCaso()"><i class="ti ti-replace"></i> Cambiar</button>
     </div>
-    <div id="insp-caso-nombre" style="font-weight:600;font-size:14px;color:var(--navy)">—</div>
-    <div id="insp-caso-detalle" style="color:var(--text-3);font-size:12.5px;margin-top:3px;">—</div>
+    <div class="caso-nombre" id="insp-caso-nombre">—</div>
+    <div class="caso-detalle" id="insp-caso-detalle">—</div>
   </div>
 
   <!-- Paso inicial: tipo de siniestro + fecha -->
   <div class="card" id="card-inicio" style="display:none">
-    <div class="card-title"><i class="ti ti-alert-triangle"></i>Iniciar inspección</div>
+    <div class="card-title"><i class="ti ti-alert-triangle"></i><span style="flex:1">Iniciar inspección</span></div>
     <label>Tipo de siniestro</label>
     <div class="sin-grid" id="insp-tipo-chips" style="margin-bottom:14px"></div>
     <div class="ig" style="max-width:220px">
@@ -167,7 +194,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
   <!-- Vista principal: recintos -->
   <div id="insp-main" style="display:none">
     <div class="card">
-      <div class="card-title"><i class="ti ti-building-warehouse"></i>Recintos</div>
+      <div class="card-title"><i class="ti ti-building-warehouse"></i><span style="flex:1">Recintos</span></div>
       <div id="insp-recintos-list"></div>
       <button class="btn" onclick="agregarRecintoUI()"><i class="ti ti-plus"></i> Agregar recinto</button>
     </div>
@@ -183,7 +210,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 // ─────────────────────────────────────────────────────────────────────────
 // Config y utilidades compartidas con el dashboard
 // ─────────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwZCW8-2pHZQxsfpyMGakZAongA5WJSSeJqve6SO3-booAQxXYiTmZLtUXwqAQcJnqYyA/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyeDQblPPugHr3qYin__31EX4k_8w9Wga0HdM_q-Mwchxdh_kGHFgN3TUlu8t6TnujbNQ/exec';
 
 function escapeHtml(t) {
   return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -292,7 +319,7 @@ function renderCasoPicker() {
   el.innerHTML = f.slice(0, 100).map(c => {
     const meta = [c.rut, c.nrosin ? 'N° ' + c.nrosin : '', c.siniestro].filter(Boolean).join(' · ');
     return `<div class="aseg-row" onclick="selectCaso('${escapeHtml(String(c.id))}')">
-      <div style="flex:1;"><div class="aseg-nom">${escapeHtml(c.nombre || '(sin nombre)')}</div><div class="aseg-meta">${escapeHtml(meta)}</div></div>
+      <div style="flex:1;min-width:0"><div class="aseg-nom">${escapeHtml(c.nombre || '(sin nombre)')}</div><div class="aseg-meta">${escapeHtml(meta)}</div></div>
       <i class="ti ti-chevron-right aseg-go"></i>
     </div>`;
   }).join('');
@@ -305,9 +332,9 @@ async function selectCaso(id) {
   document.getElementById('card-caso-picker').style.display = 'none';
   document.getElementById('card-caso-info').style.display = 'block';
   document.getElementById('insp-caso-nombre').textContent = c.nombre || '—';
-  document.getElementById('insp-caso-detalle').textContent = `N° Siniestro: ${c.siniestro || '—'}${c.rut ? ' · ' + c.rut : ''}`;
+  const detalle = [c.rut ? c.rut : '', c.siniestro ? 'N° Siniestro: ' + c.siniestro : '', (c.dir || c.comuna) ? [c.dir, c.comuna].filter(Boolean).join(', ') : ''].filter(Boolean).join(' · ');
+  document.getElementById('insp-caso-detalle').textContent = detalle || '—';
 
-  // Actualiza la URL para poder compartir/recargar directo sobre este caso
   try {
     const url = new URL(location.href);
     url.searchParams.set('casoId', c.id);
@@ -320,6 +347,7 @@ async function selectCaso(id) {
 function cambiarCaso() {
   casoActual = null;
   inspState = null;
+  document.getElementById('status-pill').style.visibility = 'hidden';
   document.getElementById('card-caso-info').style.display = 'none';
   document.getElementById('card-inicio').style.display = 'none';
   document.getElementById('insp-main').style.display = 'none';
@@ -334,7 +362,12 @@ function cambiarCaso() {
 // ─────────────────────────────────────────────────────────────────────────
 // Inspección de terreno — recintos, daños y fotografías
 // ─────────────────────────────────────────────────────────────────────────
-const INSP_TIPOS          = ['Viento y Lluvia', 'Inundación', 'Sismo', 'Incendio'];
+const INSP_TIPOS_META = [
+  { t: 'Viento y Lluvia', i: 'ti-cloud-rain' },
+  { t: 'Inundación',      i: 'ti-ripple' },
+  { t: 'Sismo',           i: 'ti-activity' },
+  { t: 'Incendio',        i: 'ti-flame' }
+];
 const INSP_CATEGORIAS     = ['Cielo', 'Muro', 'Piso', 'Cubierta', 'Otros'];
 const INSP_MATERIALIDADES = ['Yeso Cartón','Tablero MDF','MDF Ranurado','Aglomerado MDP','Fibrocemento','OSB','Terciado Estructural','Terciado Ranurado','Madera Machihembrada','Albañilería','Hormigón'];
 const INSP_TERMINACIONES  = ['Pintura', 'Pintura Texturada', 'Barniz', 'Papel Mural'];
@@ -365,12 +398,13 @@ function restaurarDraftLocal() {
 async function cargarEstadoInspeccion() {
   inspTipoSel = '';
   const chipsBox = document.getElementById('insp-tipo-chips');
-  chipsBox.innerHTML = INSP_TIPOS.map(t =>
-    `<button type="button" class="sin-btn" onclick="seleccionarTipoSiniestro('${t}',this)"><span class="sin-icon"><i class="ti ti-alert-triangle"></i></span>${t}</button>`).join('');
+  chipsBox.innerHTML = INSP_TIPOS_META.map(m =>
+    `<button type="button" class="sin-btn" onclick="seleccionarTipoSiniestro('${m.t}',this)"><i class="ti ${m.i}"></i>${m.t}</button>`).join('');
   document.getElementById('insp-fecha-ocurrencia').value = casoActual.fechaSiniestro || '';
 
   document.getElementById('card-inicio').style.display = 'none';
   document.getElementById('insp-main').style.display = 'none';
+  document.getElementById('status-pill').style.visibility = 'hidden';
   inspState = null;
 
   try {
@@ -380,7 +414,7 @@ async function cargarEstadoInspeccion() {
       inspState = {
         casoId: String(casoActual.id), inspeccionId: res.inspeccion.id, tipoSiniestro: res.inspeccion.tipoSiniestro,
         fechaOcurrencia: res.inspeccion.fechaOcurrencia, folderId: res.inspeccion.folderId,
-        recintos: (res.recintos || []).map(r => ({ ...r, _open: false, _fotos: null }))
+        recintos: (res.recintos || []).map(r => ({ ...r, _open: false, _fotos: null, _calcL: '', _calcA: '' }))
       };
       restaurarDraftLocal();
       mostrarInspMain();
@@ -425,13 +459,14 @@ async function iniciarInspeccionUI() {
 function mostrarInspMain() {
   document.getElementById('card-inicio').style.display = 'none';
   document.getElementById('insp-main').style.display = 'block';
+  document.getElementById('status-pill').style.visibility = 'visible';
   renderRecintosInsp();
 }
 
 function renderRecintosInsp() {
   const box = document.getElementById('insp-recintos-list');
   if (!inspState.recintos.length) {
-    box.innerHTML = '<div class="insp-empty">Aún no hay recintos. Agrega el primero.</div>';
+    box.innerHTML = '<div class="insp-empty"><i class="ti ti-inbox"></i>Aún no hay recintos.<br>Agrega el primero.</div>';
     return;
   }
   box.innerHTML = inspState.recintos.map((r, i) => renderRecintoCard(r, i)).join('');
@@ -442,40 +477,57 @@ function renderRecintosInsp() {
 
 function renderRecintoCard(r, i) {
   const catsHtml = (r.categorias || []).map((cat, ci) => renderCategoriaRow(cat, i, ci)).join('');
-  const fotosHtml = r._fotos ? r._fotos.map(f => `
+  const fotosPend = (r._fotosPend || 0);
+  let fotosHtml = r._fotos ? r._fotos.map(f => `
       <div class="insp-photo-tile">
         <img src="https://drive.google.com/thumbnail?id=${f.id}" onerror="this.style.display='none'"/>
         <button class="insp-photo-del" onclick="eliminarFotoRecintoUI(${i},'${f.id}')" title="Eliminar foto">&times;</button>
       </div>`).join('') : '';
+  for (let k = 0; k < fotosPend; k++) {
+    fotosHtml += `<div class="insp-photo-tile pending"><i class="ti ti-loader-2 spin"></i></div>`;
+  }
   const puedeSubirFotos = !!r.id;
+  const calcRes = (parseFloat(r._calcL) > 0 && parseFloat(r._calcA) > 0) ? (parseFloat(r._calcL) * parseFloat(r._calcA)).toFixed(2) : '—';
   return `
   <div class="insp-recinto-card ${r._open ? 'open' : ''}" id="insp-recinto-${i}">
     <div class="insp-recinto-head" onclick="toggleRecintoUI(${i})">
-      <i class="ti ti-chevron-right" style="transition:transform .2s;${r._open ? 'transform:rotate(90deg)' : ''}"></i>
+      <i class="ti ${r._open ? 'ti-chevron-down' : 'ti-chevron-right'}"></i>
       <input type="text" value="${escapeHtml(r.nombre || '')}" placeholder="Nombre del recinto"
         oninput="updRecintoField(${i},'nombre',this.value)" onclick="event.stopPropagation()"/>
-      <button class="btn-sm" style="border:none;color:var(--red);background:transparent" onclick="event.stopPropagation();eliminarRecintoUI(${i})" title="Eliminar recinto"><i class="ti ti-trash"></i></button>
+      <button class="btn-sm" style="border:none;color:var(--red);background:transparent;padding:2px 4px" onclick="event.stopPropagation();eliminarRecintoUI(${i})" title="Eliminar recinto"><i class="ti ti-trash"></i></button>
     </div>
     <div class="insp-recinto-body">
-      <div class="insp-field-row">
-        <div class="insp-field"><label>Ancho (m)</label><input type="number" step="0.01" value="${r.ancho || ''}" oninput="updRecintoField(${i},'ancho',this.value)"/></div>
-        <div class="insp-field"><label>Largo (m)</label><input type="number" step="0.01" value="${r.largo || ''}" oninput="updRecintoField(${i},'largo',this.value)"/></div>
-        <div class="insp-field"><label>Alto (m)</label><input type="number" step="0.01" value="${r.alto || ''}" oninput="updRecintoField(${i},'alto',this.value)"/></div>
-        <div class="insp-field"><label>M² piso</label><input type="number" step="0.01" value="${r.m2 || ''}" oninput="updRecintoField(${i},'m2',this.value)"/></div>
+      <div class="dims-row">
+        <div class="dims-field"><label>Ancho</label><input type="number" step="0.01" value="${r.ancho || ''}" oninput="updRecintoField(${i},'ancho',this.value)"/></div>
+        <div class="dims-field"><label>Largo</label><input type="number" step="0.01" value="${r.largo || ''}" oninput="updRecintoField(${i},'largo',this.value)"/></div>
+        <div class="dims-field"><label>Alto</label><input type="number" step="0.01" value="${r.alto || ''}" oninput="updRecintoField(${i},'alto',this.value)"/></div>
+        <div class="dims-field"><label>M²</label><input type="number" step="0.01" value="${r.m2 || ''}" oninput="updRecintoField(${i},'m2',this.value)"/></div>
       </div>
 
-      <label>Categorías / daños</label>
+      <div class="calc-m2">
+        <div class="calc-m2-title"><i class="ti ti-math-function"></i>Calculadora de m² (no altera las medidas)</div>
+        <div class="calc-m2-row">
+          <input type="number" step="0.01" placeholder="Largo" value="${r._calcL || ''}" oninput="updCalcField(${i},'_calcL',this.value)"/>
+          <span class="op">×</span>
+          <input type="number" step="0.01" placeholder="Ancho" value="${r._calcA || ''}" oninput="updCalcField(${i},'_calcA',this.value)"/>
+          <span class="op">=</span>
+          <div class="calc-m2-res" id="calc-res-${i}">${calcRes}</div>
+          <button type="button" class="calc-m2-apply" onclick="aplicarCalcM2(${i})">Usar como M²</button>
+        </div>
+      </div>
+
+      <label style="margin-bottom:6px">Categorías / daños</label>
       <div id="insp-cats-${i}">${catsHtml}</div>
       <button class="btn" style="margin:2px 0 12px" onclick="agregarCategoriaUI(${i})"><i class="ti ti-plus"></i> Agregar categoría</button>
 
-      <label>Fotografías</label>
+      <label style="margin-bottom:6px">Fotografías</label>
       <div class="insp-photo-grid" id="insp-fotos-${i}">
         ${fotosHtml}
         ${puedeSubirFotos ? `<div class="insp-photo-add" onclick="abrirSelectorFotos(${i})" title="Agregar foto"><i class="ti ti-plus"></i></div>` : ''}
       </div>
-      ${!puedeSubirFotos ? '<div style="font-size:11px;color:var(--text-3);margin-top:6px">Guarda el recinto para poder agregar fotos.</div>' : ''}
+      ${!puedeSubirFotos ? '<div style="font-size:10.5px;color:var(--text-3);margin-top:6px">Guarda el recinto para poder agregar fotos.</div>' : ''}
 
-      <div class="insp-recinto-actions">
+      <div class="insp-recinto-actions" style="margin-top:12px">
         <button class="btn btn-teal" onclick="guardarRecintoUI(${i})"><i class="ti ti-device-floppy"></i> Guardar recinto</button>
       </div>
     </div>
@@ -486,28 +538,28 @@ function renderCategoriaRow(cat, i, ci) {
   return `
   <div class="insp-cat-row">
     <button type="button" class="insp-cat-remove" onclick="quitarCategoriaUI(${i},${ci})" title="Quitar categoría">&times;</button>
-    <div class="insp-field-row">
-      <div class="insp-field">
+    <div class="cat-fields">
+      <div class="ig">
         <label>Categoría</label>
         <select onchange="updCategoriaField(${i},${ci},'categoria',this.value)">
           ${INSP_CATEGORIAS.map(c => `<option value="${c}" ${cat.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}
         </select>
       </div>
-      ${cat.categoria === 'Otros' ? `<div class="insp-field"><label>Especifica</label><input type="text" value="${escapeHtml(cat.otroNombre || '')}" oninput="updCategoriaField(${i},${ci},'otroNombre',this.value)"/></div>` : ''}
-      <div class="insp-field">
+      ${cat.categoria === 'Otros' ? `<div class="ig"><label>Especifica</label><input type="text" value="${escapeHtml(cat.otroNombre || '')}" oninput="updCategoriaField(${i},${ci},'otroNombre',this.value)"/></div>` : ''}
+      <div class="ig">
         <label>M² dañados</label>
         <input type="number" step="0.01" value="${cat.m2 || ''}" oninput="updCategoriaField(${i},${ci},'m2',this.value)"/>
       </div>
     </div>
-    <div class="insp-field-row">
-      <div class="insp-field">
+    <div class="cat-fields">
+      <div class="ig">
         <label>Materialidad</label>
         <select onchange="updCategoriaField(${i},${ci},'materialidad',this.value)">
           <option value="">—</option>
           ${INSP_MATERIALIDADES.map(m => `<option value="${m}" ${cat.materialidad === m ? 'selected' : ''}>${m}</option>`).join('')}
         </select>
       </div>
-      <div class="insp-field">
+      <div class="ig">
         <label>Terminación</label>
         <select onchange="updCategoriaField(${i},${ci},'terminacion',this.value)">
           <option value="">—</option>
@@ -522,6 +574,25 @@ function renderCategoriaRow(cat, i, ci) {
   </div>`;
 }
 
+// Calculadora de m² auxiliar: NO modifica ancho/largo/alto, solo calcula y
+// (si el inspector lo decide) copia el resultado al campo M² del recinto.
+function updCalcField(i, campo, val) {
+  inspState.recintos[i][campo] = val;
+  const r = inspState.recintos[i];
+  const res = (parseFloat(r._calcL) > 0 && parseFloat(r._calcA) > 0) ? (parseFloat(r._calcL) * parseFloat(r._calcA)).toFixed(2) : '—';
+  const el = document.getElementById('calc-res-' + i);
+  if (el) el.textContent = res;
+}
+function aplicarCalcM2(i) {
+  const r = inspState.recintos[i];
+  const l = parseFloat(r._calcL), a = parseFloat(r._calcA);
+  if (!(l > 0 && a > 0)) { showToast('Ingresa largo y ancho en la calculadora', 'error'); return; }
+  r.m2 = (l * a).toFixed(2);
+  guardarDraftLocal();
+  renderRecintosInsp();
+  showToast('M² actualizado a ' + r.m2);
+}
+
 function toggleRecintoUI(i) {
   inspState.recintos[i]._open = !inspState.recintos[i]._open;
   if (inspState.recintos[i]._open && inspState.recintos[i].id && inspState.recintos[i]._fotos === null) cargarFotosRecinto(i);
@@ -532,7 +603,7 @@ function updRecintoField(i, campo, val) {
   guardarDraftLocal();
 }
 function agregarRecintoUI() {
-  inspState.recintos.push({ id: null, nombre: '', ancho: '', largo: '', alto: '', m2: '', categorias: [], folderId: '', _open: true, _fotos: null });
+  inspState.recintos.push({ id: null, nombre: '', ancho: '', largo: '', alto: '', m2: '', categorias: [], folderId: '', _open: true, _fotos: null, _calcL: '', _calcA: '' });
   renderRecintosInsp();
   guardarDraftLocal();
 }
@@ -566,6 +637,7 @@ function updCategoriaField(i, ci, campo, val) {
 
 async function guardarRecintoUI(i) {
   const r = inspState.recintos[i];
+  if (!r.nombre || !r.nombre.trim()) { showToast('Ponle un nombre al recinto', 'error'); return; }
   const body = {
     action: 'guardarRecinto', inspeccionId: inspState.inspeccionId,
     nombre: r.nombre, ancho: r.ancho, largo: r.largo, alto: r.alto, m2: r.m2,
@@ -580,7 +652,15 @@ async function guardarRecintoUI(i) {
     const data = await jsonpOnce(url, 'insp_get3', 15000);
     if (data && data.ok && data.inspeccion && data.inspeccion.id === inspState.inspeccionId) {
       const abiertos = new Set(inspState.recintos.filter(x => x._open).map(x => x.id || x.nombre));
-      inspState.recintos = (data.recintos || []).map(nr => ({ ...nr, _open: abiertos.has(nr.id) || abiertos.has(nr.nombre), _fotos: null }));
+      const calcMem = {};
+      inspState.recintos.forEach(x => { if (x.id) calcMem[x.id] = { _calcL: x._calcL, _calcA: x._calcA }; });
+      inspState.recintos = (data.recintos || []).map(nr => ({
+        ...nr,
+        _open: abiertos.has(nr.id) || abiertos.has(nr.nombre),
+        _fotos: null,
+        _calcL: (calcMem[nr.id] && calcMem[nr.id]._calcL) || '',
+        _calcA: (calcMem[nr.id] && calcMem[nr.id]._calcA) || ''
+      }));
       renderRecintosInsp();
       showToast('Recinto guardado ✓');
       guardarDraftLocal();
@@ -615,12 +695,18 @@ async function onInspFilesSelected(ev) {
   if (i === null || !files.length) return;
   const r = inspState.recintos[i];
   if (!r || !r.id) return;
+  // Muestra spinners mientras suben (retroalimentación en cache visual)
+  r._fotosPend = files.length;
+  renderRecintosInsp();
   showToast(`Subiendo ${files.length} foto${files.length > 1 ? 's' : ''}…`);
   let ok = 0;
   for (const f of files) {
     const subida = await subirFotoRecinto(f, r.id);
     if (subida) ok++;
+    r._fotosPend = Math.max(0, (r._fotosPend || 1) - 1);
+    renderRecintosInsp();
   }
+  r._fotosPend = 0;
   if (ok) showToast(`${ok} foto${ok > 1 ? 's' : ''} subida${ok > 1 ? 's' : ''} ✓`);
   else showToast('No se pudo subir la foto', 'error');
   await cargarFotosRecinto(i);
@@ -660,12 +746,17 @@ async function eliminarFotoRecintoUI(i, fileId) {
 
 async function finalizarInspeccionUI() {
   if (!inspState || !inspState.inspeccionId) return;
-  if (!confirm('¿Finalizar esta inspección? Ya no aparecerá como "en curso" al volver a abrirla.')) return;
+  const sinGuardar = inspState.recintos.some(r => !r.id);
+  if (sinGuardar && !confirm('Hay recintos sin guardar que no quedarán en la planilla. ¿Finalizar de todos modos?')) return;
+  if (!confirm('¿Finalizar esta inspección? Se generará la planilla en la carpeta del asegurado y ya no aparecerá como "en curso".')) return;
+  showToast('Finalizando y generando planilla…');
   try {
     await formPost(SHEETS_URL, { action: 'finalizarInspeccion', id: inspState.inspeccionId });
+    await new Promise(r => setTimeout(r, 1500));
     showToast('Inspección finalizada ✓');
     borrarDraftLocal();
     document.getElementById('insp-main').style.display = 'none';
+    document.getElementById('status-pill').style.visibility = 'hidden';
     document.getElementById('card-inicio').style.display = 'block';
     inspState = null;
   } catch(e) {
