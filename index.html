@@ -218,12 +218,12 @@
     /* ─────────────────────────── MAIN ─────────────────────────── */
     .main {
       margin-left: 268px; flex: 1;
-      padding: 30px 36px 80px; max-width: 1280px;
+      padding: 38px 46px 90px; max-width: 1280px;
     }
 
     .page-header {
       display: flex; align-items: flex-end; justify-content: space-between;
-      margin-bottom: 26px; gap: 1rem;
+      margin-bottom: 32px; gap: 1rem;
     }
     .eyebrow {
       font-family: var(--disp); font-size: 11px; font-weight: 600;
@@ -251,27 +251,45 @@
     .btn-primary:hover { background: var(--navy); border-color: var(--navy); }
 
     /* ─────────────────────────── METRICS (casos) ─────────────────────────── */
+    /* ── Tooltip de cambios por versión (esquina inferior izquierda) ── */
+    .version-wrap { position: relative; display: inline-block; }
+    .version-tip {
+      display: none; position: absolute; bottom: calc(100% + 10px); left: -8px;
+      width: 250px; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg); padding: 11px 13px; z-index: 300;
+      font-size: 11.5px; line-height: 1.55; text-align: left;
+    }
+    .version-tip .vt-title {
+      font-family: var(--disp); font-size: 10px; font-weight: 600; color: var(--teal);
+      text-transform: uppercase; letter-spacing: .10em; margin-bottom: 7px;
+    }
+    .version-tip ul { margin: 0; padding-left: 16px; }
+    .version-tip li { margin-bottom: 4px; }
+    .version-tip li:last-child { margin-bottom: 0; }
+    .version-wrap:hover .version-tip { display: block; }
+
     .metrics {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 14px; margin-bottom: 24px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+      gap: 10px; margin-bottom: 22px;
     }
     .metric-card {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px 18px;
+      border-radius: var(--radius); padding: 10px 14px;
       box-shadow: var(--shadow); position: relative; overflow: hidden;
     }
     .metric-card::after{
-      content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--teal);
+      content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--teal);
     }
     .metric-card.m-green::after { background: var(--green); }
     .metric-card.m-amber::after { background: var(--amber); }
     .metric-card.m-red::after   { background: var(--red); }
-    .metric-label { font-size: 11px; color: var(--text-3); font-weight:600; letter-spacing:.02em; margin-bottom: 8px; }
-    .metric-value { font-family: var(--disp); font-size: 30px; font-weight: 600; color: var(--navy); line-height:1; }
-    .metric-sub { font-size: 10px; color: var(--text-3); margin-top: 5px; }
+    .metric-label { font-size: 10px; color: var(--text-3); font-weight:600; letter-spacing:.03em; margin-bottom: 4px; text-transform: uppercase; }
+    .metric-value { font-family: var(--disp); font-size: 21px; font-weight: 600; color: var(--navy); line-height:1; }
+    .metric-sub { font-size: 9.5px; color: var(--text-3); margin-top: 4px; }
 
     /* ─────────────────────────── TABS ─────────────────────────── */
-    .tabs { display: flex; gap: 4px; background: rgba(0,43,65,.05); padding: 4px; border-radius: 11px; margin-bottom: 18px; width: fit-content; max-width:100%; flex-wrap:wrap; }
+    .tabs { display: flex; gap: 4px; background: rgba(0,43,65,.05); padding: 4px; border-radius: 11px; margin-bottom: 22px; width: fit-content; max-width:100%; flex-wrap:wrap; }
     .tab {
       padding: 8px 17px; font-size: 12.5px; font-weight: 600;
       color: var(--text-2); cursor: pointer; border-radius: 8px;
@@ -281,7 +299,7 @@
     .tab.active { color: var(--navy); background: var(--surface); box-shadow: 0 2px 8px rgba(0,43,65,.08); }
 
     /* ─────────────────────────── TOOLBAR ─────────────────────────── */
-    .toolbar { display: flex; gap: 11px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+    .toolbar { display: flex; gap: 11px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
     .search-box {
       flex: 1; min-width: 200px; display: flex; align-items: center; gap: 9px;
       background: var(--surface); border: 1px solid var(--border);
@@ -726,7 +744,7 @@
     /* ─────────────────────────── PENDIENTES ─────────────────────────── */
     .pendientes-bar {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
-      border-radius: var(--radius); padding: 18px 22px; margin-bottom: 24px;
+      border-radius: var(--radius); padding: 18px 22px; margin-bottom: 28px;
       display: flex; gap: 22px; flex-wrap: wrap; box-shadow: var(--shadow-lg); position:relative; overflow:hidden;
     }
     .pendientes-bar::after{
@@ -839,7 +857,7 @@
       .detail-grid, .form-grid, .tables-row, .hero-side { grid-template-columns: 1fr; }
       .analytics-grid { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .metric-value { font-size: 24px; }
+      .metric-value { font-size: 18px; }
       .stats-hero { grid-template-columns: 1fr; }
 
       /* Tarjetas de caso: la tabla se convierte en tarjetas apiladas */
@@ -1002,7 +1020,12 @@
     </div>
 
     <div class="sidebar-footer">
-      <span>CR Consulting &copy; 2025 <span id="app-version" style="opacity:.5;font-size:10px;"></span></span>
+      <span>CR Consulting &copy; 2025
+        <span class="version-wrap">
+          <span id="app-version" style="opacity:.5;font-size:10px;cursor:help;"></span>
+          <div class="version-tip" id="version-tip"></div>
+        </span>
+      </span>
       <button onclick="loadFromSheets()"><i class="ti ti-refresh"></i> Sincronizar</button>
     </div>
   </aside>
@@ -1070,19 +1093,11 @@
         <div class="pendientes-cols-wrap">
         <div class="pendientes-cols">
           <div class="pendiente-col">
-            <div class="pendiente-col-title">René</div>
-            <div class="pendiente-list" id="pend-rene"></div>
+            <div class="pendiente-col-title">Maglin</div>
+            <div class="pendiente-list" id="pend-maglin"></div>
             <div class="pendiente-add">
-              <input type="text" id="pend-rene-input" placeholder="Agregar pendiente…" onkeydown="if(event.key==='Enter') addPendiente('rene')"/>
-              <button onclick="addPendiente('rene')">+</button>
-            </div>
-          </div>
-          <div class="pendiente-col">
-            <div class="pendiente-col-title">Camilo</div>
-            <div class="pendiente-list" id="pend-camilo"></div>
-            <div class="pendiente-add">
-              <input type="text" id="pend-camilo-input" placeholder="Agregar pendiente…" onkeydown="if(event.key==='Enter') addPendiente('camilo')"/>
-              <button onclick="addPendiente('camilo')">+</button>
+              <input type="text" id="pend-maglin-input" placeholder="Agregar pendiente…" onkeydown="if(event.key==='Enter') addPendiente('maglin')"/>
+              <button onclick="addPendiente('maglin')">+</button>
             </div>
           </div>
         </div>
@@ -1578,7 +1593,33 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwNmoyQllOOiKUx32CIlGRq52MXOc-j5ZbYTofNRtHLkZExvkOodYVaSbh-sntiHSRtWQ/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyZZ_L07zt4BlgjlOLd95Fqnhi0bZReoWpF_kKmMSpELlCjzh0c-ZgC6axEyRKEEc82cQ/exec';
+
+// ── CHANGELOG POR VERSIÓN ────────────────────────────────────────────────────
+// IMPORTANTE: cada vez que se suba APP_VERSION en Código.gs, agregar aquí una
+// entrada con la misma clave y la lista de cambios. Es lo que se muestra al
+// pasar el mouse sobre el número de versión en la esquina inferior izquierda.
+const APP_CHANGELOG = {
+  '2026-09-03-v11': [
+    'Guardado de casos ~3 segundos más rápido',
+    'Subida de archivos más veloz (cache en el servidor + más subidas en paralelo)',
+    'La app abre al instante con los datos de la última sesión mientras sincroniza',
+    'Pendientes de hoy unificados en una sola lista: Maglin',
+    'Métricas más compactas y sin comisión total en Inicio',
+    'Diseño más aireado en todo el panel',
+    'Este panel de cambios por versión'
+  ]
+};
+
+function setVersionTip(version) {
+  const tip = document.getElementById('version-tip');
+  if (!tip) return;
+  const cambios = APP_CHANGELOG[version];
+  const lista = cambios && cambios.length
+    ? '<ul>' + cambios.map(c => '<li>' + c + '</li>').join('') + '</ul>'
+    : '<div style="color:var(--text-3)">Sin notas registradas para esta versión.</div>';
+  tip.innerHTML = '<div class="vt-title">Novedades ' + version + '</div>' + lista;
+}
 
 const PLAZOS = [
   {banco:'MetLife',comp:'Consorcio',dias:30},{banco:'Coopeuch',comp:'Consorcio',dias:10},
@@ -1854,45 +1895,20 @@ async function jsonpFetch(url, cbPrefix) {
   }
 }
 
+// Apps Script reads e.postData.contents — se manda como body plano vía fetch
+// no-cors. NOTA: con no-cors la respuesta llega "opaca" (no se puede leer su
+// contenido), pero la promesa del fetch solo se resuelve cuando el servidor
+// ya terminó de ejecutar doPost() — es decir, cuando esto resuelve, la
+// escritura en la Hoja YA está hecha. Por eso no hace falta el form+iframe
+// (que además nunca se enviaba) ni una espera artificial larga.
 function formPost(url, data) {
-  return new Promise((resolve) => {
-    const iframe = document.createElement('iframe');
-    iframe.name = 'cr_post_' + Date.now();
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = url;
-    form.target = iframe.name;
-
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'payload';
-    input.value = JSON.stringify(data);
-    form.appendChild(input);
-
-    // Apps Script reads e.postData.contents — send as plain body via fetch with no-cors
-    document.body.appendChild(form);
-
-    // Use no-cors fetch instead — fire and forget, then reload
-    fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(data)
-    }).then(() => {
-      setTimeout(() => {
-        document.body.removeChild(form);
-        document.body.removeChild(iframe);
-        resolve({ ok: true });
-      }, 1200);
-    }).catch(() => {
-      document.body.removeChild(form);
-      document.body.removeChild(iframe);
-      resolve({ ok: true }); // assume ok, reload will confirm
-    });
-  });
+  return fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  }).then(() => ({ ok: true }))
+    .catch(() => ({ ok: true })); // asumimos ok; loadFromSheets confirmará
 }
 
 // ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
@@ -1911,7 +1927,14 @@ async function loadFromSheets() {
         retiro:     r.retiro     ? parseFloat(r.retiro)     : null,
       }));
       setSyncStatus('ok', `${cases.length} casos · sync ✓`);
-      if (json.version) { const vEl = document.getElementById('app-version'); if (vEl) vEl.textContent = '· ' + json.version; }
+      // Cache local: la próxima vez que se abra la app, se pinta al instante
+      // con estos datos mientras se sincroniza en segundo plano.
+      try { localStorage.setItem('cr_cases_cache_v1', JSON.stringify(cases)); } catch(e) {}
+      if (json.version) {
+        const vEl = document.getElementById('app-version');
+        if (vEl) vEl.textContent = '· ' + json.version;
+        setVersionTip(json.version);
+      }
       buildMetrics(); renderCases(); buildResumen();
       if (typeof renderInspecciones === 'function') renderInspecciones();
     } else {
@@ -1925,8 +1948,9 @@ async function loadFromSheets() {
 
 async function apiCall(body) {
   await formPost(SHEETS_URL, body);
-  // Esperar un poco y recargar desde Sheets para confirmar
-  await new Promise(r => setTimeout(r, 1800));
+  // Pequeño margen de seguridad (antes 1800ms) — formPost ya esperó a que
+  // Apps Script terminara de escribir, así que con esto basta.
+  await new Promise(r => setTimeout(r, 300));
   await loadFromSheets();
 }
 
@@ -1937,15 +1961,17 @@ function buildMetrics() {
   const r = cs.filter(c=>c.estado==='Rechazado').length;
   const g = cs.filter(c=>c.estado!=='Pagado'&&c.estado!=='Rechazado').length;
   const tc= cs.reduce((a,c)=>a+(c.comision||0),0);
-  const html = `
+  const base = `
     <div class="metric-card"><div class="metric-label">Total casos</div><div class="metric-value">${cs.length}</div></div>
     <div class="metric-card m-green"><div class="metric-label">Pagados</div><div class="metric-value" style="color:var(--green)">${p}</div></div>
     <div class="metric-card m-amber"><div class="metric-label">En gestión</div><div class="metric-value" style="color:var(--amber)">${g}</div></div>
-    <div class="metric-card m-red"><div class="metric-label">Rechazados</div><div class="metric-value" style="color:var(--red)">${r}</div></div>
-    <div class="metric-card"><div class="metric-label">Comisión total CR</div><div class="metric-value" style="font-size:22px">${fmtCLP(tc)}</div><div class="metric-sub">en casos pagados</div></div>`;
-  document.getElementById('metrics').innerHTML = html;
+    <div class="metric-card m-red"><div class="metric-label">Rechazados</div><div class="metric-value" style="color:var(--red)">${r}</div></div>`;
+  const comision = `
+    <div class="metric-card"><div class="metric-label">Comisión total CR</div><div class="metric-value" style="font-size:16px">${fmtCLP(tc)}</div><div class="metric-sub">en casos pagados</div></div>`;
+  document.getElementById('metrics').innerHTML = base + comision;
+  // En Inicio no se muestra la comisión total
   const inicioMetrics = document.getElementById('inicio-metrics');
-  if (inicioMetrics) inicioMetrics.innerHTML = html;
+  if (inicioMetrics) inicioMetrics.innerHTML = base;
 }
 
 // ── CASOS ─────────────────────────────────────────────────────────────────────
@@ -2731,9 +2757,12 @@ async function subirArchivos(files, opts) {
   };
   if (upTxt) upTxt.textContent = `Subiendo 0 de ${validos.length}…`;
 
-  // Subida en paralelo (hasta 3 a la vez) — mucho más rápido que en serie
+  // Subida en paralelo (hasta 5 a la vez, según cuántos archivos haya) —
+  // cada archivo va directo a Drive con URL reanudable, así que varias
+  // subidas simultáneas no compiten por el mismo cuello de botella.
   let subidos = 0;
   const cola = validos.slice();
+  const NUM_WORKERS = Math.min(5, validos.length);
   async function worker() {
     while (cola.length) {
       const f = cola.shift();
@@ -2743,7 +2772,7 @@ async function subirArchivos(files, opts) {
       marcar();
     }
   }
-  await Promise.all([worker(), worker(), worker()]);
+  await Promise.all(Array.from({ length: NUM_WORKERS }, worker));
 
   if (upBox) upBox.style.display = 'none';
   if (subidos) showToast(`${subidos} archivo${subidos>1?'s':''} subido${subidos>1?'s':''} ✓`);
@@ -3476,7 +3505,9 @@ function chartToggleHTML() {
 }
 
 // ── PENDIENTES DEL DÍA ───────────────────────────────────────────────────────
-var pendientesData = { rene: [], camilo: [] };
+// Lista única "Maglin". Al cargar se fusiona cualquier pendiente antiguo de
+// René/Camilo, y al primer guardado quedan migrados a maglin en la Hoja.
+var pendientesData = { maglin: [] };
 
 function getTodayKey() {
   var d = new Date();
@@ -3487,7 +3518,8 @@ async function loadPendientes() {
   try {
     const result = await jsonpFetch(SHEETS_URL + '?action=getPendientes', 'cr_pend');
     if (result && result.ok && result.data) {
-      pendientesData = result.data;
+      const d = result.data;
+      pendientesData = { maglin: [].concat(d.maglin || [], d.rene || [], d.camilo || []) };
       renderPendientes();
     }
   } catch(e) {
@@ -3506,22 +3538,20 @@ async function savePendientes() {
 
 function renderPendientes() {
   actualizarContadorPendientes();
-  ['rene','camilo'].forEach(function(quien) {
-    var el = document.getElementById('pend-'+quien);
-    if (!el) return;
-    var items = pendientesData[quien] || [];
-    if (!items.length) {
-      el.innerHTML = '<div style="font-size:11px;color:rgba(255,247,238,0.3);padding:4px 0">Sin pendientes hoy</div>';
-      return;
-    }
-    el.innerHTML = items.map(function(item, i) {
-      return '<div class="pendiente-item' + (item.done?' done':'') + '">' +
-        '<input type="checkbox"' + (item.done?' checked':'') + ' onchange="togglePendiente(\'' + quien + '\''+ ',' + i + ')">' +
-        '<span style="flex:1">' + escapeHtml(item.texto) + '</span>' +
-        '<button onclick="deletePendiente(\'' + quien + '\',' + i + ')">&#x00D7;</button>' +
-        '</div>';
-    }).join('');
-  });
+  var el = document.getElementById('pend-maglin');
+  if (!el) return;
+  var items = pendientesData.maglin || [];
+  if (!items.length) {
+    el.innerHTML = '<div style="font-size:11px;color:rgba(255,247,238,0.3);padding:4px 0">Sin pendientes hoy</div>';
+    return;
+  }
+  el.innerHTML = items.map(function(item, i) {
+    return '<div class="pendiente-item' + (item.done?' done':'') + '">' +
+      '<input type="checkbox"' + (item.done?' checked':'') + ' onchange="togglePendiente(\'maglin\',' + i + ')">' +
+      '<span style="flex:1">' + escapeHtml(item.texto) + '</span>' +
+      '<button onclick="deletePendiente(\'maglin\',' + i + ')">&#x00D7;</button>' +
+      '</div>';
+  }).join('');
 }
 
 function escapeHtml(t) {
@@ -3541,8 +3571,8 @@ function togglePendientes() {
 function actualizarContadorPendientes() {
   const el = document.getElementById('pend-count');
   if (!el) return;
-  const p = (typeof pendientesData !== 'undefined' && pendientesData) ? pendientesData : { rene: [], camilo: [] };
-  const n = ['rene','camilo'].reduce((acc,k) => acc + (p[k]||[]).filter(x => !x.done).length, 0);
+  const p = (typeof pendientesData !== 'undefined' && pendientesData) ? pendientesData : { maglin: [] };
+  const n = (p.maglin || []).filter(x => !x.done).length;
   el.textContent = n ? String(n) : '';
 }
 
@@ -3585,6 +3615,23 @@ function deletePendiente(quien, idx) {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildPlazos();
 syncEstadoSelects();
+
+// Arranque instantáneo: se pinta de inmediato con los casos de la última
+// sesión (cache local) y en paralelo se sincroniza con la nube. Cuando llega
+// la respuesta fresca, loadFromSheets() vuelve a renderizar con datos reales.
+(function pintarDesdeCacheLocal(){
+  try {
+    const raw = localStorage.getItem('cr_cases_cache_v1');
+    if (!raw) return;
+    const cacheados = JSON.parse(raw);
+    if (!Array.isArray(cacheados) || !cacheados.length) return;
+    cases = cacheados;
+    setSyncStatus('loading', `${cases.length} casos · actualizando…`);
+    buildMetrics(); renderCases(); buildResumen();
+    if (typeof renderInspecciones === 'function') renderInspecciones();
+  } catch(e) { /* cache corrupto o vacío: se sigue con carga normal */ }
+})();
+
 loadPendientes(); // no-blocking
 loadFromSheets();
 setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 0);
