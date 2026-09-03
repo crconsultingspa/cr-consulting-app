@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#002b41">
 <title>Inspección de Terreno · CR Consulting</title>
 <link rel="icon" type="image/png" href="https://i.imgur.com/USzJtPh.png">
 <link rel="apple-touch-icon" href="https://i.imgur.com/USzJtPh.png">
@@ -20,7 +21,7 @@
   --text:#002b41; --text-2:#335f73; --text-3:#6b93a3;
   --green:#1a7a52; --green-bg:#e2f4ec;
   --red:#c0392b; --red-bg:#fbeae8;
-  --amber:#ad6a13;
+  --amber:#ad6a13; --amber-bg:#fdf3e2;
   --radius:20px; --radius-sm:9px;
   --shadow:0 10px 30px rgba(0,43,65,.10);
   --shadow-lg:0 18px 44px rgba(0,27,43,.20);
@@ -35,12 +36,17 @@ body{font-family:var(--ui);background:#eef5f7;color:var(--text);min-height:100vh
 .header-top{display:flex;align-items:center;justify-content:space-between}
 .back-btn{background:rgba(255,247,238,.12);border:1px solid rgba(255,247,238,.30);color:var(--cream);padding:6px 11px;border-radius:8px;font-family:var(--ui);font-size:11.5px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
 .back-btn:hover{background:rgba(255,247,238,.22)}
-.status-pill{display:flex;align-items:center;gap:5px;background:rgba(255,247,238,.10);padding:4px 10px;border-radius:20px;font-size:10.5px;color:var(--cream);font-weight:600}
-.status-pill .dot{width:6px;height:6px;border-radius:3px;background:#5ee0b0}
+.status-pill{display:flex;align-items:center;gap:5px;background:rgba(255,247,238,.10);padding:4px 10px;border-radius:20px;font-size:10.5px;color:var(--cream);font-weight:600;white-space:nowrap}
+.status-pill .dot{width:6px;height:6px;border-radius:3px;background:#5ee0b0;flex-shrink:0}
 .header-brand{text-align:center;margin-top:8px}
 .header-logo{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
 .header-title{font-family:var(--disp);font-size:17px;font-weight:600;color:var(--cream);letter-spacing:.02em;margin-top:2px}
 .header-sub{font-family:var(--disp);font-size:9px;color:#7fd0e0;margin-top:3px;letter-spacing:.30em;text-transform:uppercase}
+
+/* ── Banner de sincronización / sin conexión ── */
+.sync-banner{display:none;align-items:center;gap:8px;justify-content:center;background:var(--amber-bg);color:var(--amber);font-size:11.5px;font-weight:700;padding:8px 14px;border-bottom:1px solid rgba(173,106,19,.22);text-align:center}
+.sync-banner i{font-size:15px;flex-shrink:0}
+.sync-banner button{background:none;border:1px solid var(--amber);color:var(--amber);border-radius:7px;padding:3px 10px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
 
 /* ── Page / Cards ── */
 .page{padding:14px 12px 90px;max-width:640px;margin:0 auto}
@@ -54,6 +60,7 @@ label{display:block;font-size:9px;color:var(--text-3);margin-bottom:4px;font-wei
 input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px;color:var(--text);font-family:var(--ui);font-size:12.5px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{border-color:var(--teal-2);box-shadow:0 0 0 3px var(--teal-soft)}
 select{background:var(--surface2)}
+textarea{resize:vertical;min-height:70px;font-family:inherit;line-height:1.5}
 
 /* ── Buttons ── */
 .btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:var(--ui);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:9px}
@@ -83,6 +90,14 @@ select{background:var(--surface2)}
 /* ── Caso info ── */
 .caso-nombre{font-weight:700;font-size:14px;color:var(--navy)}
 .caso-detalle{color:var(--text-3);font-size:11.5px;margin-top:3px;line-height:1.5}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:13px}
+.info-item{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;min-width:0}
+.info-item.full{grid-column:1 / -1}
+.info-item label{margin-bottom:2px}
+.info-item .val{font-size:12px;font-weight:700;color:var(--navy);word-break:break-word;line-height:1.4}
+.caso-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.caso-actions a.btn-sm,.caso-actions button.btn-sm{flex:1 1 auto;justify-content:center;min-width:118px;text-decoration:none;padding:9px 10px}
+.readonly-field{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px;font-size:12.5px;color:var(--text-2);font-weight:600;min-height:35px;display:flex;align-items:center}
 
 /* ── Chips tipo de siniestro ── */
 .sin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
@@ -97,6 +112,7 @@ select{background:var(--surface2)}
 .insp-recinto-head i.ti-chevron-right,.insp-recinto-head i.ti-chevron-down{color:var(--text-3);flex-shrink:0;font-size:15px}
 .insp-recinto-head input{flex:1;min-width:0;border:none;background:transparent;font-weight:600;color:var(--navy);font-size:12.5px;font-family:inherit;outline:none;padding:0}
 .insp-recinto-head input::placeholder{color:var(--text-3)}
+.insp-recinto-head .dirty-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0}
 .insp-recinto-body{padding:12px;display:none}
 .insp-recinto-card.open .insp-recinto-body{display:block}
 .dims-row{display:flex;gap:5px;margin-bottom:6px}
@@ -128,10 +144,13 @@ select{background:var(--surface2)}
 .insp-photo-tile .insp-photo-del{position:absolute;top:3px;right:3px;background:rgba(0,43,65,.72);color:#fff;border:none;border-radius:8px;width:16px;height:16px;font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .insp-photo-tile.pending{display:flex;align-items:center;justify-content:center}
 .insp-photo-tile.pending .spin{animation:spin 1s linear infinite;color:var(--teal-2);font-size:18px}
+.insp-photo-tile.queued{display:flex;align-items:center;justify-content:center;background:var(--amber-bg);border:1.5px dashed var(--amber)}
+.insp-photo-tile.queued i{color:var(--amber);font-size:18px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .insp-photo-add{width:66px;height:66px;border-radius:8px;border:2px dashed var(--teal-2);display:flex;align-items:center;justify-content:center;color:var(--teal-2);font-size:24px;cursor:pointer;background:rgba(0,101,126,.04);flex-shrink:0}
 .insp-empty{text-align:center;padding:22px 12px;color:var(--text-3);font-size:12px}
 .insp-empty i{font-size:26px;display:block;margin-bottom:7px;opacity:.5}
+.fotos-pend-nota{font-size:10.5px;color:var(--amber);margin-top:7px;display:flex;align-items:center;gap:5px}
 
 /* ── Toast ── */
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:var(--cream);padding:11px 18px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;z-index:999;opacity:0;transition:all .25s;pointer-events:none;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;max-width:90vw;text-align:center}
@@ -157,6 +176,7 @@ select{background:var(--surface2)}
     <div class="header-sub">Recintos y daños</div>
   </div>
 </div>
+<div class="sync-banner" id="sync-banner"></div>
 
 <div class="page">
 
@@ -177,6 +197,8 @@ select{background:var(--surface2)}
     </div>
     <div class="caso-nombre" id="insp-caso-nombre">—</div>
     <div class="caso-detalle" id="insp-caso-detalle">—</div>
+    <div class="info-grid" id="insp-caso-info-grid"></div>
+    <div class="caso-actions" id="insp-caso-actions"></div>
   </div>
 
   <!-- Paso inicial: tipo de siniestro + fecha -->
@@ -184,15 +206,19 @@ select{background:var(--surface2)}
     <div class="card-title"><i class="ti ti-alert-triangle"></i><span style="flex:1">Iniciar inspección</span></div>
     <label>Tipo de siniestro</label>
     <div class="sin-grid" id="insp-tipo-chips" style="margin-bottom:14px"></div>
-    <div class="ig" style="max-width:220px">
-      <label>Fecha de ocurrencia</label>
-      <input type="text" id="insp-fecha-ocurrencia" placeholder="dd/mm/aaaa">
+    <div class="ig" style="max-width:260px">
+      <label>Fecha de ocurrencia (del caso)</label>
+      <div class="readonly-field" id="insp-fecha-ocurrencia-view">—</div>
     </div>
     <button class="btn btn-teal" onclick="iniciarInspeccionUI()"><i class="ti ti-player-play"></i> Iniciar Inspección</button>
   </div>
 
   <!-- Vista principal: recintos -->
   <div id="insp-main" style="display:none">
+    <div class="card" id="card-observaciones">
+      <div class="card-title"><i class="ti ti-notes"></i><span style="flex:1">Observaciones generales</span></div>
+      <textarea id="insp-observaciones" rows="3" placeholder="Contexto general de la inspección: acceso, clima, personas presentes, etc." oninput="updObservaciones(this.value)" onblur="guardarObservacionesUI()"></textarea>
+    </div>
     <div class="card">
       <div class="card-title"><i class="ti ti-building-warehouse"></i><span style="flex:1">Recintos</span></div>
       <div id="insp-recintos-list"></div>
@@ -210,7 +236,7 @@ select{background:var(--surface2)}
 // ─────────────────────────────────────────────────────────────────────────
 // Config y utilidades compartidas con el dashboard
 // ─────────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyZZ_L07zt4BlgjlOLd95Fqnhi0bZReoWpF_kKmMSpELlCjzh0c-ZgC6axEyRKEEc82cQ/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzEVDkElSJa8qA6dPPXqe27KapbzeY690OgOYYi2yy3BNaRml3sJJYZzu9PyhymsVqZmQ/exec';
 
 function escapeHtml(t) {
   return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -267,7 +293,7 @@ function formPost(url, data) {
     method: 'POST', mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(data)
-  }).catch(() => {});
+  });
 }
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -283,30 +309,269 @@ function fileToBase64(file) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// Modo offline: service worker (deja abrir la app sin conexión), cola de
+// operaciones pendientes (localStorage) y cola de fotos pendientes (IndexedDB)
+// ─────────────────────────────────────────────────────────────────────────
+function registrarSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw-inspecciones.js').catch(() => {});
+  }
+}
+
+function queueKey() { return 'insp_queue_' + (casoActual ? casoActual.id : ''); }
+function getQueue() {
+  try { return JSON.parse(localStorage.getItem(queueKey()) || '[]'); } catch(e) { return []; }
+}
+function setQueue(q) {
+  try { localStorage.setItem(queueKey(), JSON.stringify(q)); } catch(e) {}
+  actualizarStatusPill();
+}
+function encolarOperacion(action, body, opId) {
+  const q = getQueue();
+  const idx = opId ? q.findIndex(x => x.opId === opId) : -1;
+  const item = { opId: opId || (action + '_' + Date.now()), action, body, ts: Date.now() };
+  if (idx >= 0) q[idx] = item; else q.push(item);
+  setQueue(q);
+}
+function quitarDeQueue(opId) {
+  setQueue(getQueue().filter(x => x.opId !== opId));
+}
+function postDirecto(action, body) {
+  return fetch(SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(Object.assign({ action }, body))
+  }).then(() => {});
+}
+// Intenta enviar de inmediato; si no hay red (o el navegador reporta error),
+// la operación queda en cola local y se reintenta sola más adelante.
+async function enviarConCola(action, body, opId) {
+  if (!navigator.onLine) { encolarOperacion(action, body, opId); return false; }
+  try {
+    await postDirecto(action, body);
+    quitarDeQueue(opId);
+    return true;
+  } catch(e) {
+    encolarOperacion(action, body, opId);
+    return false;
+  }
+}
+async function procesarQueue() {
+  if (!casoActual) return;
+  let q = getQueue();
+  if (!q.length) return;
+  showToast(`Sincronizando ${q.length} cambio${q.length > 1 ? 's' : ''} pendiente${q.length > 1 ? 's' : ''}…`);
+  for (const item of q.slice()) {
+    if (!navigator.onLine) break;
+    try {
+      await postDirecto(item.action, item.body);
+      quitarDeQueue(item.opId);
+      // Si recién se creó una inspección que se generó offline, reconciliamos
+      // el id temporal con el id real que le asignó el servidor.
+      if (item.action === 'crearInspeccion' && inspState && String(inspState.inspeccionId).indexOf('LOCAL-') === 0) {
+        await new Promise(r => setTimeout(r, 1300));
+        try {
+          const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoActual.id);
+          const data = await jsonpOnce(url, 'insp_reconciliar', 15000);
+          if (data && data.ok && data.inspeccion && data.inspeccion.estado === 'En proceso') {
+            const idViejo = inspState.inspeccionId;
+            inspState.inspeccionId = data.inspeccion.id;
+            inspState.folderId = data.inspeccion.folderId;
+            delete inspState._localPendingCreacion;
+            const q2 = getQueue().map(x => {
+              if (x.body && x.body.inspeccionId === idViejo) x.body.inspeccionId = data.inspeccion.id;
+              return x;
+            });
+            setQueue(q2);
+            guardarDraftLocal();
+          }
+        } catch(e2) {}
+      }
+    } catch(e) { break; }
+  }
+  if (!getQueue().length) showToast('Todo sincronizado ✓');
+  actualizarStatusPill();
+  procesarFotosPendientes();
+}
+
+// ── IndexedDB: fotos capturadas sin conexión, a la espera de subirse ──
+const IDB_NAME = 'insp_fotos_pendientes';
+const IDB_STORE = 'fotos';
+let idbPromise = null;
+function idb() {
+  if (idbPromise) return idbPromise;
+  idbPromise = new Promise((resolve, reject) => {
+    try {
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE, { keyPath: 'key' });
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    } catch(e) { reject(e); }
+  });
+  return idbPromise;
+}
+async function idbPut(record) {
+  const db = await idb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(record);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function idbDelete(key) {
+  const db = await idb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function idbGetAll() {
+  const db = await idb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+let fotosPendientesCount = {}; // recintoId -> cantidad de fotos sin subir
+async function recalcularFotosPendientes() {
+  try {
+    const todas = await idbGetAll();
+    fotosPendientesCount = {};
+    todas.forEach(p => { fotosPendientesCount[p.recintoId] = (fotosPendientesCount[p.recintoId] || 0) + 1; });
+  } catch(e) { fotosPendientesCount = {}; }
+}
+async function procesarFotosPendientes() {
+  if (!navigator.onLine) return;
+  let pendientes;
+  try { pendientes = await idbGetAll(); } catch(e) { return; }
+  if (!pendientes.length) return;
+  let subidas = 0;
+  const recintosASincronizar = new Set();
+  for (const p of pendientes) {
+    const okSubida = await subirFotoRecinto(new File([p.blob], p.fileName, { type: p.mimeType }), p.recintoId);
+    if (okSubida) { await idbDelete(p.key); subidas++; recintosASincronizar.add(p.recintoId); }
+    else break; // probablemente seguimos sin conexión real: se reintenta más tarde
+  }
+  await recalcularFotosPendientes();
+  if (subidas) {
+    showToast(`${subidas} foto${subidas > 1 ? 's' : ''} pendiente${subidas > 1 ? 's' : ''} sincronizada${subidas > 1 ? 's' : ''} ✓`);
+    if (inspState) {
+      inspState.recintos.forEach((r, i) => { if (recintosASincronizar.has(r.id)) cargarFotosRecinto(i); });
+      renderRecintosInsp();
+    }
+  }
+}
+
+// Reduce el tamaño de la foto antes de subirla (menos datos móviles, subida
+// más rápida y menos espacio si queda en cola offline).
+function comprimirImagen(file, maxDim, calidad) {
+  return new Promise((resolve) => {
+    if (!file.type || !file.type.startsWith('image/') || file.type === 'image/gif') { resolve(file); return; }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let width = img.naturalWidth, height = img.naturalHeight;
+      const max = maxDim || 1600;
+      if (width > max || height > max) {
+        const ratio = Math.min(max / width, max / height);
+        width = Math.round(width * ratio); height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        if (!blob) { resolve(file); return; }
+        resolve(new File([blob], (file.name || 'foto').replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }));
+      }, 'image/jpeg', calidad || 0.72);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
+function actualizarStatusPill() {
+  const pill = document.getElementById('status-pill');
+  const banner = document.getElementById('sync-banner');
+  const pendientes = getQueue().length;
+  if (inspState) {
+    pill.style.visibility = 'visible';
+    if (!navigator.onLine) pill.innerHTML = '<span class="dot" style="background:#e0a95e"></span>Sin conexión';
+    else if (pendientes) pill.innerHTML = '<span class="dot" style="background:#e0a95e"></span>Sincronizando…';
+    else pill.innerHTML = '<span class="dot"></span>En proceso';
+  } else {
+    pill.style.visibility = 'hidden';
+  }
+  if (!navigator.onLine || pendientes) {
+    const msg = !navigator.onLine
+      ? 'Sin conexión — los cambios se guardan en el teléfono y se envían al reconectar'
+      : `${pendientes} cambio${pendientes > 1 ? 's' : ''} pendiente${pendientes > 1 ? 's' : ''} por sincronizar`;
+    banner.style.display = 'flex';
+    banner.innerHTML = `<i class="ti ti-cloud-off"></i><span>${msg}</span>` +
+      (navigator.onLine && pendientes ? `<button onclick="procesarQueue()">Reintentar</button>` : '');
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // Paso 0: cargar y elegir el caso a inspeccionar
 // ─────────────────────────────────────────────────────────────────────────
 let casosCache = null;
 let casoActual = null;
 
 async function initApp() {
+  registrarSW();
+  window.addEventListener('online', () => { actualizarStatusPill(); procesarQueue(); });
+  window.addEventListener('offline', actualizarStatusPill);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') { guardarDraftLocal(); }
+    else { actualizarStatusPill(); procesarQueue(); }
+  });
+  window.addEventListener('pagehide', guardarDraftLocal);
+  setInterval(() => { actualizarStatusPill(); procesarQueue(); }, 20000);
+  await recalcularFotosPendientes();
+
+  // Muestra de inmediato lo que haya en caché local (funciona sin conexión).
+  try {
+    const cached = localStorage.getItem('insp_casos_cache');
+    if (cached) casosCache = JSON.parse(cached);
+  } catch(e) {}
+  if (casosCache) {
+    document.getElementById('caso-status').textContent = casosCache.length + ' casos (guardados en el teléfono)';
+    renderCasoPicker();
+  }
+
   try {
     const json = await jsonpFetch(SHEETS_URL, 'insp_casos');
     if (json && json.ok && Array.isArray(json.data)) {
       casosCache = json.data;
+      try { localStorage.setItem('insp_casos_cache', JSON.stringify(casosCache)); } catch(e) {}
       document.getElementById('caso-status').textContent = casosCache.length + ' casos disponibles';
       renderCasoPicker();
-
-      const params = new URLSearchParams(location.search);
-      const casoId = params.get('casoId');
-      if (casoId) {
-        const c = casosCache.find(x => String(x.id) === String(casoId));
-        if (c) { selectCaso(c.id); return; }
-      }
-    } else {
+    } else if (!casosCache) {
       document.getElementById('caso-status').textContent = 'No se pudieron cargar los casos.';
     }
   } catch(e) {
-    document.getElementById('caso-status').textContent = 'Sin conexión con el dashboard.';
+    document.getElementById('caso-status').textContent = casosCache
+      ? casosCache.length + ' casos (sin conexión, datos guardados)'
+      : 'Sin conexión y sin datos guardados en este teléfono.';
+  }
+
+  const params = new URLSearchParams(location.search);
+  const casoId = params.get('casoId');
+  if (casoId && casosCache) {
+    const c = casosCache.find(x => String(x.id) === String(casoId));
+    if (c) { selectCaso(c.id); return; }
   }
 }
 
@@ -325,6 +590,36 @@ function renderCasoPicker() {
   }).join('');
 }
 
+function telHref(num) {
+  if (!num) return '';
+  return 'tel:' + String(num).replace(/[^\d+]/g, '');
+}
+function mapsHref(dir, comuna, ciudad) {
+  const q = [dir, comuna, ciudad].filter(Boolean).join(', ');
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+}
+
+function renderCasoInfoCard(c) {
+  const items = [];
+  if (c.nrosin) items.push(['N° Siniestro', c.nrosin]);
+  if (c.siniestro) items.push(['Tipo de siniestro', c.siniestro]);
+  if (c.fechaSiniestro) items.push(['Fecha de ocurrencia', c.fechaSiniestro]);
+  if (c.rut) items.push(['RUT asegurado', c.rut]);
+  if (c.inspector) items.push(['Inspector', c.inspector]);
+  if (c.liquidadorPersona || c.liquidador) items.push(['Liquidador', [c.liquidadorPersona, c.liquidador].filter(Boolean).join(' · ')]);
+  if (c.dir || c.comuna) items.push(['Dirección', [c.dir, c.comuna, c.ciudad].filter(Boolean).join(', ')]);
+
+  document.getElementById('insp-caso-info-grid').innerHTML = items.map(([label, val]) => `
+    <div class="info-item${label === 'Dirección' ? ' full' : ''}"><label>${escapeHtml(label)}</label><div class="val">${escapeHtml(val)}</div></div>
+  `).join('');
+
+  const acciones = [];
+  if (c.telefono) acciones.push(`<a href="${telHref(c.telefono)}" class="btn-sm" style="background:var(--green);color:#fff;border-color:var(--green)"><i class="ti ti-phone"></i> Llamar asegurado</a>`);
+  if (c.telefonoInspector) acciones.push(`<a href="${telHref(c.telefonoInspector)}" class="btn-sm" style="background:var(--teal-2);color:#fff;border-color:var(--teal-2)"><i class="ti ti-phone-outgoing"></i> Llamar inspector</a>`);
+  if (c.dir || c.comuna) acciones.push(`<a href="${mapsHref(c.dir, c.comuna, c.ciudad)}" target="_blank" rel="noopener" class="btn-sm"><i class="ti ti-map-2"></i> Cómo llegar</a>`);
+  document.getElementById('insp-caso-actions').innerHTML = acciones.join('');
+}
+
 async function selectCaso(id) {
   const c = casosCache.find(x => String(x.id) === String(id));
   if (!c) return;
@@ -332,8 +627,9 @@ async function selectCaso(id) {
   document.getElementById('card-caso-picker').style.display = 'none';
   document.getElementById('card-caso-info').style.display = 'block';
   document.getElementById('insp-caso-nombre').textContent = c.nombre || '—';
-  const detalle = [c.rut ? c.rut : '', c.siniestro ? 'N° Siniestro: ' + c.siniestro : '', (c.dir || c.comuna) ? [c.dir, c.comuna].filter(Boolean).join(', ') : ''].filter(Boolean).join(' · ');
+  const detalle = [c.rut ? c.rut : '', c.dir ? [c.dir, c.comuna].filter(Boolean).join(', ') : ''].filter(Boolean).join(' · ');
   document.getElementById('insp-caso-detalle').textContent = detalle || '—';
+  renderCasoInfoCard(c);
 
   try {
     const url = new URL(location.href);
@@ -341,6 +637,7 @@ async function selectCaso(id) {
     history.replaceState(null, '', url);
   } catch(e) {}
 
+  await recalcularFotosPendientes();
   await cargarEstadoInspeccion();
 }
 
@@ -352,6 +649,7 @@ function cambiarCaso() {
   document.getElementById('card-inicio').style.display = 'none';
   document.getElementById('insp-main').style.display = 'none';
   document.getElementById('card-caso-picker').style.display = 'block';
+  actualizarStatusPill();
   try {
     const url = new URL(location.href);
     url.searchParams.delete('casoId');
@@ -360,7 +658,7 @@ function cambiarCaso() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Inspección de terreno — recintos, daños y fotografías
+// Taxonomía de categorías / elementos constructivos
 // ─────────────────────────────────────────────────────────────────────────
 const INSP_TIPOS_META = [
   { t: 'Viento y Lluvia', i: 'ti-cloud-rain' },
@@ -368,31 +666,128 @@ const INSP_TIPOS_META = [
   { t: 'Sismo',           i: 'ti-activity' },
   { t: 'Incendio',        i: 'ti-flame' }
 ];
-const INSP_CATEGORIAS     = ['Cielo', 'Muro', 'Piso', 'Cubierta', 'Otros'];
-const INSP_MATERIALIDADES = ['Yeso Cartón','Tablero MDF','MDF Ranurado','Aglomerado MDP','Fibrocemento','OSB','Terciado Estructural','Terciado Ranurado','Madera Machihembrada','Albañilería','Hormigón'];
-const INSP_TERMINACIONES  = ['Pintura', 'Pintura Texturada', 'Barniz', 'Papel Mural'];
 
-let inspState = null; // { casoId, inspeccionId, tipoSiniestro, fechaOcurrencia, folderId, recintos:[...] }
+const INSP_GRUPOS = {
+  'Pisos y Pavimentos': [
+    'Alfombra (bouclé / cubrepiso)',
+    'Cerámica / Palmetas cerámicas',
+    'Mármol para pavimento',
+    'Palmetas vinílicas adhesivas',
+    'Piedra pizarra',
+    'Piso de ingeniería en madera',
+    'Piso flotante laminado de MDF',
+    'Piso machihembrado de madera y parquet',
+    'Porcelanato'
+  ],
+  'Techumbre y Cubiertas': [
+    'Bajadas y canales de aguas lluvias',
+    'Cerchas y costaneras de techumbre',
+    'Cubierta de fibrocemento (tipo Pizarreño)',
+    'Cubierta de policarbonato (alveolar / ondulado)',
+    'Cubierta de tejas coloniales (arcilla o cemento)',
+    'Cubierta y cumbreras de plancha de zinc-alum / galvanizada',
+    'Fieltro asfáltico (techumbre y muros)',
+    'Forro y cumbrera de hojalatería',
+    'Siding de fibrocemento para frontón',
+    'Tejas asfálticas',
+    'Tejas de zinc'
+  ],
+  'Estructuras, Muros y Cierres': [
+    'Base estabilizada de terreno',
+    'Cierro perimetral tipo pandereta y pilares de hormigón vibrado',
+    'Estructuras de tabiquería en madera (pino 2x3) y Metalcom (acero galvanizado)',
+    'Hormigón armado / Radier de hormigón',
+    'Muro de albañilería (ladrillo)',
+    'Muro tipo Bulldog',
+    'Tabiquería liviana'
+  ],
+  'Terminación y Revestimiento': [
+    'Cielo americano (modular)',
+    'Entramado de madera de pino para cielo',
+    'Estuco de mortero de cemento',
+    'Fibrocemento (Internit)',
+    'Lana mineral (aislante térmico / acústico)',
+    'Madera machihembrada',
+    'Palmetas fotolaminadas de MDF',
+    'Papel mural (estándar / Carpenter / con sellado)',
+    'Planchas de yeso-cartón (volcanita)',
+    'Tableros de Cholguán (hardboard)',
+    'Tableros de Masisa',
+    'Tableros de madera terciada (plywood)'
+  ],
+  'Puertas, Quincallería y Mobiliario': [
+    'Chapas y cerraduras',
+    'Marcos de puertas y ventanas',
+    'Muebles de cocina (aéreos, base con cubierta y melamina)',
+    'Puertas de madera'
+  ],
+  'Instalaciones Sanitarias y Eléctricas': [
+    'Artefactos sanitarios (WC, lavamanos y tina)',
+    'Cañerías de polipropileno copolímero random (PPR) y redes de agua potable',
+    'Canalizaciones, cableado, enchufes y puntos de luz',
+    'Grifería y sellos de silicona',
+    'Tablero eléctrico general (disyuntores y protectores diferenciales)'
+  ],
+  'Otros': []
+};
+const INSP_GRUPO_LIST = Object.keys(INSP_GRUPOS);
+const INSP_TERMINACIONES = ['Pintura', 'Pintura Texturada', 'Barniz', 'Papel Mural'];
+const OTRO_ELEMENTO = 'Otro (especificar)';
+
+let inspState = null; // { casoId, inspeccionId, tipoSiniestro, fechaOcurrencia, folderId, observaciones, recintos:[...] }
 let inspTipoSel = '';
 let inspFotosTargetIndex = null;
 
-function draftKeyInsp() { return 'insp_draft_' + (casoActual ? casoActual.id : ''); }
-function guardarDraftLocal() {
-  if (!inspState) return;
-  try {
-    const nuevos = inspState.recintos.filter(r => !r.id);
-    if (nuevos.length) localStorage.setItem(draftKeyInsp(), JSON.stringify(nuevos));
-    else localStorage.removeItem(draftKeyInsp());
-  } catch(e) {}
+// ── Borrador local completo (sobrevive a recargas / cambios de app) ──
+function stateKey() { return 'insp_state_' + (casoActual ? casoActual.id : ''); }
+function serializeInspState(st) {
+  return {
+    casoId: st.casoId, inspeccionId: st.inspeccionId, tipoSiniestro: st.tipoSiniestro,
+    fechaOcurrencia: st.fechaOcurrencia, folderId: st.folderId, observaciones: st.observaciones || '',
+    _localPendingCreacion: !!st._localPendingCreacion,
+    recintos: (st.recintos || []).map(r => ({
+      id: r.id || null, _localId: r._localId, inspeccionId: r.inspeccionId, nombre: r.nombre,
+      ancho: r.ancho, largo: r.largo, alto: r.alto, m2: r.m2, categorias: r.categorias || [],
+      folderId: r.folderId, _dirty: !!r._dirty
+    }))
+  };
 }
-function borrarDraftLocal() { try { localStorage.removeItem(draftKeyInsp()); } catch(e) {} }
-function restaurarDraftLocal() {
+function guardarDraftLocal() {
+  if (!inspState || !casoActual) return;
+  try { localStorage.setItem(stateKey(), JSON.stringify(serializeInspState(inspState))); } catch(e) {}
+}
+function borrarDraftLocal() { try { localStorage.removeItem(stateKey()); } catch(e) {} }
+function restaurarEstadoLocal() {
   try {
-    const raw = localStorage.getItem(draftKeyInsp());
-    if (!raw) return;
-    const nuevos = JSON.parse(raw);
-    if (Array.isArray(nuevos) && nuevos.length) inspState.recintos = inspState.recintos.concat(nuevos);
-  } catch(e) {}
+    const raw = localStorage.getItem(stateKey());
+    if (!raw) return false;
+    const st = JSON.parse(raw);
+    if (!st || String(st.casoId) !== String(casoActual.id)) return false;
+    inspState = Object.assign({}, st, {
+      recintos: (st.recintos || []).map(r => Object.assign({}, r, { _open: false, _fotos: null, _fotosPend: 0, _calcL: '', _calcA: '' }))
+    });
+    return true;
+  } catch(e) { return false; }
+}
+// Combina lo que devuelve el servidor con lo que hay editado localmente sin
+// sincronizar todavía, para no perder cambios hechos sin conexión.
+function mergeRecintosConServidor(serverRecintos) {
+  const localById = {};
+  (inspState.recintos || []).forEach(r => { if (r.id) localById[r.id] = r; });
+  const draftsNuevos = (inspState.recintos || []).filter(r => !r.id);
+  const merged = (serverRecintos || []).map(sr => {
+    const local = localById[sr.id];
+    if (local && local._dirty) {
+      return Object.assign({}, local, { _fotos: local._fotos !== undefined ? local._fotos : null });
+    }
+    return Object.assign({}, sr, {
+      _open: local ? local._open : false,
+      _fotos: (local && local._fotos) || null,
+      _calcL: (local && local._calcL) || '',
+      _calcA: (local && local._calcA) || ''
+    });
+  });
+  inspState.recintos = merged.concat(draftsNuevos);
 }
 
 async function cargarEstadoInspeccion() {
@@ -400,28 +795,48 @@ async function cargarEstadoInspeccion() {
   const chipsBox = document.getElementById('insp-tipo-chips');
   chipsBox.innerHTML = INSP_TIPOS_META.map(m =>
     `<button type="button" class="sin-btn" onclick="seleccionarTipoSiniestro('${m.t}',this)"><i class="ti ${m.i}"></i>${m.t}</button>`).join('');
-  document.getElementById('insp-fecha-ocurrencia').value = casoActual.fechaSiniestro || '';
+  document.getElementById('insp-fecha-ocurrencia-view').textContent = casoActual.fechaSiniestro || 'No registrada en el caso';
 
-  document.getElementById('card-inicio').style.display = 'none';
-  document.getElementById('insp-main').style.display = 'none';
-  document.getElementById('status-pill').style.visibility = 'hidden';
-  inspState = null;
+  const yaRestaurado = restaurarEstadoLocal();
+  if (yaRestaurado) {
+    mostrarInspMain();
+  } else {
+    document.getElementById('card-inicio').style.display = 'none';
+    document.getElementById('insp-main').style.display = 'none';
+    document.getElementById('status-pill').style.visibility = 'hidden';
+  }
+
+  if (!navigator.onLine) {
+    if (!inspState) document.getElementById('card-inicio').style.display = 'block';
+    actualizarStatusPill();
+    return;
+  }
 
   try {
     const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoActual.id);
     const res = await jsonpOnce(url, 'insp_get', 15000);
     if (res && res.ok && res.inspeccion && res.inspeccion.estado === 'En proceso') {
-      inspState = {
-        casoId: String(casoActual.id), inspeccionId: res.inspeccion.id, tipoSiniestro: res.inspeccion.tipoSiniestro,
-        fechaOcurrencia: res.inspeccion.fechaOcurrencia, folderId: res.inspeccion.folderId,
-        recintos: (res.recintos || []).map(r => ({ ...r, _open: false, _fotos: null, _calcL: '', _calcA: '' }))
-      };
-      restaurarDraftLocal();
+      if (inspState && String(inspState.inspeccionId) === String(res.inspeccion.id)) {
+        inspState.tipoSiniestro = res.inspeccion.tipoSiniestro;
+        inspState.fechaOcurrencia = res.inspeccion.fechaOcurrencia;
+        inspState.folderId = res.inspeccion.folderId;
+        if (!inspState._obsDirty) inspState.observaciones = res.inspeccion.observaciones || inspState.observaciones || '';
+        mergeRecintosConServidor(res.recintos || []);
+      } else if (!inspState || !inspState._localPendingCreacion) {
+        inspState = {
+          casoId: String(casoActual.id), inspeccionId: res.inspeccion.id, tipoSiniestro: res.inspeccion.tipoSiniestro,
+          fechaOcurrencia: res.inspeccion.fechaOcurrencia, folderId: res.inspeccion.folderId,
+          observaciones: res.inspeccion.observaciones || '',
+          recintos: (res.recintos || []).map(r => ({ ...r, _open: false, _fotos: null, _calcL: '', _calcA: '' }))
+        };
+      }
       mostrarInspMain();
+      guardarDraftLocal();
       return;
     }
-  } catch(e) { /* si falla, cae al paso inicial */ }
-  document.getElementById('card-inicio').style.display = 'block';
+  } catch(e) { /* sigue con lo que haya en local, o pasa al paso inicial */ }
+  if (!inspState) document.getElementById('card-inicio').style.display = 'block';
+  actualizarStatusPill();
 }
 
 function seleccionarTipoSiniestro(t, el) {
@@ -432,7 +847,21 @@ function seleccionarTipoSiniestro(t, el) {
 
 async function iniciarInspeccionUI() {
   if (!inspTipoSel) { showToast('Selecciona el tipo de siniestro', 'error'); return; }
-  const fecha = document.getElementById('insp-fecha-ocurrencia').value || '';
+  const fecha = casoActual.fechaSiniestro || '';
+
+  if (!navigator.onLine) {
+    const localId = 'LOCAL-' + Date.now();
+    inspState = {
+      casoId: String(casoActual.id), inspeccionId: localId, tipoSiniestro: inspTipoSel,
+      fechaOcurrencia: fecha, folderId: '', observaciones: '', recintos: [], _localPendingCreacion: true
+    };
+    encolarOperacion('crearInspeccion', { casoId: casoActual.id, tipoSiniestro: inspTipoSel, fechaOcurrencia: fecha }, 'crear_' + localId);
+    guardarDraftLocal();
+    mostrarInspMain();
+    showToast('Sin conexión: la inspección se registrará al reconectar', 'error');
+    return;
+  }
+
   showToast('Iniciando inspección…');
   try {
     await formPost(SHEETS_URL, { action: 'crearInspeccion', casoId: casoActual.id, tipoSiniestro: inspTipoSel, fechaOcurrencia: fecha });
@@ -442,9 +871,10 @@ async function iniciarInspeccionUI() {
     if (data && data.ok && data.inspeccion && data.inspeccion.estado === 'En proceso') {
       inspState = {
         casoId: String(casoActual.id), inspeccionId: data.inspeccion.id, tipoSiniestro: data.inspeccion.tipoSiniestro,
-        fechaOcurrencia: data.inspeccion.fechaOcurrencia, folderId: data.inspeccion.folderId, recintos: []
+        fechaOcurrencia: data.inspeccion.fechaOcurrencia, folderId: data.inspeccion.folderId,
+        observaciones: data.inspeccion.observaciones || '', recintos: []
       };
-      restaurarDraftLocal();
+      guardarDraftLocal();
       document.getElementById('card-inicio').style.display = 'none';
       mostrarInspMain();
       showToast('Inspección iniciada ✓');
@@ -459,8 +889,29 @@ async function iniciarInspeccionUI() {
 function mostrarInspMain() {
   document.getElementById('card-inicio').style.display = 'none';
   document.getElementById('insp-main').style.display = 'block';
-  document.getElementById('status-pill').style.visibility = 'visible';
+  document.getElementById('insp-observaciones').value = inspState.observaciones || '';
+  actualizarStatusPill();
   renderRecintosInsp();
+}
+
+// ── Observaciones generales de la inspección ──
+function updObservaciones(val) {
+  if (!inspState) return;
+  inspState.observaciones = val;
+  inspState._obsDirty = true;
+  guardarDraftLocal();
+}
+let obsGuardarTimer = null;
+function guardarObservacionesUI() {
+  if (!inspState || !inspState._obsDirty) return;
+  clearTimeout(obsGuardarTimer);
+  obsGuardarTimer = setTimeout(async () => {
+    if (!inspState) return;
+    const body = { id: inspState.inspeccionId, observaciones: inspState.observaciones || '' };
+    const enviado = await enviarConCola('actualizarInspeccion', body, 'obs_' + inspState.inspeccionId);
+    if (enviado) { inspState._obsDirty = false; showToast('Observaciones guardadas ✓'); }
+    else showToast('Sin conexión: observaciones guardadas en el teléfono', 'error');
+  }, 300);
 }
 
 function renderRecintosInsp() {
@@ -478,6 +929,7 @@ function renderRecintosInsp() {
 function renderRecintoCard(r, i) {
   const catsHtml = (r.categorias || []).map((cat, ci) => renderCategoriaRow(cat, i, ci)).join('');
   const fotosPend = (r._fotosPend || 0);
+  const fotosEnCola = r.id ? (fotosPendientesCount[r.id] || 0) : 0;
   let fotosHtml = r._fotos ? r._fotos.map(f => `
       <div class="insp-photo-tile">
         <img src="https://drive.google.com/thumbnail?id=${f.id}" onerror="this.style.display='none'"/>
@@ -485,6 +937,9 @@ function renderRecintoCard(r, i) {
       </div>`).join('') : '';
   for (let k = 0; k < fotosPend; k++) {
     fotosHtml += `<div class="insp-photo-tile pending"><i class="ti ti-loader-2 spin"></i></div>`;
+  }
+  for (let k = 0; k < fotosEnCola; k++) {
+    fotosHtml += `<div class="insp-photo-tile queued" title="Guardada sin conexión, pendiente de subir"><i class="ti ti-cloud-off"></i></div>`;
   }
   const puedeSubirFotos = !!r.id;
   const calcRes = (parseFloat(r._calcL) > 0 && parseFloat(r._calcA) > 0) ? (parseFloat(r._calcL) * parseFloat(r._calcA)).toFixed(2) : '—';
@@ -494,6 +949,7 @@ function renderRecintoCard(r, i) {
       <i class="ti ${r._open ? 'ti-chevron-down' : 'ti-chevron-right'}"></i>
       <input type="text" value="${escapeHtml(r.nombre || '')}" placeholder="Nombre del recinto"
         oninput="updRecintoField(${i},'nombre',this.value)" onclick="event.stopPropagation()"/>
+      ${r._dirty ? '<span class="dirty-dot" title="Cambios sin sincronizar"></span>' : ''}
       <button class="btn-sm" style="border:none;color:var(--red);background:transparent;padding:2px 4px" onclick="event.stopPropagation();eliminarRecintoUI(${i})" title="Eliminar recinto"><i class="ti ti-trash"></i></button>
     </div>
     <div class="insp-recinto-body">
@@ -526,6 +982,7 @@ function renderRecintoCard(r, i) {
         ${puedeSubirFotos ? `<div class="insp-photo-add" onclick="abrirSelectorFotos(${i})" title="Agregar foto"><i class="ti ti-plus"></i></div>` : ''}
       </div>
       ${!puedeSubirFotos ? '<div style="font-size:10.5px;color:var(--text-3);margin-top:6px">Guarda el recinto para poder agregar fotos.</div>' : ''}
+      ${fotosEnCola ? `<div class="fotos-pend-nota"><i class="ti ti-cloud-off"></i>${fotosEnCola} foto${fotosEnCola > 1 ? 's' : ''} guardada${fotosEnCola > 1 ? 's' : ''} sin conexión, se subirá${fotosEnCola > 1 ? 'n' : ''} al reconectar</div>` : ''}
 
       <div class="insp-recinto-actions" style="margin-top:12px">
         <button class="btn btn-teal" onclick="guardarRecintoUI(${i})"><i class="ti ti-device-floppy"></i> Guardar recinto</button>
@@ -535,41 +992,47 @@ function renderRecintoCard(r, i) {
 }
 
 function renderCategoriaRow(cat, i, ci) {
+  const grupo = cat.categoria && INSP_GRUPOS[cat.categoria] !== undefined ? cat.categoria : INSP_GRUPO_LIST[0];
+  const esOtrosGrupo = grupo === 'Otros';
+  const itemsGrupo = INSP_GRUPOS[grupo] || [];
+  const elementoEsOtro = cat.elemento === OTRO_ELEMENTO;
   return `
   <div class="insp-cat-row">
     <button type="button" class="insp-cat-remove" onclick="quitarCategoriaUI(${i},${ci})" title="Quitar categoría">&times;</button>
     <div class="cat-fields">
       <div class="ig">
-        <label>Categoría</label>
+        <label>Grupo</label>
         <select onchange="updCategoriaField(${i},${ci},'categoria',this.value)">
-          ${INSP_CATEGORIAS.map(c => `<option value="${c}" ${cat.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}
+          ${INSP_GRUPO_LIST.map(g => `<option value="${escapeHtml(g)}" ${grupo === g ? 'selected' : ''}>${g}</option>`).join('')}
         </select>
       </div>
-      ${cat.categoria === 'Otros' ? `<div class="ig"><label>Especifica</label><input type="text" value="${escapeHtml(cat.otroNombre || '')}" oninput="updCategoriaField(${i},${ci},'otroNombre',this.value)"/></div>` : ''}
       <div class="ig">
         <label>M² dañados</label>
         <input type="number" step="0.01" value="${cat.m2 || ''}" oninput="updCategoriaField(${i},${ci},'m2',this.value)"/>
       </div>
     </div>
+    ${!esOtrosGrupo ? `
+    <div class="ig">
+      <label>Elemento</label>
+      <select onchange="updCategoriaField(${i},${ci},'elemento',this.value)">
+        <option value="">—</option>
+        ${itemsGrupo.map(it => `<option value="${escapeHtml(it)}" ${cat.elemento === it ? 'selected' : ''}>${it}</option>`).join('')}
+        <option value="${OTRO_ELEMENTO}" ${elementoEsOtro ? 'selected' : ''}>${OTRO_ELEMENTO}</option>
+      </select>
+    </div>` : ''}
+    ${(esOtrosGrupo || elementoEsOtro) ? `<div class="ig"><label>Especifica el elemento</label><input type="text" value="${escapeHtml(cat.otroNombre || '')}" placeholder="Nombre del elemento" oninput="updCategoriaField(${i},${ci},'otroNombre',this.value)"/></div>` : ''}
     <div class="cat-fields">
       <div class="ig">
-        <label>Materialidad</label>
-        <select onchange="updCategoriaField(${i},${ci},'materialidad',this.value)">
-          <option value="">—</option>
-          ${INSP_MATERIALIDADES.map(m => `<option value="${m}" ${cat.materialidad === m ? 'selected' : ''}>${m}</option>`).join('')}
-        </select>
-      </div>
-      <div class="ig">
-        <label>Terminación</label>
+        <label>Terminación superficial</label>
         <select onchange="updCategoriaField(${i},${ci},'terminacion',this.value)">
           <option value="">—</option>
           ${INSP_TERMINACIONES.map(t => `<option value="${t}" ${cat.terminacion === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </div>
-    </div>
-    <div class="ig">
-      <label>Daño</label>
-      <input type="text" value="${escapeHtml(cat.dano || '')}" placeholder="Descripción del daño" oninput="updCategoriaField(${i},${ci},'dano',this.value)"/>
+      <div class="ig">
+        <label>Daño</label>
+        <input type="text" value="${escapeHtml(cat.dano || '')}" placeholder="Descripción del daño" oninput="updCategoriaField(${i},${ci},'dano',this.value)"/>
+      </div>
     </div>
   </div>`;
 }
@@ -600,10 +1063,14 @@ function toggleRecintoUI(i) {
 }
 function updRecintoField(i, campo, val) {
   inspState.recintos[i][campo] = val;
+  if (inspState.recintos[i].id) inspState.recintos[i]._dirty = true;
   guardarDraftLocal();
 }
 function agregarRecintoUI() {
-  inspState.recintos.push({ id: null, nombre: '', ancho: '', largo: '', alto: '', m2: '', categorias: [], folderId: '', _open: true, _fotos: null, _calcL: '', _calcA: '' });
+  inspState.recintos.push({
+    id: null, _localId: 'rec_' + Date.now(), nombre: '', ancho: '', largo: '', alto: '', m2: '',
+    categorias: [], folderId: '', _open: true, _fotos: null, _calcL: '', _calcA: ''
+  });
   renderRecintosInsp();
   guardarDraftLocal();
 }
@@ -611,7 +1078,9 @@ async function eliminarRecintoUI(i) {
   const r = inspState.recintos[i];
   if (!confirm(`¿Eliminar el recinto "${r.nombre || 'sin nombre'}"? También se eliminarán sus fotos.`)) return;
   if (r.id) {
-    try { await formPost(SHEETS_URL, { action: 'eliminarRecinto', id: r.id }); } catch(e) {}
+    await enviarConCola('eliminarRecinto', { id: r.id }, 'eliminar_' + r.id);
+  } else if (r._localId) {
+    quitarDeQueue('guardarRecinto_' + r._localId);
   }
   inspState.recintos.splice(i, 1);
   renderRecintosInsp();
@@ -620,19 +1089,22 @@ async function eliminarRecintoUI(i) {
 }
 function agregarCategoriaUI(i) {
   inspState.recintos[i].categorias = inspState.recintos[i].categorias || [];
-  inspState.recintos[i].categorias.push({ categoria: 'Cielo', materialidad: '', terminacion: '', dano: '', m2: '' });
+  inspState.recintos[i].categorias.push({ categoria: INSP_GRUPO_LIST[0], elemento: '', otroNombre: '', materialidad: '', terminacion: '', dano: '', m2: '' });
+  if (inspState.recintos[i].id) inspState.recintos[i]._dirty = true;
   renderRecintosInsp();
   guardarDraftLocal();
 }
 function quitarCategoriaUI(i, ci) {
   inspState.recintos[i].categorias.splice(ci, 1);
+  if (inspState.recintos[i].id) inspState.recintos[i]._dirty = true;
   renderRecintosInsp();
   guardarDraftLocal();
 }
 function updCategoriaField(i, ci, campo, val) {
   inspState.recintos[i].categorias[ci][campo] = val;
+  if (inspState.recintos[i].id) inspState.recintos[i]._dirty = true;
   guardarDraftLocal();
-  if (campo === 'categoria') renderRecintosInsp();
+  if (campo === 'categoria' || campo === 'elemento') renderRecintosInsp();
 }
 
 async function guardarRecintoUI(i) {
@@ -644,6 +1116,17 @@ async function guardarRecintoUI(i) {
     categorias: r.categorias || []
   };
   if (r.id) body.id = r.id;
+  const opId = 'guardarRecinto_' + (r.id || r._localId);
+
+  if (!navigator.onLine || String(inspState.inspeccionId).indexOf('LOCAL-') === 0) {
+    r._dirty = true;
+    encolarOperacion('guardarRecinto', body, opId);
+    guardarDraftLocal();
+    renderRecintosInsp();
+    showToast('Sin conexión: recinto guardado en el teléfono, se sincronizará después', 'error');
+    return;
+  }
+
   showToast('Guardando recinto…');
   try {
     await formPost(SHEETS_URL, body);
@@ -651,24 +1134,22 @@ async function guardarRecintoUI(i) {
     const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(inspState.casoId);
     const data = await jsonpOnce(url, 'insp_get3', 15000);
     if (data && data.ok && data.inspeccion && data.inspeccion.id === inspState.inspeccionId) {
-      const abiertos = new Set(inspState.recintos.filter(x => x._open).map(x => x.id || x.nombre));
-      const calcMem = {};
-      inspState.recintos.forEach(x => { if (x.id) calcMem[x.id] = { _calcL: x._calcL, _calcA: x._calcA }; });
-      inspState.recintos = (data.recintos || []).map(nr => ({
-        ...nr,
-        _open: abiertos.has(nr.id) || abiertos.has(nr.nombre),
-        _fotos: null,
-        _calcL: (calcMem[nr.id] && calcMem[nr.id]._calcL) || '',
-        _calcA: (calcMem[nr.id] && calcMem[nr.id]._calcA) || ''
-      }));
+      r._dirty = false;
+      quitarDeQueue(opId);
+      mergeRecintosConServidor(data.recintos || []);
       renderRecintosInsp();
       showToast('Recinto guardado ✓');
       guardarDraftLocal();
+      await recalcularFotosPendientes();
     } else {
+      encolarOperacion('guardarRecinto', body, opId);
       showToast('Guardado, pero no se pudo confirmar', 'error');
     }
   } catch(e) {
-    showToast('Error al guardar el recinto', 'error');
+    r._dirty = true;
+    encolarOperacion('guardarRecinto', body, opId);
+    guardarDraftLocal();
+    showToast('Sin conexión: recinto guardado en el teléfono', 'error');
   }
 }
 
@@ -688,6 +1169,8 @@ function abrirSelectorFotos(i) {
   document.getElementById('insp-file-input').click();
 }
 
+const SUBIDA_CONCURRENCIA = 3;
+
 async function onInspFilesSelected(ev) {
   const files = Array.from(ev.target.files || []);
   ev.target.value = '';
@@ -695,21 +1178,46 @@ async function onInspFilesSelected(ev) {
   if (i === null || !files.length) return;
   const r = inspState.recintos[i];
   if (!r || !r.id) return;
-  // Muestra spinners mientras suben (retroalimentación en cache visual)
+
   r._fotosPend = files.length;
   renderRecintosInsp();
-  showToast(`Subiendo ${files.length} foto${files.length > 1 ? 's' : ''}…`);
-  let ok = 0;
-  for (const f of files) {
-    const subida = await subirFotoRecinto(f, r.id);
-    if (subida) ok++;
-    r._fotosPend = Math.max(0, (r._fotosPend || 1) - 1);
-    renderRecintosInsp();
+  showToast(`Procesando ${files.length} foto${files.length > 1 ? 's' : ''}…`);
+
+  const comprimidas = await Promise.all(files.map(f => comprimirImagen(f)));
+  let ok = 0, encoladas = 0;
+  let idx = 0;
+  const recintoId = r.id;
+  async function worker() {
+    while (idx < comprimidas.length) {
+      const miIdx = idx++;
+      const resultado = await subirOEncolarFoto(comprimidas[miIdx], recintoId);
+      if (resultado === 'ok') ok++;
+      else if (resultado === 'encolada') encoladas++;
+      const rr = inspState.recintos.find(x => x.id === recintoId) || r;
+      rr._fotosPend = Math.max(0, (rr._fotosPend || 1) - 1);
+      renderRecintosInsp();
+    }
   }
-  r._fotosPend = 0;
-  if (ok) showToast(`${ok} foto${ok > 1 ? 's' : ''} subida${ok > 1 ? 's' : ''} ✓`);
-  else showToast('No se pudo subir la foto', 'error');
+  await Promise.all(Array.from({ length: Math.min(SUBIDA_CONCURRENCIA, comprimidas.length) }, worker));
+
+  if (ok && !encoladas) showToast(`${ok} foto${ok > 1 ? 's' : ''} subida${ok > 1 ? 's' : ''} ✓`);
+  else if (encoladas) showToast(`${encoladas} foto${encoladas > 1 ? 's' : ''} guardada${encoladas > 1 ? 's' : ''} sin conexión, se subirá${encoladas > 1 ? 'n' : ''} después`, 'error');
+  else if (!ok) showToast('No se pudo procesar la foto', 'error');
+
+  await recalcularFotosPendientes();
   await cargarFotosRecinto(i);
+}
+
+async function subirOEncolarFoto(file, recintoId) {
+  if (navigator.onLine) {
+    const subida = await subirFotoRecinto(file, recintoId);
+    if (subida) return 'ok';
+  }
+  try {
+    const key = 'foto_' + recintoId + '_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    await idbPut({ key, recintoId, fileName: file.name, mimeType: file.type || 'image/jpeg', blob: file, ts: Date.now() });
+    return 'encolada';
+  } catch(e) { return 'error'; }
 }
 
 async function subirFotoRecinto(file, recintoId) {
@@ -746,6 +1254,9 @@ async function eliminarFotoRecintoUI(i, fileId) {
 
 async function finalizarInspeccionUI() {
   if (!inspState || !inspState.inspeccionId) return;
+  if (String(inspState.inspeccionId).indexOf('LOCAL-') === 0) { showToast('Espera a sincronizar antes de finalizar', 'error'); return; }
+  if (!navigator.onLine) { showToast('Sin conexión: no se puede finalizar todavía', 'error'); return; }
+  if (getQueue().length) { showToast('Hay cambios sincronizándose, espera un momento e inténtalo de nuevo', 'error'); return; }
   const sinGuardar = inspState.recintos.some(r => !r.id);
   if (sinGuardar && !confirm('Hay recintos sin guardar que no quedarán en la planilla. ¿Finalizar de todos modos?')) return;
   if (!confirm('¿Finalizar esta inspección? Se generará la planilla en la carpeta del asegurado y ya no aparecerá como "en curso".')) return;
@@ -759,6 +1270,7 @@ async function finalizarInspeccionUI() {
     document.getElementById('status-pill').style.visibility = 'hidden';
     document.getElementById('card-inicio').style.display = 'block';
     inspState = null;
+    actualizarStatusPill();
   } catch(e) {
     showToast('Error al finalizar', 'error');
   }
