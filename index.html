@@ -829,6 +829,12 @@
     .bottom-nav { display:none; }
 
     @media (max-width: 760px) {
+      /* .layout es flex-row en escritorio; en móvil .sidebar/.drawer-backdrop/.bottom-nav
+         quedan fuera del flujo (fixed), pero .topbar usa position:sticky y SÍ sigue
+         participando del flex-row, quedando al lado de .main como una columna angosta
+         (la barra navy vertical del bug) en vez de una barra horizontal arriba. Con
+         flex-direction:column, .topbar pasa a ocupar el ancho completo y .main queda debajo. */
+      .layout { flex-direction: column; }
       /* Sidebar se convierte en drawer deslizable */
       .sidebar { display:flex; transform: translateX(-100%); transition: transform .25s ease; width: 280px; z-index: 300; }
       .sidebar.open { transform: translateX(0); box-shadow: 0 0 60px rgba(0,0,0,.4); }
