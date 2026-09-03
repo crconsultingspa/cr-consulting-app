@@ -30,7 +30,7 @@
 body{font-family:var(--ui);background:var(--cream);color:var(--text);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
 
 /* ── Header ── */
-.app-header{background:linear-gradient(120deg,var(--navy) 0%,var(--navy-2) 60%,var(--teal) 160%);padding:12px 15px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 14px rgba(0,27,43,.35)}
+.app-header{background:linear-gradient(120deg,var(--navy) 0%,var(--navy-2) 60%,var(--teal) 160%);padding:14px 18px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 14px rgba(0,27,43,.35)}
 .hbrand{display:flex;align-items:center;gap:11px}
 .brand-logo{display:block;width:130px;height:34px;background-color:var(--cream);-webkit-mask:url("https://i.imgur.com/USzJtPh.png") left center / contain no-repeat;mask:url("https://i.imgur.com/USzJtPh.png") left center / contain no-repeat;filter:drop-shadow(0 2px 6px rgba(0,0,0,.30))}
 .hmeta{line-height:1}
@@ -42,21 +42,21 @@ body{font-family:var(--ui);background:var(--cream);color:var(--text);min-height:
 /* ── Tabs ── */
 .tabs{display:flex;background:var(--navy);overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,247,238,.08)}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:1;min-width:62px;padding:10px 4px 8px;text-align:center;font-size:9.5px;font-weight:600;color:rgba(255,247,238,.50);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .18s;white-space:nowrap;font-family:var(--ui);text-transform:uppercase;letter-spacing:.4px}
+.tab{flex:1;min-width:62px;padding:12px 4px 10px;text-align:center;font-size:9.5px;font-weight:600;color:rgba(255,247,238,.50);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .18s;white-space:nowrap;font-family:var(--ui);text-transform:uppercase;letter-spacing:.4px}
 .tab.active{color:var(--cream);border-bottom-color:var(--teal-2)}
 .tab-icon{display:block;font-size:18px;margin-bottom:3px;line-height:1}
 .tab-icon i{font-size:18px}
 
 /* ── Pages / Cards ── */
-.page{display:none;padding:14px 13px 80px}
+.page{display:none;padding:18px 16px 84px}
 .page.active{display:block}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:13px;box-shadow:var(--shadow)}
-.card-title{font-family:var(--disp);font-size:12px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.10em;margin-bottom:13px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:19px 20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-title{font-family:var(--disp);font-size:12px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.10em;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
 .card-title i{font-size:16px}
 
 /* ── Siniestro ── */
-.sin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.sin-btn{padding:13px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text-2);font-family:var(--ui);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .18s}
+.sin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sin-btn{padding:15px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text-2);font-family:var(--ui);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .18s}
 .sin-btn:hover{border-color:var(--teal)}
 .sin-btn.ac{border-color:var(--teal);background:var(--teal-soft);color:var(--teal)}
 .sin-btn.ac-sismo{border-color:#8B4513;background:rgba(139,69,19,.08);color:#8B4513}
@@ -66,9 +66,9 @@ body{font-family:var(--ui);background:var(--cream);color:var(--text);min-height:
 .sin-icon i{font-size:20px}
 
 /* ── Forms ── */
-.ig{margin-bottom:11px}
-label{display:block;font-size:10px;color:var(--text-3);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--ui);font-size:13.5px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+.ig{margin-bottom:13px}
+label{display:block;font-size:10px;color:var(--text-3);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;color:var(--text);font-family:var(--ui);font-size:13.5px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
@@ -94,18 +94,18 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .btn-sm-red:hover{background:var(--red);color:#fff}
 
 /* ── Mini resumen ── */
-.mini-res{background:var(--teal-soft);border:1px solid rgba(0,101,126,.22);border-radius:var(--radius-sm);padding:11px 15px;margin-bottom:12px;display:none;justify-content:space-between;align-items:center}
+.mini-res{background:var(--teal-soft);border:1px solid rgba(0,101,126,.22);border-radius:var(--radius-sm);padding:13px 17px;margin-bottom:14px;display:none;justify-content:space-between;align-items:center}
 .mini-label{font-size:10px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
 .mini-val{font-family:var(--disp);font-size:17px;color:var(--teal);font-weight:600;margin-top:2px}
 
 /* ── Recinto cards ── */
-.rc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow)}
-.rc-hdr{background:linear-gradient(120deg,var(--navy),var(--teal) 180%);color:var(--cream);padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.rc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow)}
+.rc-hdr{background:linear-gradient(120deg,var(--navy),var(--teal) 180%);color:var(--cream);padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
 .rc-name{font-family:var(--disp);font-size:15px;font-weight:600;letter-spacing:.02em}
 .rc-meta{font-size:10.5px;color:rgba(255,247,238,.70);margin-top:2px}
 .rc-actions{display:flex;gap:6px;flex-shrink:0}
-.rc-body{padding:9px 10px}
-.prow{display:flex;align-items:flex-start;padding:8px;border-bottom:1px solid var(--border);gap:6px;font-size:11.5px}
+.rc-body{padding:11px 12px}
+.prow{display:flex;align-items:flex-start;padding:10px;border-bottom:1px solid var(--border);gap:6px;font-size:11.5px}
 .prow:last-child{border:none}
 .prow-det{flex:1;color:var(--text);font-size:11.5px;line-height:1.35}
 .prow-un{color:var(--text-3);min-width:30px;text-align:center;font-size:10px;padding-top:1px}
@@ -124,20 +124,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 /* ── Modal ── */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,27,43,.55);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
 .modal-ov.open{display:flex}
-.modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:93vh;overflow-y:auto;padding:18px 15px 30px;border-top:4px solid var(--teal);box-shadow:var(--shadow-lg)}
-.modal-title{font-family:var(--disp);font-size:17px;font-weight:600;color:var(--navy);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:93vh;overflow-y:auto;padding:22px 18px 34px;border-top:4px solid var(--teal);box-shadow:var(--shadow-lg)}
+.modal-title{font-family:var(--disp);font-size:17px;font-weight:600;color:var(--navy);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
 .modal-close{background:var(--surface2);border:1px solid var(--border);color:var(--text-3);font-size:18px;cursor:pointer;line-height:1;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .modal-close:hover{background:var(--red-bg);color:var(--red)}
 
 /* ── Cap tabs / pills ── */
-.cap-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px}
+.cap-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
 .cap-tab{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border-strong);color:var(--text-3);background:var(--surface2);transition:all .15s;font-family:var(--ui)}
 .cap-tab:hover{border-color:var(--teal)}
 .cap-tab.active{background:var(--teal);color:#fff;border-color:var(--teal)}
 
 /* ── Picker ── */
-.picker-list{max-height:230px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}
-.picker-item{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer}
+.picker-list{max-height:250px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}
+.picker-item{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer}
 .picker-item:last-child{border:none}
 .picker-item:hover{background:var(--surface2)}
 .picker-chk{width:17px;height:17px;accent-color:var(--teal);flex-shrink:0}
@@ -148,10 +148,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .db-liq{font-size:9.5px;color:var(--text-3);font-weight:600;min-width:44px;text-align:right;white-space:nowrap}
 
 /* ── Selected partidas ── */
-.sel-p{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px;margin-bottom:9px}
-.sel-det-row{display:flex;align-items:center;gap:7px;margin-bottom:9px}
-.sel-det-input{flex:1;font-size:12.5px;font-weight:600;background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:7px 9px;color:var(--navy);font-family:var(--ui)}
-.calc-row{display:flex;gap:7px;align-items:center;margin-bottom:8px}
+.sel-p{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px}
+.sel-p.is-dup{border-left:3px solid var(--teal)}
+.dup-badge{font-size:9px;font-weight:700;color:var(--teal);background:var(--teal-soft);border-radius:20px;padding:3px 9px;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;white-space:nowrap}
+.dup-del{background:var(--red-bg);border:1px solid rgba(192,57,43,.30);color:var(--red);cursor:pointer;font-size:13px;padding:6px 8px;border-radius:7px;flex-shrink:0;line-height:1}
+.dup-del:hover{background:var(--red);color:#fff}
+.dup-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-soft)}
+.sel-det-row{display:flex;align-items:center;gap:7px;margin-bottom:11px}
+.sel-det-input{flex:1;font-size:12.5px;font-weight:600;background:var(--surface);border:1.5px solid var(--border);border-radius:7px;padding:8px 9px;color:var(--navy);font-family:var(--ui)}
+.calc-row{display:flex;gap:7px;align-items:center;margin-bottom:10px}
 .calc-row input{flex:1;font-size:12.5px;padding:8px 9px}
 .calc-row span{color:var(--text-3);font-size:12px;flex-shrink:0}
 .calc-res{background:var(--teal-soft);border:1px solid var(--teal);border-radius:7px;padding:6px 9px;font-size:11.5px;color:var(--teal);font-weight:700;text-align:center;min-width:64px}
@@ -175,7 +180,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .rp-qty{color:var(--teal);font-weight:700;min-width:42px;text-align:right}
 .rp-tot{color:var(--green);font-weight:700;min-width:72px;text-align:right}
 .pct-input{width:56px;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;padding:4px 7px;font-size:12.5px;text-align:right;font-family:var(--ui);color:var(--teal);font-weight:700}
-.inflate-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.inflate-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;box-shadow:var(--shadow)}
 .inflate-box label{text-transform:none;font-size:12.5px;color:var(--text);font-weight:700;flex:1;min-width:120px;margin-bottom:0;letter-spacing:0}
 
 /* ── Siniestro display badge ── */
@@ -225,13 +230,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .noinf-btn i{font-size:11px}
 
 /* ── Cube buttons & recinto controls ── */
-.recinto-add-row{display:flex;gap:10px;margin-bottom:14px}
-.cube-btn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:88px;min-height:78px;border-radius:var(--radius);border:1.5px solid var(--teal);background:var(--teal);color:#fff;font-family:var(--ui);font-size:11px;font-weight:700;line-height:1.15;text-align:center;cursor:pointer;transition:all .15s;box-shadow:0 4px 14px rgba(0,101,126,.24);padding:9px 6px}
+.recinto-add-row{display:flex;gap:10px;margin-bottom:16px}
+.cube-btn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:90px;min-height:82px;border-radius:var(--radius);border:1.5px solid var(--teal);background:var(--teal);color:#fff;font-family:var(--ui);font-size:11px;font-weight:700;line-height:1.15;text-align:center;cursor:pointer;transition:all .15s;box-shadow:0 4px 14px rgba(0,101,126,.24);padding:10px 6px}
 .cube-btn i{font-size:25px}
 .cube-btn:hover{background:var(--navy);border-color:var(--navy)}
 .cube-btn.cube-sec{background:var(--surface);color:var(--teal);box-shadow:none}
 .cube-btn.cube-sec:hover{background:var(--teal-soft)}
-.rc-foot-actions{display:flex;gap:10px;align-items:center;padding:11px 12px;background:var(--surface2);border-top:1px solid var(--border)}
+.rc-foot-actions{display:flex;gap:10px;align-items:center;padding:13px 14px;background:var(--surface2);border-top:1px solid var(--border)}
 .ord-btn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:22px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-3);border-radius:6px;cursor:pointer;padding:0;transition:all .15s}
 .ord-btn:hover{border-color:var(--teal);color:var(--teal)}
 .ord-btn i{font-size:14px}
@@ -265,8 +270,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 
 <div class="app-header">
   <div class="hbrand">
-    <span class="brand-logo" role="img" aria-label="CR Consulting"></span>
-    <div class="hmeta"><div class="htitle">Presupuestador</div><div class="hsub">Estimación de daños</div></div>
+    <a href="index.html" title="Ir a la intranet CR Consulting" style="display:flex;align-items:center;gap:11px;text-decoration:none;">
+      <span class="brand-logo" role="img" aria-label="CR Consulting"></span>
+      <div class="hmeta"><div class="htitle">Presupuestador</div><div class="hsub">Estimación de daños</div></div>
+    </a>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
     <div id="sin-badge-hdr"></div>
@@ -626,11 +633,15 @@ let DB=[
 </script>
 <script>
  CAPS=()=>[...new Set(DB.map(x=>x.c))];
- SHEETS_URL='https://script.google.com/macros/s/AKfycbwNmoyQllOOiKUx32CIlGRq52MXOc-j5ZbYTofNRtHLkZExvkOodYVaSbh-sntiHSRtWQ/exec';
+ SHEETS_URL='https://script.google.com/macros/s/AKfycbyZZ_L07zt4BlgjlOLd95Fqnhi0bZReoWpF_kKmMSpELlCjzh0c-ZgC6axEyRKEEc82cQ/exec';
 const PARTIDAS_SHEET_ID='1PEVPvNUiTXXOEviVi_BRX-5ZEq3ysngE';
 const PARTIDAS_EXPORT_URL='https://docs.google.com/spreadsheets/d/'+PARTIDAS_SHEET_ID+'/export?format=xlsx';
 let S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0,showGG:true,showIVA:true};
 let chk={},cachedDet={},cachedU={},cachedQ={},cachedP={},cachedL={},cachedA={},cachedObs={};
+// ── Duplicados de partidas seleccionadas ──
+// dupOf[idxBase] = [key1, key2, ...] -> claves de las copias de esa partida base
+// dupBase[key] = idxBase -> a qué partida del catálogo (DB) pertenece esa copia
+let dupOf={},dupBase={},dupCtr=0;
 let editRid=null,editPid=null,pidCtr=1,ridCtr=1,activeCap='Todos';
 let dbActiveCap='Todos',dbEditIdx=null,logoPngB64=null;
 let casosCache=null;
@@ -745,9 +756,9 @@ function renderCapTabs(){
 function selectCap(c){savePickerState();activeCap=c;renderCapTabs();renderPicker(document.getElementById('mr-search').value);}
 function filtrarPicker(){savePickerState();renderPicker(document.getElementById('mr-search').value);}
 function savePickerState(){
-  Object.keys(chk).forEach(idx=>{
-    const map={det:cachedDet,u:cachedU,q:cachedQ,p:cachedP,l:cachedL,a:cachedA,obs:cachedObs};
-    Object.entries(map).forEach(function(e){const el=document.getElementById('sp-'+idx+'-'+e[0]);if(el)e[1][idx]=el.value;});
+  const map={det:cachedDet,u:cachedU,q:cachedQ,p:cachedP,l:cachedL,a:cachedA,obs:cachedObs};
+  allRefs().forEach(function(ref){
+    Object.entries(map).forEach(function(e){const el=document.getElementById('sp-'+ref+'-'+e[0]);if(el)e[1][ref]=el.value;});
   });
 }
 function renderPicker(q){
@@ -761,32 +772,91 @@ function renderPicker(q){
     return'<label class="picker-item" for="chk-'+idx+'"><input class="picker-chk" type="checkbox" id="chk-'+idx+'" '+(chk[idx]?'checked':'')+' onchange="toggleChk('+idx+')"><span class="picker-nom">'+p.d+'</span><span class="picker-right"><span class="picker-pre">'+fmt(p.p)+'/'+p.u+'</span>'+liqHtml+'</span></label>';
   }).join('');
 }
-function toggleChk(idx){chk[idx]=!chk[idx];if(!chk[idx])delete chk[idx];renderSelPartidas();}
+function toggleChk(idx){
+  chk[idx]=!chk[idx];
+  if(!chk[idx]){
+    delete chk[idx];
+    // Al destildar la partida base se eliminan también sus copias duplicadas
+    (dupOf[idx]||[]).forEach(function(k){
+      delete dupBase[k];
+      delete cachedDet[k];delete cachedU[k];delete cachedQ[k];delete cachedP[k];delete cachedL[k];delete cachedA[k];delete cachedObs[k];
+    });
+    delete dupOf[idx];
+  }
+  renderSelPartidas();
+}
+// Refs de todas las filas visibles (partida base + sus duplicados), para guardar/leer su estado del DOM
+function allRefs(){
+  const keys=Object.keys(chk).map(Number);
+  const refs=[...keys];
+  keys.forEach(function(idx){ (dupOf[idx]||[]).forEach(function(k){ refs.push(k); }); });
+  return refs;
+}
+// Dado un ref (idx numérico de partida base, o clave de duplicado), devuelve el idx de la partida base en DB
+function refToBase(ref){
+  return dupBase[ref]!==undefined ? dupBase[ref] : Number(ref);
+}
 function renderSelPartidas(){
   const keys=Object.keys(chk).map(Number);
   const cont=document.getElementById('sel-cont'),lst=document.getElementById('sel-list');
   if(!keys.length){cont.style.display='none';return;}
   cont.style.display='block';
   lst.innerHTML=keys.map(function(idx){
-    const p=DB[idx];
-    const det=cachedDet[idx]!==undefined?cachedDet[idx]:p.d;
-    const u=cachedU[idx]||p.u,q=cachedQ[idx]||'',precio=cachedP[idx]!==undefined?cachedP[idx]:p.p;
-    const l=cachedL[idx]||'',a=cachedA[idx]||'',obs=cachedObs[idx]||'';
-    const uOpts=UNITS.map(uu=>'<option'+(uu===u?' selected':'')+'>'+uu+'</option>').join('');
-    const tot=parseFloat(q)&&parseFloat(precio)?parseFloat(q)*parseFloat(precio):0;
-    return'<div class="sel-p" id="sp-'+idx+'">'+
-      '<div class="sel-det-row"><input class="sel-det-input" id="sp-'+idx+'-det" type="text" value="'+det.replace(/"/g,'&quot;')+'" oninput="cacheField('+idx+',\'det\',this.value)"><button class="obs-toggle" onclick="toggleObs('+idx+')" title="Obs">+obs</button></div>'+
-      '<div class="calc-row"><input type="number" id="sp-'+idx+'-l" placeholder="Largo" step="0.01" value="'+l+'" oninput="calcSpM2('+idx+')" style="font-size:12px;padding:7px 8px;"><span>x</span><input type="number" id="sp-'+idx+'-a" placeholder="Ancho" step="0.01" value="'+a+'" oninput="calcSpM2('+idx+')" style="font-size:12px;padding:7px 8px;"><span>=</span><div class="calc-res" id="sp-'+idx+'-r">'+(l&&a?(parseFloat(l)*parseFloat(a)).toFixed(2)+' '+u:'-- '+u)+'</div></div>'+
-      '<div class="sel-row-3"><div class="ig"><label>Unidad</label><select id="sp-'+idx+'-u" onchange="cacheField('+idx+',\'u\',this.value)">'+uOpts+'</select></div><div class="ig"><label>Cantidad</label><input type="number" id="sp-'+idx+'-q" placeholder="0.00" step="0.01" value="'+q+'" oninput="updateSpTot('+idx+');cacheField('+idx+',\'q\',this.value)" style="font-size:13px;"></div><div class="ig"><label>V. Unitario</label><input type="number" id="sp-'+idx+'-p" value="'+precio+'" step="1" oninput="updateSpTot('+idx+');cacheField('+idx+',\'p\',this.value)" style="font-size:13px;"></div></div>'+
-      '<div class="tot-disp" id="sp-'+idx+'-tot">Total: '+(tot>0?fmt(tot):'$0')+'</div>'+
-      '<div class="copy-row"><button class="copy-btn" onclick="copiarAbajo('+idx+')" title="Copiar cantidad y unidad a la siguiente"><i class="ti ti-arrow-down"></i> Copiar a la siguiente</button><button class="copy-btn" onclick="copiarATodas('+idx+')" title="Copiar a todas las de abajo"><i class="ti ti-chevrons-down"></i> A todas</button></div>'+
-      '<div class="obs-area" id="sp-'+idx+'-obs-wrap"'+(obs?' style="display:block"':'')+'>'+
-        '<label style="margin-top:6px;">Observacion</label>'+
-        '<textarea id="sp-'+idx+'-obs" rows="2" style="resize:none;font-size:12px;" oninput="cacheField('+idx+',\'obs\',this.value)">'+obs+'</textarea>'+
-      '</div></div>';
+    let html=renderPartidaCard(idx,idx,true);
+    (dupOf[idx]||[]).forEach(function(k){ html+=renderPartidaCard(k,idx,false); });
+    return html;
   }).join('');
 }
-function cacheField(idx,f,v){({det:cachedDet,u:cachedU,q:cachedQ,p:cachedP,l:cachedL,a:cachedA,obs:cachedObs})[f][idx]=v;}
+// Arma el HTML de una fila de partida seleccionada. `ref` identifica la fila
+// (idx numérico para la partida base, o clave de texto para un duplicado);
+// `baseIdx` siempre apunta a la partida del catálogo (DB) que la origina.
+function renderPartidaCard(ref,baseIdx,isPrimary){
+  const p=DB[baseIdx];
+  const det=cachedDet[ref]!==undefined?cachedDet[ref]:p.d;
+  const u=cachedU[ref]||p.u,q=cachedQ[ref]||'',precio=cachedP[ref]!==undefined?cachedP[ref]:p.p;
+  const l=cachedL[ref]||'',a=cachedA[ref]||'',obs=cachedObs[ref]||'';
+  const uOpts=UNITS.map(uu=>'<option'+(uu===u?' selected':'')+'>'+uu+'</option>').join('');
+  const tot=parseFloat(q)&&parseFloat(precio)?parseFloat(q)*parseFloat(precio):0;
+  const dupBadge=isPrimary?'':'<span class="dup-badge">Duplicado</span>';
+  const delBtn=isPrimary?'':'<button class="dup-del" onclick="eliminarDuplicado(\''+ref+'\')" title="Quitar esta copia"><i class="ti ti-trash"></i></button>';
+  const copyBtns=isPrimary?'<button class="copy-btn" onclick="copiarAbajo('+ref+')" title="Copiar cantidad y unidad a la siguiente"><i class="ti ti-arrow-down"></i> Copiar a la siguiente</button><button class="copy-btn" onclick="copiarATodas('+ref+')" title="Copiar a todas las de abajo"><i class="ti ti-chevrons-down"></i> A todas</button>':'';
+  return'<div class="sel-p'+(isPrimary?'':' is-dup')+'" id="sp-'+ref+'">'+
+    '<div class="sel-det-row">'+dupBadge+'<input class="sel-det-input" id="sp-'+ref+'-det" type="text" value="'+String(det).replace(/"/g,'&quot;')+'" oninput="cacheField(\''+ref+'\',\'det\',this.value)"><button class="obs-toggle" onclick="toggleObs(\''+ref+'\')" title="Obs">+obs</button>'+delBtn+'</div>'+
+    '<div class="calc-row"><input type="number" id="sp-'+ref+'-l" placeholder="Largo" step="0.01" value="'+l+'" oninput="calcSpM2(\''+ref+'\')" style="font-size:12px;padding:7px 8px;"><span>x</span><input type="number" id="sp-'+ref+'-a" placeholder="Ancho" step="0.01" value="'+a+'" oninput="calcSpM2(\''+ref+'\')" style="font-size:12px;padding:7px 8px;"><span>=</span><div class="calc-res" id="sp-'+ref+'-r">'+(l&&a?(parseFloat(l)*parseFloat(a)).toFixed(2)+' '+u:'-- '+u)+'</div></div>'+
+    '<div class="sel-row-3"><div class="ig"><label>Unidad</label><select id="sp-'+ref+'-u" onchange="cacheField(\''+ref+'\',\'u\',this.value)">'+uOpts+'</select></div><div class="ig"><label>Cantidad</label><input type="number" id="sp-'+ref+'-q" placeholder="0.00" step="0.01" value="'+q+'" oninput="updateSpTot(\''+ref+'\');cacheField(\''+ref+'\',\'q\',this.value)" style="font-size:13px;"></div><div class="ig"><label>V. Unitario</label><input type="number" id="sp-'+ref+'-p" value="'+precio+'" step="1" oninput="updateSpTot(\''+ref+'\');cacheField(\''+ref+'\',\'p\',this.value)" style="font-size:13px;"></div></div>'+
+    '<div class="tot-disp" id="sp-'+ref+'-tot">Total: '+(tot>0?fmt(tot):'$0')+'</div>'+
+    '<div class="copy-row">'+copyBtns+'<button class="copy-btn dup-btn" onclick="duplicarPartida(\''+ref+'\','+baseIdx+')" title="Duplicar esta partida para otra medida"><i class="ti ti-copy"></i> Duplicar</button></div>'+
+    '<div class="obs-area" id="sp-'+ref+'-obs-wrap"'+(obs?' style="display:block"':'')+'>'+
+      '<label style="margin-top:6px;">Observacion</label>'+
+      '<textarea id="sp-'+ref+'-obs" rows="2" style="resize:none;font-size:12px;" oninput="cacheField(\''+ref+'\',\'obs\',this.value)">'+obs+'</textarea>'+
+    '</div></div>';
+}
+function cacheField(ref,f,v){({det:cachedDet,u:cachedU,q:cachedQ,p:cachedP,l:cachedL,a:cachedA,obs:cachedObs})[f][ref]=v;}
+// Crea una copia de la fila `ref` (misma partida del catálogo, mismo precio/unidad)
+// pero con las medidas en blanco, lista para cargar otra área/cantidad. Aparece
+// justo debajo de la fila desde la que se duplicó.
+function duplicarPartida(ref,baseIdx){
+  savePickerState();
+  const newKey='dup'+(dupCtr++)+'_'+baseIdx;
+  dupBase[newKey]=baseIdx;
+  if(!dupOf[baseIdx])dupOf[baseIdx]=[];
+  const posRef=(String(ref)===String(baseIdx))?-1:dupOf[baseIdx].indexOf(ref);
+  dupOf[baseIdx].splice(posRef+1,0,newKey);
+  cachedDet[newKey]=cachedDet[ref]!==undefined?cachedDet[ref]:DB[baseIdx].d;
+  cachedU[newKey]=cachedU[ref]||DB[baseIdx].u;
+  cachedP[newKey]=cachedP[ref]!==undefined?cachedP[ref]:DB[baseIdx].p;
+  cachedQ[newKey]='';cachedL[newKey]='';cachedA[newKey]='';cachedObs[newKey]='';
+  renderSelPartidas();
+}
+function eliminarDuplicado(key){
+  const baseIdx=dupBase[key];
+  if(baseIdx===undefined)return;
+  savePickerState();
+  dupOf[baseIdx]=(dupOf[baseIdx]||[]).filter(function(k){return k!==key;});
+  delete dupBase[key];
+  delete cachedDet[key];delete cachedU[key];delete cachedQ[key];delete cachedP[key];delete cachedL[key];delete cachedA[key];delete cachedObs[key];
+  renderSelPartidas();
+}
 function copiarAbajo(idx){
   savePickerState();
   const keys=Object.keys(chk).map(Number),pos=keys.indexOf(idx);
@@ -807,23 +877,24 @@ function copiarATodas(idx){
   }
   renderSelPartidas();
 }
-function toggleObs(idx){const w=document.getElementById('sp-'+idx+'-obs-wrap');w.style.display=w.style.display==='block'?'none':'block';}
-function calcSpM2(idx){
-  const l=parseFloat(document.getElementById('sp-'+idx+'-l').value)||0;
-  const a=parseFloat(document.getElementById('sp-'+idx+'-a').value)||0;
-  cachedL[idx]=l||'';cachedA[idx]=a||'';
-  const u=document.getElementById('sp-'+idx+'-u').value||DB[idx].u;
+function toggleObs(ref){const w=document.getElementById('sp-'+ref+'-obs-wrap');w.style.display=w.style.display==='block'?'none':'block';}
+function calcSpM2(ref){
+  const baseIdx=refToBase(ref);
+  const l=parseFloat(document.getElementById('sp-'+ref+'-l').value)||0;
+  const a=parseFloat(document.getElementById('sp-'+ref+'-a').value)||0;
+  cachedL[ref]=l||'';cachedA[ref]=a||'';
+  const u=document.getElementById('sp-'+ref+'-u').value||DB[baseIdx].u;
   const r=l*a;
-  document.getElementById('sp-'+idx+'-r').textContent=r>0?r.toFixed(2)+' '+u:'-- '+u;
-  if(r>0){document.getElementById('sp-'+idx+'-q').value=r.toFixed(2);cachedQ[idx]=r.toFixed(2);updateSpTot(idx);}
+  document.getElementById('sp-'+ref+'-r').textContent=r>0?r.toFixed(2)+' '+u:'-- '+u;
+  if(r>0){document.getElementById('sp-'+ref+'-q').value=r.toFixed(2);cachedQ[ref]=r.toFixed(2);updateSpTot(ref);}
 }
-function updateSpTot(idx){
-  const q=parseFloat(document.getElementById('sp-'+idx+'-q').value)||0;
-  const p=parseFloat(document.getElementById('sp-'+idx+'-p').value)||0;
-  document.getElementById('sp-'+idx+'-tot').textContent='Total: '+fmt(q*p);
+function updateSpTot(ref){
+  const q=parseFloat(document.getElementById('sp-'+ref+'-q').value)||0;
+  const p=parseFloat(document.getElementById('sp-'+ref+'-p').value)||0;
+  document.getElementById('sp-'+ref+'-tot').textContent='Total: '+fmt(q*p);
 }
 function abrirModalRecinto(rid){
-  editRid=rid;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};
+  editRid=rid;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};dupOf={};dupBase={};
   if(rid===null){document.getElementById('modal-recinto-title').textContent='Agregar Recinto';document.getElementById('mr-nombre').value='';}
   else{const r=S.recintos.find(x=>x.id===rid);document.getElementById('modal-recinto-title').textContent='Anadir a: '+r.nombre;document.getElementById('mr-nombre').value=r.nombre;}
   document.getElementById('mr-search').value='';
@@ -839,14 +910,19 @@ function confirmarRecinto(){
   const keys=Object.keys(chk).map(Number);
   if(!keys.length) return alert('Selecciona al menos una partida.');
   const nuevas=[];
-  for(const idx of keys){
-    const p=DB[idx];
-    const det=(cachedDet[idx]||p.d).trim();
-    const u=cachedU[idx]||p.u;
-    const qty=parseFloat(cachedQ[idx]||'');
+  const filas=[];
+  keys.forEach(function(idx){
+    filas.push({ref:idx,baseIdx:idx});
+    (dupOf[idx]||[]).forEach(function(k){ filas.push({ref:k,baseIdx:idx}); });
+  });
+  for(const {ref,baseIdx} of filas){
+    const p=DB[baseIdx];
+    const det=(cachedDet[ref]||p.d).trim();
+    const u=cachedU[ref]||p.u;
+    const qty=parseFloat(cachedQ[ref]||'');
     if(!qty||qty<=0){alert('Ingresa cantidad para: '+det);return;}
-    const precio=parseFloat(cachedP[idx]||p.p)||p.p;
-    const obs=(cachedObs[idx]||'').trim();
+    const precio=parseFloat(cachedP[ref]||p.p)||p.p;
+    const obs=(cachedObs[ref]||'').trim();
     nuevas.push({id:pidCtr++,capitulo:p.c,detalle:det,unidad:u,cantidad:qty,precioUnit:precio,total:qty*precio,obs,obsPos:"final",noInflar:false});
   }
   if(editRid===null){S.recintos.push({id:ridCtr++,nombre,partidas:nuevas});}
@@ -1136,7 +1212,7 @@ function toggleNoInflar(rid,pid){
   p.noInflar=!p.noInflar;renderResumen();
 }
 function abrirModalFinal(){
-  editRid=null;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};
+  editRid=null;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};dupOf={};dupBase={};
   document.getElementById('mr-nombre').value='Proteccion / Logistica';
   document.getElementById('mr-search').value='';
   document.getElementById('sel-cont').style.display='none';
