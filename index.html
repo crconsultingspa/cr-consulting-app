@@ -270,13 +270,14 @@
     .version-wrap:hover .version-tip { display: block; }
 
     .metrics {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
-      gap: 10px; margin-bottom: 22px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+      gap: 8px; margin-bottom: 20px;
     }
     .metric-card {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 10px 14px;
+      border-radius: var(--radius-sm); padding: 8px 12px;
       box-shadow: var(--shadow); position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
     .metric-card::after{
       content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--teal);
@@ -284,8 +285,8 @@
     .metric-card.m-green::after { background: var(--green); }
     .metric-card.m-amber::after { background: var(--amber); }
     .metric-card.m-red::after   { background: var(--red); }
-    .metric-label { font-size: 10px; color: var(--text-3); font-weight:600; letter-spacing:.03em; margin-bottom: 4px; text-transform: uppercase; }
-    .metric-value { font-family: var(--disp); font-size: 21px; font-weight: 600; color: var(--navy); line-height:1; }
+    .metric-label { font-size: 9.5px; color: var(--text-3); font-weight:600; letter-spacing:.02em; text-transform: uppercase; }
+    .metric-value { font-family: var(--disp); font-size: 17px; font-weight: 600; color: var(--navy); line-height:1; }
     .metric-sub { font-size: 9.5px; color: var(--text-3); margin-top: 4px; }
 
     /* ─────────────────────────── TABS ─────────────────────────── */
@@ -857,7 +858,7 @@
       .detail-grid, .form-grid, .tables-row, .hero-side { grid-template-columns: 1fr; }
       .analytics-grid { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .metric-value { font-size: 18px; }
+      .metric-value { font-size: 15px; }
       .stats-hero { grid-template-columns: 1fr; }
 
       /* Tarjetas de caso: la tabla se convierte en tarjetas apiladas */
@@ -1605,7 +1606,8 @@ const APP_CHANGELOG = {
     'Subida de archivos más veloz (cache en el servidor + más subidas en paralelo)',
     'La app abre al instante con los datos de la última sesión mientras sincroniza',
     'Pendientes de hoy unificados en una sola lista: Maglin',
-    'Métricas más compactas y sin comisión total en Inicio',
+    'Comisión total quitada de Inicio y Casos (sigue en Estadísticas)',
+    'Tarjetas de Total casos / Pagados / En gestión / Rechazados mucho más compactas',
     'Diseño más aireado en todo el panel',
     'Este panel de cambios por versión'
   ]
@@ -1960,18 +1962,14 @@ function buildMetrics() {
   const p = cs.filter(c=>c.estado==='Pagado').length;
   const r = cs.filter(c=>c.estado==='Rechazado').length;
   const g = cs.filter(c=>c.estado!=='Pagado'&&c.estado!=='Rechazado').length;
-  const tc= cs.reduce((a,c)=>a+(c.comision||0),0);
-  const base = `
+  const html = `
     <div class="metric-card"><div class="metric-label">Total casos</div><div class="metric-value">${cs.length}</div></div>
     <div class="metric-card m-green"><div class="metric-label">Pagados</div><div class="metric-value" style="color:var(--green)">${p}</div></div>
     <div class="metric-card m-amber"><div class="metric-label">En gestión</div><div class="metric-value" style="color:var(--amber)">${g}</div></div>
     <div class="metric-card m-red"><div class="metric-label">Rechazados</div><div class="metric-value" style="color:var(--red)">${r}</div></div>`;
-  const comision = `
-    <div class="metric-card"><div class="metric-label">Comisión total CR</div><div class="metric-value" style="font-size:16px">${fmtCLP(tc)}</div><div class="metric-sub">en casos pagados</div></div>`;
-  document.getElementById('metrics').innerHTML = base + comision;
-  // En Inicio no se muestra la comisión total
+  document.getElementById('metrics').innerHTML = html;
   const inicioMetrics = document.getElementById('inicio-metrics');
-  if (inicioMetrics) inicioMetrics.innerHTML = base;
+  if (inicioMetrics) inicioMetrics.innerHTML = html;
 }
 
 // ── CASOS ─────────────────────────────────────────────────────────────────────
