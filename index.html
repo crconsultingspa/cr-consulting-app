@@ -349,11 +349,28 @@
     .mform input:focus, .mform select:focus, .mform textarea:focus {
       border-color:#00657e !important; background:#fff !important; box-shadow:0 0 0 3px rgba(0,101,126,.13);
     }
-    .modal-tab { transition: color .15s, border-color .15s; }
-    .modal-tab:hover { color:#fff7ee !important; }
+    /* ── Stepper de etapas (chevrons) — rediseño Claude Design ── */
+    .chevrons { display:flex; gap:4px; padding:14px 18px; background:#f6fafb; border-bottom:1px solid rgba(0,43,65,.08); overflow-x:auto; }
+    .chev { flex:1; min-width:110px; display:flex; align-items:center; gap:9px; padding:11px 14px 11px 22px; cursor:pointer; transition:background .15s, color .15s;
+      clip-path:polygon(0 0,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,0 100%,15px 50%); }
+    .chev:first-child { padding-left:18px; clip-path:polygon(0 0,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,0 100%); }
+    .chev:last-child { clip-path:polygon(0 0,100% 0,100% 100%,0 100%,15px 50%); }
+    .chev .cnum { font-family:'Oswald',sans-serif; font-size:19px; font-weight:600; flex-shrink:0; }
+    .chev .cname { font-size:12px; font-weight:700; line-height:1.1; white-space:nowrap; }
+    .chev .cstatus { font-size:9px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin-top:1px; }
+    .chev.pending { background:#e6eef1; color:#6b93a3; }
+    .chev.pending .cname { color:#335f73; }
+    .chev.done { background:#1a7a52; color:#fff; }
+    .chev.done .cstatus { opacity:.85; }
+    .chev.active { background:#00657e; color:#fff; }
+    .chev.active .cstatus { opacity:.85; }
+    .chev.disabled { background:#eef2f4; color:#9fbac5; opacity:.7; cursor:not-allowed; }
+    .chev.disabled .cname { color:#9fbac5; }
+    .stepbody > form > section.step-hidden { display:none !important; }
     #modal-backdrop .btn-cancelar:hover { background:#f4f9fb; border-color:#00657e; }
     #modal-backdrop .btn-guardar:hover { background:#002b41 !important; border-color:#002b41 !important; }
     #modal-backdrop .modal-close-btn:hover { background:rgba(255,247,238,.12); color:#fff7ee; }
+    #btn-prev:disabled { opacity:.4; cursor:not-allowed; }
     .badge { font-size: 10.5px; font-weight: 700; padding: 4px 11px; border-radius: 20px; white-space: nowrap; letter-spacing:.01em; }
     .badge-pagado    { background: var(--green-bg); color: var(--green); }
     .badge-rechazado { background: var(--red-bg);   color: var(--red); }
@@ -1344,37 +1361,32 @@
 <div class="modal-backdrop" id="modal-backdrop" onclick="closeModalOutside(event)">
 <div onclick="event.stopPropagation()" style="width:100%;max-width:1240px;background:#fff;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 40px);box-shadow:0 1px 2px rgba(0,43,65,.06), 0 34px 80px rgba(0,27,43,.26)">
 
-  <div style="background:#002b41;padding:11px 24px 0;color:#fff7ee;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:30px;height:30px;border-radius:9px;background:rgba(0,101,126,.55);border:1px solid rgba(255,247,238,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-home-cog" style="font-size:17px;color:#fff7ee"></i></div>
-      <div style="flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;overflow:hidden">
-        <div style="display:flex;align-items:baseline;gap:7px;flex-shrink:0">
-          <span id="modal-title-text" style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8fc0cf">Nuevo caso</span>
-          <span id="modal-nrosin-wrap" style="display:none;align-items:baseline;gap:7px"><span style="opacity:.45">·</span><span id="modal-nrosin" style="font-family:'Oswald',sans-serif;letter-spacing:.04em;font-size:17px;color:#cfe6ed"></span></span>
+  <div style="background:#002b41;padding:18px 24px 16px;color:#fff7ee;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:13px">
+      <div style="width:36px;height:36px;border-radius:11px;background:rgba(0,101,126,.5);border:1px solid rgba(255,247,238,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-home-cog" style="font-size:19px;color:#fff7ee"></i></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:baseline;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7ba9ba;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          <span id="modal-title-text">Nuevo caso</span>
+          <span id="modal-nrosin-wrap" style="display:none;align-items:baseline;gap:6px"><span style="opacity:.6">·</span><span id="modal-nrosin"></span></span>
         </div>
-        <div id="modal-nombre-display" style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;letter-spacing:.01em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:60px"></div>
-        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto">
-          <span id="badge-rut" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#cfe6ed;background:rgba(255,247,238,.09);border:1px solid rgba(255,247,238,.14);padding:2px 8px;border-radius:20px;white-space:nowrap"><i class="ti ti-id" style="font-size:13px"></i><span></span></span>
-          <span id="badge-banco" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#cfe6ed;background:rgba(255,247,238,.09);border:1px solid rgba(255,247,238,.14);padding:2px 8px;border-radius:20px;white-space:nowrap"><i class="ti ti-building-bank" style="font-size:13px"></i><span></span></span>
-          <span id="badge-estado" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap"><i class="ti ti-circle-check-filled" style="font-size:13px"></i><span></span></span>
-        </div>
+        <div id="modal-nombre-display" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;letter-spacing:.01em;line-height:1.3;color:#fff7ee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
       </div>
-      <button type="button" class="modal-close-btn" onclick="closeModal()" style="width:30px;height:30px;flex-shrink:0;border-radius:10px;border:1px solid rgba(255,247,238,.16);background:transparent;color:#cfe6ed;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x" style="font-size:18px"></i></button>
-    </div>
-
-    <div style="display:flex;gap:2px;margin-top:6px;overflow-x:auto" id="modal-tabs">
-      <button type="button" class="modal-tab" data-tab="titular" onclick="modalGoTab('titular',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid rgba(255,247,238,.5);color:#fff7ee;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-user" style="font-size:15px"></i>Titular</button>
-      <button type="button" class="modal-tab" data-tab="siniestro" onclick="modalGoTab('siniestro',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8fc0cf;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-alert-triangle" style="font-size:15px"></i>Siniestro</button>
-      <button type="button" class="modal-tab" data-tab="gestion" onclick="modalGoTab('gestion',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8fc0cf;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-clipboard-check" style="font-size:15px"></i>Gestión</button>
-      <button type="button" class="modal-tab" data-tab="liquidacion" onclick="modalGoTab('liquidacion',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8fc0cf;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-cash-banknote" style="font-size:15px"></i>Liquidación</button>
-      <button type="button" class="modal-tab" data-tab="notas" onclick="modalGoTab('notas',this)" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:#8fc0cf;font-family:'Open Sans',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:8px 12px;cursor:pointer;white-space:nowrap"><i class="ti ti-notes" style="font-size:15px"></i>Notas</button>
+      <div style="display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:7px;flex-shrink:0;max-width:44%">
+        <span id="badge-rut" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#cfe6ed;background:rgba(255,247,238,.09);border:1px solid rgba(255,247,238,.14);padding:4px 10px;border-radius:20px;white-space:nowrap"><i class="ti ti-id" style="font-size:14px"></i><span></span></span>
+        <span id="badge-banco" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#cfe6ed;background:rgba(255,247,238,.09);border:1px solid rgba(255,247,238,.14);padding:4px 10px;border-radius:20px;white-space:nowrap"><i class="ti ti-building-bank" style="font-size:14px"></i><span></span></span>
+        <span id="badge-estado" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap"><i class="ti ti-circle-check-filled" style="font-size:14px"></i><span></span></span>
+      </div>
+      <button type="button" class="modal-close-btn" onclick="closeModal()" style="width:34px;height:34px;flex-shrink:0;border-radius:11px;border:1px solid rgba(255,247,238,.16);background:transparent;color:#cfe6ed;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x" style="font-size:18px"></i></button>
     </div>
   </div>
 
-  <div id="modal-scroller" style="flex:1;overflow-y:auto;background:#fff;position:relative">
+  <div id="modal-tabs" class="chevrons"></div>
+  <div id="modal-nuevo-hint" style="display:none;padding:8px 24px 4px;font-size:11px;color:#6b93a3;background:#f6fafb;border-bottom:1px solid rgba(0,43,65,.08)"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px"></i> Guarda estos datos para continuar con Denuncio, Inspección y las demás etapas.</div>
+
+  <div id="modal-scroller" class="stepbody" style="flex:1;overflow-y:auto;background:#fff;position:relative">
   <form id="case-form" class="mform" onsubmit="saveCase(event)">
 
-    <section data-sec="titular" style="padding:24px 28px 26px">
+    <section data-sec="captacion" style="padding:24px 28px 26px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
         <span style="width:27px;height:27px;border-radius:9px;background:#e3f0f4;color:#00657e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-user" style="font-size:15px"></i></span>
         <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Datos del titular</span>
@@ -1427,19 +1439,44 @@
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Ciudad</label>
           <select id="f-ciudad" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%"><option value="">Seleccionar…</option></select>
         </div>
+        <div style="display:flex;flex-direction:column;gap:6px;grid-column:1 / -1">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Descripción del siniestro <span style="opacity:.6;text-transform:none;font-weight:500">(problema)</span></label>
+          <textarea id="f-problema" placeholder="Qué le pasó al asegurado, en sus palabras…" style="font-size:13.5px;font-weight:400;line-height:1.6;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%;min-height:76px;resize:vertical"></textarea>
+        </div>
+      </div>
+
+      <div id="captacion-docs-actions" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(0,43,65,.08);gap:10px;flex-wrap:wrap">
+        <button type="button" class="btn" style="color:var(--teal);border-color:var(--teal)" onclick="if(editingId) openMandato(editingId)"><i class="ti ti-file-text"></i> Mandato</button>
+        <button type="button" class="btn" style="color:var(--teal);border-color:var(--teal)" onclick="if(editingId) openContrato(editingId)"><i class="ti ti-file-description"></i> Contrato</button>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(0,43,65,.08)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Evidencia del caso</span>
+          <label id="evidencia-upload-btn" class="btn" style="cursor:pointer;display:none;align-items:center;gap:6px">
+            <input type="file" id="evidencia-file-input" multiple style="display:none" onchange="onEvidenciaFilesSelected(event)">
+            <i class="ti ti-upload"></i> Subir archivos
+          </label>
+        </div>
+        <ul id="evidencia-list" class="docs-list"><li class="docs-empty">Guarda el caso primero para poder subir evidencia.</li></ul>
+        <div id="evidencia-uploading" class="docs-uploading" style="display:none"><i class="ti ti-loader"></i> <span id="evidencia-uploading-txt"></span></div>
       </div>
     </section>
 
-    <section data-sec="siniestro" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08);background:#fbfdfe">
+    <section data-sec="denuncio" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08);background:#fbfdfe">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <span style="width:27px;height:27px;border-radius:9px;background:#fbf0dc;color:#ad6a13;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-alert-triangle" style="font-size:15px"></i></span>
-        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Siniestro y plazos</span>
+        <span style="width:27px;height:27px;border-radius:9px;background:#fbf0dc;color:#ad6a13;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-file-text" style="font-size:15px"></i></span>
+        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Denuncio</span>
         <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px 16px">
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">N° Siniestro</label>
           <input type="text" id="f-nrosin" placeholder="SIN-2024-001" oninput="refreshModalHeader()" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:500;letter-spacing:.02em;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">N° Atención / Requerimiento</label>
+          <input type="text" id="f-numeroAtencion" placeholder="ATN-0000" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:500;letter-spacing:.02em;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Tipo de siniestro</label>
@@ -1458,8 +1495,16 @@
           <input type="date" id="f-fechaSiniestro" style="font-size:13.5px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Fecha de denuncio</label>
+          <input type="date" id="f-fechaDenuncio" style="font-size:13.5px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Cobertura (código CAD)</label>
           <input type="text" id="f-cobertura" placeholder="CAD120130926" style="font-size:13.5px;font-weight:500;color:#002b41;font-variant-numeric:tabular-nums;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Responsable <span style="opacity:.6;text-transform:none;font-weight:500">(agente CR)</span></label>
+          <select id="f-caso" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%"><option value="">Seleccionar…</option></select>
         </div>
       </div>
 
@@ -1467,12 +1512,23 @@
         <div class="campo-hint" id="hint-banco" style="display:none"></div>
         <div class="campo-hint" id="hint-evento" style="display:none"></div>
       </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px 16px;margin-top:16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Relato de los hechos</label>
+          <textarea id="f-relato" placeholder="Breve descripción de lo sucedido…" style="font-size:13.5px;font-weight:400;line-height:1.6;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%;min-height:96px;resize:vertical"></textarea>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Observaciones</label>
+          <textarea id="f-obs" placeholder="Notas adicionales…" style="font-size:13.5px;font-weight:400;line-height:1.6;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%;min-height:96px;resize:vertical"></textarea>
+        </div>
+      </div>
     </section>
 
-    <section data-sec="gestion" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08)">
+    <section data-sec="inspeccion" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08)">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
         <span style="width:27px;height:27px;border-radius:9px;background:#e3f0f4;color:#00657e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-clipboard-check" style="font-size:15px"></i></span>
-        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Gestión del caso</span>
+        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Inspección</span>
         <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px 16px">
@@ -1497,17 +1553,25 @@
           <input type="text" id="f-liquidadorPersona" placeholder="Nombre de quien revisa el caso" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Responsable</label>
-          <select id="f-caso" style="font-size:13.5px;font-weight:500;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%"><option value="">Seleccionar…</option></select>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Correlativo / Folio</label>
           <input type="text" id="f-correlativo" placeholder="FOLIO 00000" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
       </div>
     </section>
 
-    <section data-sec="liquidacion" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08);background:#fbfdfe">
+    <section data-sec="antecedentes" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08);background:#fbfdfe">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="width:27px;height:27px;border-radius:9px;background:#eef1f3;color:#6b93a3;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-folder" style="font-size:15px"></i></span>
+        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Antecedentes</span>
+        <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
+      </div>
+      <div style="text-align:center;padding:26px 12px;color:#6b93a3;font-size:12.5px">
+        <i class="ti ti-tools" style="font-size:22px;display:block;margin-bottom:8px;opacity:.6"></i>
+        Etapa en definición — todavía no tiene campos propios.
+      </div>
+    </section>
+
+    <section data-sec="liquidacion" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08)">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
         <span style="width:27px;height:27px;border-radius:9px;background:#e2f4ec;color:#1a7a52;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-cash-banknote" style="font-size:15px"></i></span>
         <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Liquidación</span>
@@ -1527,6 +1591,12 @@
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Estado del caso</label>
           <select id="f-estado" onchange="refreshModalHeader()" style="font-size:13.5px;font-weight:600;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%"></select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Impugnación</label>
+          <select id="f-impugnacion" style="font-size:13.5px;font-weight:600;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background-color:#f6fafb;outline:none;width:100%">
+            <option value="">Sin especificar</option><option value="Si">Sí</option><option value="No">No</option>
+          </select>
         </div>
       </div>
 
@@ -1550,24 +1620,6 @@
       </div>
     </section>
 
-    <section data-sec="notas" style="padding:24px 28px 30px;border-top:1px solid rgba(0,43,65,.08)">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <span style="width:27px;height:27px;border-radius:9px;background:#e3f0f4;color:#00657e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-notes" style="font-size:15px"></i></span>
-        <span style="font-family:'Oswald',sans-serif;font-size:14.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#002b41">Relato y observaciones</span>
-        <span style="flex:1;height:1px;background:rgba(0,43,65,.09)"></span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px 16px">
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Relato de los hechos</label>
-          <textarea id="f-relato" placeholder="Breve descripción de lo sucedido…" style="font-size:13.5px;font-weight:400;line-height:1.6;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%;min-height:96px;resize:vertical"></textarea>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Observaciones</label>
-          <textarea id="f-obs" placeholder="Notas adicionales…" style="font-size:13.5px;font-weight:400;line-height:1.6;color:#002b41;padding:10px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%;min-height:96px;resize:vertical"></textarea>
-        </div>
-      </div>
-    </section>
-
   </form>
   </div>
 
@@ -1576,8 +1628,8 @@
       <i class="ti ti-history" style="font-size:15px"></i><span id="modal-lastedit-text">—</span>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-      <button type="button" class="btn-cancelar" onclick="closeModal()" style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;border:1px solid rgba(0,43,65,.2);background:#fff;color:#002b41;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
-      <button type="submit" form="case-form" id="save-btn" class="btn-guardar" style="display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;border:1px solid #00657e;background:#00657e;color:#fff7ee;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 5px 16px rgba(0,101,126,.3)"><i class="ti ti-check"></i> Guardar cambios</button>
+      <button type="button" class="btn-cancelar" id="btn-prev" onclick="prevStep()" style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;border:1px solid rgba(0,43,65,.2);background:#fff;color:#002b41;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer"><i class="ti ti-arrow-left" style="font-size:16px"></i> Anterior</button>
+      <button type="button" id="save-btn" class="btn-guardar" onclick="footerActionClick()" style="display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;border:1px solid #00657e;background:#00657e;color:#fff7ee;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 5px 16px rgba(0,101,126,.3)"><span id="save-btn-label"><i class="ti ti-arrow-right"></i> Siguiente</span></button>
     </div>
   </div>
 
@@ -1600,7 +1652,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzEVDkElSJa8qA6dPPXqe27KapbzeY690OgOYYi2yy3BNaRml3sJJYZzu9PyhymsVqZmQ/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRjEYNrznriZ0od8p9ZKK17VuBe2P85wL0BunyxY--rIUpchxDqACSTeWOMS0L8fJqvA/exec';
 
 // ── CHANGELOG POR VERSIÓN ────────────────────────────────────────────────────
 // IMPORTANTE: cada vez que se suba APP_VERSION en Código.gs, agregar aquí una
@@ -2798,6 +2850,131 @@ async function eliminarArchivo(fileId, nombre) {
   }
 }
 
+// ── EVIDENCIA DEL CASO (etapa Captación) — misma lógica que "Documentos del
+// caso" pero apuntando a la subcarpeta "Evidencia" dentro de la carpeta del
+// asegurado, para mantenerla separada de los documentos generales/contratos. ──
+async function cargarArchivosEvidencia(id) {
+  const list = document.getElementById('evidencia-list');
+  if (!list) return;
+  list.innerHTML = '<li class="docs-empty">Cargando evidencia…</li>';
+  try {
+    const url = SHEETS_URL + '?action=getArchivosEvidencia&id=' + encodeURIComponent(id);
+    const res = await jsonpOnce(url, 'cr_evid', 15000);
+    if (!res || !res.ok) { list.innerHTML = '<li class="docs-empty">No se pudo cargar la evidencia</li>'; return; }
+    renderEvidenciaList(res.archivos || []);
+  } catch(e) {
+    list.innerHTML = '<li class="docs-empty">No se pudo cargar la evidencia</li>';
+  }
+}
+
+function renderEvidenciaList(archivos) {
+  const list = document.getElementById('evidencia-list');
+  if (!list) return;
+  if (!archivos.length) { list.innerHTML = '<li class="docs-empty">Aún no hay evidencia subida.</li>'; return; }
+  list.innerHTML = archivos.map(a => {
+    const nombre = String(a.name || 'archivo');
+    return `
+    <li>
+      <i class="ti ${iconForMime(a.mime)} doc-ico"></i>
+      <span class="doc-name" title="${escapeHtml(nombre)}">${escapeHtml(nombre)}</span>
+      <span class="doc-size">${fmtBytes(a.size)}</span>
+      <button type="button" class="doc-act" title="Abrir" onclick="window.open('${a.url}','_blank')"><i class="ti ti-external-link"></i></button>
+      <button type="button" class="doc-act del" title="Eliminar" onclick="eliminarArchivoEvidencia('${String(a.id)}','${escapeHtml(nombre.replace(/'/g,''))}')"><i class="ti ti-trash"></i></button>
+    </li>`;
+  }).join('');
+}
+
+function onEvidenciaFilesSelected(ev) {
+  const files = Array.from(ev.target.files || []);
+  ev.target.value = '';
+  if (files.length) subirArchivosEvidencia(files);
+}
+
+async function subirUnArchivoEvidencia(file, casoId, nombreDestino) {
+  const nombre = nombreDestino || file.name;
+  const mime   = file.type || 'application/octet-stream';
+  try {
+    const url = SHEETS_URL
+      + '?action=iniciarSubidaEvidencia&id=' + encodeURIComponent(casoId)
+      + '&fileName=' + encodeURIComponent(nombre)
+      + '&mimeType=' + encodeURIComponent(mime);
+    const ini = await jsonpOnce(url, 'cr_evid_up', 20000);
+    if (!ini || !ini.ok || !ini.uploadUrl) throw new Error(ini?.error || 'Sin URL de subida');
+    const put = await fetch(ini.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': mime },
+      body: file
+    });
+    if (!put.ok) throw new Error('PUT ' + put.status);
+    return true;
+  } catch (e) {
+    try {
+      const dataBase64 = await fileToBase64(file);
+      await formPost(SHEETS_URL, {
+        action: 'uploadArchivoEvidencia',
+        id: String(casoId),
+        fileName: nombre,
+        mimeType: mime,
+        dataBase64
+      });
+      return true;
+    } catch (e2) {
+      return false;
+    }
+  }
+}
+
+async function subirArchivosEvidencia(files) {
+  if (!editingId) { showToast('Guarda el caso primero', 'error'); return; }
+  const casoId = editingId;
+  const validos = [];
+  let fallidos = 0;
+  Array.from(files).forEach(f => {
+    if (f.size > MAX_FILE_MB * 1024 * 1024) {
+      showToast(`"${f.name}" supera ${MAX_FILE_MB} MB y no se subió`, 'error');
+      fallidos++;
+    } else validos.push(f);
+  });
+  if (!validos.length) return;
+
+  const upBox = document.getElementById('evidencia-uploading');
+  const upTxt = document.getElementById('evidencia-uploading-txt');
+  if (upBox) upBox.style.display = 'flex';
+  let hechos = 0;
+  const marcar = () => { hechos++; if (upTxt) upTxt.textContent = `Subiendo ${hechos} de ${validos.length}…`; };
+  if (upTxt) upTxt.textContent = `Subiendo 0 de ${validos.length}…`;
+
+  let subidos = 0;
+  const cola = validos.slice();
+  const NUM_WORKERS = Math.min(5, validos.length);
+  async function worker() {
+    while (cola.length) {
+      const f = cola.shift();
+      const ok = await subirUnArchivoEvidencia(f, casoId, f.name);
+      if (ok) subidos++; else fallidos++;
+      marcar();
+    }
+  }
+  await Promise.all(Array.from({ length: NUM_WORKERS }, worker));
+
+  if (upBox) upBox.style.display = 'none';
+  if (subidos) showToast(`${subidos} archivo${subidos>1?'s':''} de evidencia subido${subidos>1?'s':''} ✓`);
+  if (fallidos && !subidos) showToast('No se pudo subir', 'error');
+  cargarArchivosEvidencia(casoId);
+}
+
+async function eliminarArchivoEvidencia(fileId, nombre) {
+  if (!editingId) return;
+  if (!confirm(`¿Eliminar "${nombre}" de la evidencia del caso?\nSe enviará a la papelera de Drive.`)) return;
+  try {
+    await formPost(SHEETS_URL, { action: 'deleteArchivoEvidencia', id: String(editingId), fileId: String(fileId) });
+    showToast('Archivo eliminado');
+    setTimeout(() => cargarArchivosEvidencia(editingId), 1400);
+  } catch(e) {
+    showToast('Error al eliminar', 'error');
+  }
+}
+
 // Drag & drop sobre la zona de subida
 (function initDropzone(){
   document.addEventListener('DOMContentLoaded', () => {
@@ -2879,10 +3056,12 @@ function openModal(prefill) {
   document.getElementById('modal-title-text').textContent = prefill ? 'Editar caso' : 'Nuevo caso';
   if (typeof fillCaseSelects === 'function') fillCaseSelects(prefill || null);
   if(prefill) {
-    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento','inspector','estado','emailSecundario','telefonoSecundario','serieCedula','telefonoInspector','liquidadorPersona']
+    ['nombre','rut','email','dir','comuna','ciudad','banco','siniestro','liquidador','caso','correlativo','cobertura','obs','relato','telefono','nrosin','tratamiento','inspector','estado','emailSecundario','telefonoSecundario','serieCedula','telefonoInspector','liquidadorPersona','numeroAtencion','problema','impugnacion']
       .forEach(f => { const el=document.getElementById('f-'+f); if(el) el.value=prefill[f]||''; });
     const fs = document.getElementById('f-fechaSiniestro');
     if(fs) fs.value = toDateInput(prefill.fechaSiniestro);
+    const fd = document.getElementById('f-fechaDenuncio');
+    if(fd) fd.value = toDateInput(prefill.fechaDenuncio);
     const fa = document.getElementById('f-fechaAgendamiento');
     if(fa) fa.value = toDateTimeInput(prefill.fechaAgendamiento);
     document.getElementById('f-monto').value = prefill.monto || '';
@@ -2898,12 +3077,146 @@ function openModal(prefill) {
   refreshModalHeader();
   updateResumenLive();
   renderModalFooterMeta(prefill);
-  // Reinicia la vista del modal en la pestaña "Titular" cada vez que se abre
+  // "Nuevo caso": solo Captación queda habilitada; al editar, las 5 etapas
+  // quedan disponibles (Antecedentes siempre deshabilitada, sin campos aún).
+  currentStep = 0;
+  updateEvidenciaUI(prefill);
+  renderChevrons();
+  renderStepBody();
   const scroller = document.getElementById('modal-scroller');
   if (scroller) scroller.scrollTop = 0;
-  const firstTab = document.querySelector('#modal-tabs button[data-tab="titular"]');
-  if (firstTab) modalGoTab('titular', firstTab);
   document.getElementById('modal-backdrop').classList.add('open');
+}
+
+// ── Configuración del stepper: 5 etapas, en el mismo orden que el diagrama ──
+const STEP_DEFS = [
+  { sec: 'captacion',    name: 'Captación' },
+  { sec: 'denuncio',     name: 'Denuncio' },
+  { sec: 'inspeccion',   name: 'Inspección' },
+  { sec: 'antecedentes', name: 'Antecedentes', alwaysDisabled: true }, // sin campos propios todavía
+  { sec: 'liquidacion',  name: 'Liquidación' },
+];
+let currentStep = 0;
+
+// "Nuevo caso" (sin editingId aún) limita el stepper a solo Captación —
+// las demás etapas se muestran pero deshabilitadas hasta guardar el caso.
+function isStepDisabled(i) {
+  if (STEP_DEFS[i].alwaysDisabled) return true;
+  if (!editingId && i !== 0) return true;
+  return false;
+}
+
+// ── Si una etapa (aparte de la activa) ya tiene datos cargados, se pinta
+// como "Completo" — esto refleja el estado real del caso, no solo si el
+// usuario navegó por ahí en esta sesión (el modal siempre reabre en el
+// paso 1, así que basarse en la navegación se vería siempre "vacío"). ──
+function stepHasData(i) {
+  const val = id => document.getElementById('f-' + id)?.value || '';
+  switch (STEP_DEFS[i].sec) {
+    case 'captacion':    return !!val('nombre');
+    case 'denuncio':     return !!(val('nrosin') || val('numeroAtencion') || val('relato') || val('fechaDenuncio'));
+    case 'inspeccion':   return !!(val('fechaAgendamiento') || val('inspector') || val('correlativo'));
+    case 'antecedentes': return false;
+    case 'liquidacion':  return !!(val('monto') || val('estado') === 'Pagado');
+    default: return false;
+  }
+}
+
+function stepClass(i) {
+  if (isStepDisabled(i)) return 'disabled';
+  if (i === currentStep) return 'active';
+  if (stepHasData(i)) return 'done';
+  return 'pending';
+}
+function stepStatusText(i) {
+  if (isStepDisabled(i)) return 'Pendiente';
+  if (i === currentStep) return 'En curso';
+  if (stepHasData(i)) return 'Completo';
+  return 'Pendiente';
+}
+
+function renderChevrons() {
+  const box = document.getElementById('modal-tabs');
+  if (!box) return;
+  box.innerHTML = STEP_DEFS.map((s, i) => {
+    const cls = stepClass(i);
+    const mark = cls === 'done'
+      ? '<i class="ti ti-check" style="font-size:17px;flex-shrink:0"></i>'
+      : '<span class="cnum">' + (i + 1) + '</span>';
+    return '<div class="chev ' + cls + '" data-i="' + i + '">' + mark +
+      '<div style="min-width:0"><div class="cname">' + s.name + '</div>' +
+      '<div class="cstatus">' + stepStatusText(i) + '</div></div></div>';
+  }).join('');
+  box.querySelectorAll('.chev').forEach(el => {
+    el.addEventListener('click', () => goToStep(+el.dataset.i));
+  });
+  const hint = document.getElementById('modal-nuevo-hint');
+  if (hint) hint.style.display = editingId ? 'none' : 'block';
+  const docsActions = document.getElementById('captacion-docs-actions');
+  if (docsActions) docsActions.style.display = editingId ? 'flex' : 'none';
+}
+
+function renderStepBody() {
+  document.querySelectorAll('#case-form section[data-sec]').forEach(sec => {
+    sec.classList.toggle('step-hidden', sec.getAttribute('data-sec') !== STEP_DEFS[currentStep].sec);
+  });
+  const isLast = isLastEnabledStep(currentStep);
+  document.getElementById('btn-prev').disabled = (currentStep === firstEnabledStep());
+  document.getElementById('save-btn-label').innerHTML = isLast
+    ? '<i class="ti ti-check"></i> Guardar cambios'
+    : '<i class="ti ti-arrow-right"></i> Siguiente';
+}
+
+function firstEnabledStep() {
+  for (let i = 0; i < STEP_DEFS.length; i++) if (!isStepDisabled(i)) return i;
+  return 0;
+}
+function lastEnabledStep() {
+  for (let i = STEP_DEFS.length - 1; i >= 0; i--) if (!isStepDisabled(i)) return i;
+  return 0;
+}
+function isLastEnabledStep(i) { return i === lastEnabledStep(); }
+
+function goToStep(i) {
+  if (i < 0 || i >= STEP_DEFS.length || isStepDisabled(i)) return;
+  currentStep = i;
+  renderChevrons();
+  renderStepBody();
+  const scroller = document.getElementById('modal-scroller');
+  if (scroller) scroller.scrollTop = 0;
+}
+function nextStep() {
+  let i = currentStep;
+  do { i++; } while (i < STEP_DEFS.length && isStepDisabled(i));
+  if (i < STEP_DEFS.length) goToStep(i);
+}
+function prevStep() {
+  let i = currentStep;
+  do { i--; } while (i >= 0 && isStepDisabled(i));
+  if (i >= 0) goToStep(i);
+}
+
+// ── Botón principal del footer: "Siguiente" navega, en la última etapa
+// habilitada dispara el guardado real (mismo saveCase() de siempre). ──
+function footerActionClick() {
+  if (isLastEnabledStep(currentStep)) {
+    document.getElementById('case-form').requestSubmit();
+  } else {
+    nextStep();
+  }
+}
+
+// ── Evidencia del caso (Captación): solo se puede subir una vez el caso existe ──
+function updateEvidenciaUI(prefill) {
+  const btn = document.getElementById('evidencia-upload-btn');
+  const list = document.getElementById('evidencia-list');
+  if (prefill && prefill.id) {
+    if (btn) btn.style.display = 'inline-flex';
+    cargarArchivosEvidencia(prefill.id);
+  } else {
+    if (btn) btn.style.display = 'none';
+    if (list) list.innerHTML = '<li class="docs-empty">Guarda el caso primero para poder subir evidencia.</li>';
+  }
 }
 
 // ── Cabecera dinámica del modal (nombre, N° siniestro, badges RUT/banco/estado) ──
@@ -2961,22 +3274,6 @@ function updateResumenLive() {
   set('resumen-retiro',   retiro   ? fmtCLP(retiro)   : '—');
 }
 
-// ── Navegación entre pestañas del modal (scroll suave a cada sección) ──
-function modalGoTab(sec, btn) {
-  const box = document.getElementById('modal-scroller');
-  const el  = box?.querySelector('[data-sec="' + sec + '"]');
-  if (box && el) {
-    const target = Math.max(0, el.offsetTop - 4);
-    if (typeof box.scrollTo === 'function') box.scrollTo({ top: target, behavior: 'smooth' });
-    else box.scrollTop = target;
-  }
-  document.querySelectorAll('#modal-tabs .modal-tab').forEach(b => {
-    b.style.color = '#8fc0cf';
-    b.style.borderBottomColor = 'transparent';
-  });
-  if (btn) { btn.style.color = '#fff7ee'; btn.style.borderBottomColor = 'rgba(255,247,238,.5)'; }
-}
-
 // ── Texto de "última edición" en el pie del modal ──
 function renderModalFooterMeta(prefill) {
   const el = document.getElementById('modal-lastedit-text');
@@ -2998,7 +3295,8 @@ function closeModalOutside(e) { if(e.target===document.getElementById('modal-bac
 async function saveCase(e) {
   e.preventDefault();
   const btn = document.getElementById('save-btn');
-  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Guardando…';
+  const label = document.getElementById('save-btn-label');
+  btn.disabled=true; if (label) label.innerHTML='<i class="ti ti-loader"></i> Guardando…';
   const monto    = parseFloat(document.getElementById('f-monto').value)||null;
   const pct      = parseFloat(document.getElementById('f-porcentaje').value)||0.25;
   const comision = monto ? monto*pct : null;
@@ -3032,6 +3330,10 @@ async function saveCase(e) {
     serieCedula: document.getElementById('f-serieCedula')?.value || '',
     telefonoInspector: document.getElementById('f-telefonoInspector')?.value || '',
     liquidadorPersona: document.getElementById('f-liquidadorPersona')?.value || '',
+    numeroAtencion: document.getElementById('f-numeroAtencion')?.value || '',
+    problema:       document.getElementById('f-problema')?.value || '',
+    impugnacion:    document.getElementById('f-impugnacion')?.value || '',
+    fechaDenuncio:  document.getElementById('f-fechaDenuncio')?.value || '',
   };
   try {
     if(editingId) {
@@ -3042,16 +3344,40 @@ async function saveCase(e) {
       if (estadoSel) payload.estado = estadoSel;
       await apiCall(payload);
       showToast('Caso actualizado ✓');
+      closeModal();
     } else {
+      const rutNuevo = data.rut;
       await apiCall({action:'add', ...data, estado:'Pendiente denuncio'});
-      showToast('Caso agregado ✓');
+      // No cerramos el modal: pasamos a modo edición para que se puedan
+      // completar las siguientes etapas (Denuncio, Inspección, etc.) sin
+      // tener que reabrir el caso desde la lista.
+      const creado = encontrarCasoReciente(rutNuevo);
+      if (creado) {
+        showToast('Caso creado ✓ — continúa con las siguientes etapas');
+        openModal(creado);
+      } else {
+        showToast('Caso agregado ✓');
+        closeModal();
+      }
     }
-    closeModal();
   } catch(err) {
     showToast('Error al guardar','error');
   } finally {
-    btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Guardar';
+    btn.disabled=false;
+    renderChevrons();
+    renderStepBody();
   }
+}
+
+// Tras crear un caso, apiCall() ya recargó `cases` desde la Hoja. Como la
+// subida usa fetch no-cors (no se puede leer el id devuelto por el backend),
+// ubicamos el caso recién creado por RUT + el id más reciente (los id son
+// 'CR-' + timestamp, así que el mayor numéricamente es el más nuevo).
+function encontrarCasoReciente(rut) {
+  const candidatos = cases.filter(c => String(c.rut || '').trim() === String(rut || '').trim());
+  if (!candidatos.length) return null;
+  candidatos.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+  return candidatos[0];
 }
 
 // ── ESTADOS PERSONALIZADOS ────────────────────────────────────────────────────
