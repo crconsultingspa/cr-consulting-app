@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#002b41">
+<script src="config.js"></script>
 <title>Inspección de Terreno · CR Consulting</title>
 <link rel="icon" type="image/png" href="https://i.imgur.com/USzJtPh.png">
 <link rel="apple-touch-icon" href="https://i.imgur.com/USzJtPh.png">
@@ -236,7 +237,7 @@ textarea{resize:vertical;min-height:70px;font-family:inherit;line-height:1.5}
 // ─────────────────────────────────────────────────────────────────────────
 // Config y utilidades compartidas con el dashboard
 // ─────────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzEVDkElSJa8qA6dPPXqe27KapbzeY690OgOYYi2yy3BNaRml3sJJYZzu9PyhymsVqZmQ/exec';
+const SHEETS_URL = window.SHEETS_URL;
 
 function escapeHtml(t) {
   return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
