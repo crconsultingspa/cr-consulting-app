@@ -1652,7 +1652,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRjEYNrznriZ0od8p9ZKK17VuBe2P85wL0BunyxY--rIUpchxDqACSTeWOMS0L8fJqvA/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxyBMEdgpPMN80IGd0ceAk2v8GsB6L1Nr7lGlaTPH3ERTwqxd7zeEoG82ESTvTJy80W7Q/exec';
 
 // ── CHANGELOG POR VERSIÓN ────────────────────────────────────────────────────
 // IMPORTANTE: cada vez que se suba APP_VERSION en Código.gs, agregar aquí una
@@ -4181,6 +4181,12 @@ function showMandatoStatus(msg, type) {
           <option value="Industrial">Industrial</option>
         </select>
       </div>
+      <div class="form-group"><label>N° de Póliza</label>
+        <input type="text" id="ct-poliza" placeholder="123456789"/>
+      </div>
+      <div class="form-group"><label>Compañía Aseguradora</label>
+        <input type="text" id="ct-aseguradora" placeholder="HDI Seguros"/>
+      </div>
       <div class="form-group"><label>Fecha del contrato</label>
         <input type="text" id="ct-fecha" placeholder="15 de Abril de 2026"/>
         <span style="font-size:10px;color:var(--text-3)">Ej: 15 de Abril de 2026</span>
@@ -4239,8 +4245,10 @@ function openContrato(id) {
   const pctSel = document.getElementById('ct-porcentaje');
   pctSel.value = [25, 20, 15].includes(pct) ? String(pct) : '25';
 
-  // Solo limpiar fecha
-  document.getElementById('ct-fecha').value  = '';
+  // Solo limpiar fecha, poliza y aseguradora (no se guardan en el caso)
+  document.getElementById('ct-fecha').value       = '';
+  document.getElementById('ct-poliza').value      = '';
+  document.getElementById('ct-aseguradora').value = '';
 
   // Reset status y botón
   const st = document.getElementById('contrato-status');
@@ -4268,6 +4276,8 @@ async function generarContrato() {
   const siniestro   = document.getElementById('ct-siniestro').value;
   const tipoprop    = document.getElementById('ct-tipoprop').value;
   const porcentaje  = document.getElementById('ct-porcentaje').value;
+  const poliza      = document.getElementById('ct-poliza').value.trim();
+  const aseguradora = document.getElementById('ct-aseguradora').value.trim();
 
   if (!fecha)  return showContratoStatus('Ingresa la fecha del contrato.', 'error');
   if (!comuna) return showContratoStatus('Ingresa la comuna.', 'error');
@@ -4288,7 +4298,8 @@ async function generarContrato() {
       telefono, email, banco,
       tipoSiniestro: siniestro,
       tipoPropiedad: tipoprop,
-      porcentaje
+      porcentaje,
+      poliza, aseguradora
     });
     await new Promise(r => setTimeout(r, 3000));
     showContratoStatus('✓ Contrato generado y guardado en la carpeta Drive del asegurado.', 'success');
