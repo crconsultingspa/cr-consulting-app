@@ -9,4 +9,4 @@
 // (Gestionar implementaciones → lápiz → Nueva versión → Implementar), la URL
 // NO cambia y no hace falta editar nada de esto.
 // ─────────────────────────────────────────────────────────────────────────────
-window.SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRjEYNrznriZ0od8p9ZKK17VuBe2P85wL0BunyxY--rIUpchxDqACSTeWOMS0L8fJqvA/exec';
+window.SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxNqrOUp_Z-LbmBXj_5pUg2zhI_b8zBP-ppNwjgm7TJI5RP0O2PKejNaDUvV4sK32QxAw/exec';
