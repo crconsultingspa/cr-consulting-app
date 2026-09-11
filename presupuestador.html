@@ -638,7 +638,7 @@ let DB=[
 const PARTIDAS_SHEET_ID='1PEVPvNUiTXXOEviVi_BRX-5ZEq3ysngE';
 const PARTIDAS_EXPORT_URL='https://docs.google.com/spreadsheets/d/'+PARTIDAS_SHEET_ID+'/export?format=xlsx';
 let S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0,showGG:true,showIVA:true};
-let chk={},cachedDet={},cachedU={},cachedQ={},cachedP={},cachedL={},cachedA={},cachedObs={};
+let chk={},chkOrder=[],cachedDet={},cachedU={},cachedQ={},cachedP={},cachedL={},cachedA={},cachedObs={};
 // ── Duplicados de partidas seleccionadas ──
 // dupOf[idxBase] = [key1, key2, ...] -> claves de las copias de esa partida base
 // dupBase[key] = idxBase -> a qué partida del catálogo (DB) pertenece esa copia
@@ -777,18 +777,21 @@ function toggleChk(idx){
   chk[idx]=!chk[idx];
   if(!chk[idx]){
     delete chk[idx];
+    chkOrder=chkOrder.filter(function(k){return k!==idx;});
     // Al destildar la partida base se eliminan también sus copias duplicadas
     (dupOf[idx]||[]).forEach(function(k){
       delete dupBase[k];
       delete cachedDet[k];delete cachedU[k];delete cachedQ[k];delete cachedP[k];delete cachedL[k];delete cachedA[k];delete cachedObs[k];
     });
     delete dupOf[idx];
+  }else{
+    chkOrder.push(idx);
   }
   renderSelPartidas();
 }
 // Refs de todas las filas visibles (partida base + sus duplicados), para guardar/leer su estado del DOM
 function allRefs(){
-  const keys=Object.keys(chk).map(Number);
+  const keys=chkOrder.slice();
   const refs=[...keys];
   keys.forEach(function(idx){ (dupOf[idx]||[]).forEach(function(k){ refs.push(k); }); });
   return refs;
@@ -798,7 +801,7 @@ function refToBase(ref){
   return dupBase[ref]!==undefined ? dupBase[ref] : Number(ref);
 }
 function renderSelPartidas(){
-  const keys=Object.keys(chk).map(Number);
+  const keys=chkOrder.slice();
   const cont=document.getElementById('sel-cont'),lst=document.getElementById('sel-list');
   if(!keys.length){cont.style.display='none';return;}
   cont.style.display='block';
@@ -860,7 +863,7 @@ function eliminarDuplicado(key){
 }
 function copiarAbajo(idx){
   savePickerState();
-  const keys=Object.keys(chk).map(Number),pos=keys.indexOf(idx);
+  const keys=chkOrder,pos=keys.indexOf(idx);
   if(pos<0||pos>=keys.length-1)return;
   const n=keys[pos+1];
   cachedQ[n]=(cachedQ[idx]||'');cachedU[n]=(cachedU[idx]||DB[idx].u);
@@ -869,7 +872,7 @@ function copiarAbajo(idx){
 }
 function copiarATodas(idx){
   savePickerState();
-  const keys=Object.keys(chk).map(Number),pos=keys.indexOf(idx);
+  const keys=chkOrder,pos=keys.indexOf(idx);
   if(pos<0)return;
   for(let i=pos+1;i<keys.length;i++){
     const n=keys[i];
@@ -895,7 +898,7 @@ function updateSpTot(ref){
   document.getElementById('sp-'+ref+'-tot').textContent='Total: '+fmt(q*p);
 }
 function abrirModalRecinto(rid){
-  editRid=rid;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};dupOf={};dupBase={};
+  editRid=rid;chk={};chkOrder=[];cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};dupOf={};dupBase={};
   if(rid===null){document.getElementById('modal-recinto-title').textContent='Agregar Recinto';document.getElementById('mr-nombre').value='';}
   else{const r=S.recintos.find(x=>x.id===rid);document.getElementById('modal-recinto-title').textContent='Anadir a: '+r.nombre;document.getElementById('mr-nombre').value=r.nombre;}
   document.getElementById('mr-search').value='';
@@ -908,7 +911,7 @@ function confirmarRecinto(){
   const nombre=document.getElementById('mr-nombre').value.trim();
   if(!nombre) return alert('Ingresa el nombre del recinto.');
   savePickerState();
-  const keys=Object.keys(chk).map(Number);
+  const keys=chkOrder.slice();
   if(!keys.length) return alert('Selecciona al menos una partida.');
   const nuevas=[];
   const filas=[];
@@ -1213,7 +1216,7 @@ function toggleNoInflar(rid,pid){
   p.noInflar=!p.noInflar;renderResumen();
 }
 function abrirModalFinal(){
-  editRid=null;chk={};cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};dupOf={};dupBase={};
+  editRid=null;chk={};chkOrder=[];cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};dupOf={};dupBase={};
   document.getElementById('mr-nombre').value='Proteccion / Logistica';
   document.getElementById('mr-search').value='';
   document.getElementById('sel-cont').style.display='none';
