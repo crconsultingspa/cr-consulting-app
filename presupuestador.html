@@ -646,6 +646,7 @@ let chk={},chkOrder=[],cachedDet={},cachedU={},cachedQ={},cachedP={},cachedL={},
 // dupBase[key] = idxBase -> a qué partida del catálogo (DB) pertenece esa copia
 let dupOf={},dupBase={},dupCtr=0;
 let editRid=null,editPid=null,pidCtr=1,ridCtr=1,activeCap='Todos',activeLiq='Todos';
+let selMode={},selPids={},clipboardPartidas=null;
 let dbActiveCap='Todos',dbEditIdx=null,logoPngB64=null;
 let casosCache=null;
 
@@ -945,20 +946,39 @@ function renderRecintos(){
   if(!S.recintos.length){c.innerHTML='<div class="empty"><div class="empty-icon"><i class="ti ti-tools"></i></div><div class="empty-txt">No hay recintos aún.<br>Pulsa "Agregar recinto" para comenzar.</div></div>';return;}
   c.innerHTML=S.recintos.map((r,ri)=>{
     const sub=r.partidas.reduce((s,p)=>s+p.total,0);
+    const isSel=!!selMode[r.id];
+    const selCount=isSel?Object.keys(selPids[r.id]||{}).length:0;
+    const pegarBtn=(!isSel&&clipboardPartidas&&clipboardPartidas.length)?'<button class="btn-sm btn-sm-teal" onclick="pegarPartidas('+r.id+')" title="Pegar '+clipboardPartidas.length+' partida'+(clipboardPartidas.length!==1?'s':'')+' copiada'+(clipboardPartidas.length!==1?'s':'')+'"><i class="ti ti-clipboard"></i> Pegar ('+clipboardPartidas.length+')</button>':'';
     const head='<div class="rc-hdr"><div><div class="rc-name">'+esc(r.nombre.toUpperCase())+'</div><div class="rc-meta">'+r.partidas.length+' partida'+(r.partidas.length!==1?'s':'')+' · '+fmt(sub)+'</div></div>'+
       '<div class="rc-actions">'+
         '<div class="ord-col"><button class="ord-btn" onclick="moverRecinto('+r.id+',-1)" title="Subir recinto"><i class="ti ti-chevron-up"></i></button><button class="ord-btn" onclick="moverRecinto('+r.id+',1)" title="Bajar recinto"><i class="ti ti-chevron-down"></i></button></div>'+
+        '<button class="btn-sm '+(isSel?'btn-sm-teal':'btn-sm-sec')+'" onclick="toggleSelMode('+r.id+')" title="'+(isSel?'Cancelar selección':'Seleccionar partidas para copiar')+'"><i class="ti '+(isSel?'ti-x':'ti-list-check')+'"></i></button>'+
+        pegarBtn+
+        '<button class="btn-sm btn-sm-sec" onclick="duplicarRecinto('+r.id+')" title="Duplicar recinto completo (copia todas sus partidas, precios y cantidades a uno nuevo)"><i class="ti ti-copy"></i></button>'+
         '<button class="btn-sm btn-sm-red" onclick="eliminarRecinto('+r.id+')" title="Eliminar recinto"><i class="ti ti-trash"></i></button>'+
       '</div></div>';
-    const filas=r.partidas.length?r.partidas.map(p=>'<div class="prow">'+
-        '<div class="ord-col"><button class="ord-btn" onclick="moverPartida('+r.id+','+p.id+',-1)" title="Subir"><i class="ti ti-chevron-up"></i></button><button class="ord-btn" onclick="moverPartida('+r.id+','+p.id+',1)" title="Bajar"><i class="ti ti-chevron-down"></i></button></div>'+
-        '<div style="flex:1"><div class="prow-det">'+esc(p.detalle)+'</div>'+(p.obs?'<div class="prow-obs">'+esc(p.obs)+'</div>':'')+'</div>'+
-        '<span class="prow-un">'+esc((p.unidad||'').toUpperCase())+'</span>'+
-        '<span class="prow-qty">'+p.cantidad+'</span>'+
-        '<span class="prow-tot">'+fmt(p.total)+'</span>'+
-        '<div class="prow-btns"><button class="btn-sm btn-sm-sec" style="padding:5px 7px;" onclick="abrirEditPartida('+r.id+','+p.id+')"><i class="ti ti-pencil"></i></button><button class="btn-sm btn-sm-red" style="padding:5px 7px;" onclick="eliminarPartida('+r.id+','+p.id+')"><i class="ti ti-x"></i></button></div>'+
-      '</div>').join(''):'<div style="padding:14px;text-align:center;color:var(--text-3);font-size:11.5px;">Recinto sin partidas. Usa los botones de abajo.</div>';
-    const foot='<div class="rc-foot-actions">'+
+    const filas=r.partidas.length?r.partidas.map(p=>{
+        const checked=isSel&&selPids[r.id]&&selPids[r.id][p.id];
+        const leftCol=isSel
+          ?'<div class="ord-col" style="align-items:center;justify-content:center;"><input type="checkbox" style="width:15px;height:15px;cursor:pointer;" '+(checked?'checked':'')+' onchange="toggleSelPid('+r.id+','+p.id+')"></div>'
+          :'<div class="ord-col"><button class="ord-btn" onclick="moverPartida('+r.id+','+p.id+',-1)" title="Subir"><i class="ti ti-chevron-up"></i></button><button class="ord-btn" onclick="moverPartida('+r.id+','+p.id+',1)" title="Bajar"><i class="ti ti-chevron-down"></i></button></div>';
+        const rightBtns=isSel?'':'<div class="prow-btns"><button class="btn-sm btn-sm-sec" style="padding:5px 7px;" onclick="abrirEditPartida('+r.id+','+p.id+')"><i class="ti ti-pencil"></i></button><button class="btn-sm btn-sm-red" style="padding:5px 7px;" onclick="eliminarPartida('+r.id+','+p.id+')"><i class="ti ti-x"></i></button></div>';
+        return'<div class="prow"'+(checked?' style="background:var(--teal-soft)"':'')+'>'+
+          leftCol+
+          '<div style="flex:1"><div class="prow-det">'+esc(p.detalle)+'</div>'+(p.obs?'<div class="prow-obs">'+esc(p.obs)+'</div>':'')+'</div>'+
+          '<span class="prow-un">'+esc((p.unidad||'').toUpperCase())+'</span>'+
+          '<span class="prow-qty">'+p.cantidad+'</span>'+
+          '<span class="prow-tot">'+fmt(p.total)+'</span>'+
+          rightBtns+
+        '</div>';
+      }).join(''):'<div style="padding:14px;text-align:center;color:var(--text-3);font-size:11.5px;">Recinto sin partidas. Usa los botones de abajo.</div>';
+    const foot=isSel
+      ?'<div class="rc-foot-actions">'+
+        '<div style="font-size:12px;font-weight:700;color:var(--teal);">'+selCount+' seleccionada'+(selCount!==1?'s':'')+'</div>'+
+        '<button class="btn-sm btn-sm-teal" onclick="copiarSeleccion('+r.id+')"><i class="ti ti-copy"></i> Copiar</button>'+
+        '<button class="btn-sm btn-sm-sec" onclick="toggleSelMode('+r.id+')">Cancelar</button>'+
+      '</div>'
+      :'<div class="rc-foot-actions">'+
         '<button class="cube-btn" onclick="abrirModalRecinto('+r.id+')"><i class="ti ti-plus"></i><span>Añadir<br>partida</span></button>'+
         '<button class="cube-btn cube-sec" onclick="agregarPartidaBlanco('+r.id+')"><i class="ti ti-square-plus"></i><span>En<br>blanco</span></button>'+
         '<div style="margin-left:auto;text-align:right;"><div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Subtotal</div><div style="font-family:var(--disp);font-size:18px;color:var(--navy);font-weight:600;">'+fmt(sub)+'</div></div>'+
@@ -971,6 +991,43 @@ function moverRecinto(rid,dir){
   const i=S.recintos.findIndex(r=>r.id===rid),j=i+dir;
   if(j<0||j>=S.recintos.length)return;
   const tmp=S.recintos[i];S.recintos[i]=S.recintos[j];S.recintos[j]=tmp;renderRecintos();
+}
+// Copia un recinto completo (todas sus partidas, con precios, unidad, cantidad, obs, etc.) a un recinto nuevo
+function duplicarRecinto(rid){
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  const nombre=(prompt('Nombre para el recinto copiado:',r.nombre+' (copia)')||'').trim();
+  if(!nombre)return;
+  const partidas=r.partidas.map(function(p){return Object.assign({},p,{id:pidCtr++});});
+  S.recintos.push({id:ridCtr++,nombre,partidas});
+  renderRecintos();
+}
+// ── Copiar/pegar partidas sueltas entre recintos ──
+function toggleSelMode(rid){
+  selMode[rid]=!selMode[rid];
+  if(!selMode[rid])delete selPids[rid];else selPids[rid]={};
+  renderRecintos();
+}
+function toggleSelPid(rid,pid){
+  if(!selPids[rid])selPids[rid]={};
+  if(selPids[rid][pid])delete selPids[rid][pid];else selPids[rid][pid]=true;
+  renderRecintos();
+}
+function copiarSeleccion(rid){
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  const ids=selPids[rid]||{};
+  const partidas=r.partidas.filter(function(p){return ids[p.id];});
+  if(!partidas.length){alert('Selecciona al menos una partida.');return;}
+  clipboardPartidas=partidas.map(function(p){const c=Object.assign({},p);delete c.id;return c;});
+  selMode[rid]=false;delete selPids[rid];
+  renderRecintos();
+  alert(clipboardPartidas.length+' partida'+(clipboardPartidas.length!==1?'s':'')+' copiada'+(clipboardPartidas.length!==1?'s':'')+'. Ve al recinto donde quieras pegarlas (o crea uno nuevo) y presiona "Pegar".');
+}
+function pegarPartidas(rid){
+  if(!clipboardPartidas||!clipboardPartidas.length){alert('No hay partidas copiadas todavía. Usa el botón de selección en un recinto primero.');return;}
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  const nuevas=clipboardPartidas.map(function(p){return Object.assign({},p,{id:pidCtr++});});
+  r.partidas=[...r.partidas,...nuevas];
+  renderRecintos();
 }
 function moverPartida(rid,pid,dir){
   const ri=S.recintos.findIndex(r=>r.id===rid);if(ri<0)return;
@@ -1359,6 +1416,6 @@ renderRecintos();
 cargarDBdesdeDrive();
 renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v25 · 09/2026</div>
+<div class="version-tag">CR Consulting · v27 · 09/2026</div>
 </body>
 </html>
