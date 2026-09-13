@@ -406,6 +406,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
       </datalist>
     </div>
     <div class="ig"><label>Categoria</label><div class="cap-tabs" id="cap-tabs"></div></div>
+    <div class="ig"><label>Liquidadora</label><div class="cap-tabs" id="liq-tabs"></div></div>
     <div class="sw"><span class="sw-ico"><i class="ti ti-search"></i></span><input type="text" id="mr-search" placeholder="Buscar partida..." oninput="filtrarPicker()"></div>
     <div class="picker-list" id="modal-picker-list"></div>
     <div id="sel-cont" style="display:none;margin-top:12px;">
@@ -634,6 +635,7 @@ let DB=[
 </script>
 <script>
  CAPS=()=>[...new Set(DB.map(x=>x.c))];
+ LIQS=()=>[...new Set(DB.map(x=>x.l).filter(Boolean))];
  const SHEETS_URL=window.SHEETS_URL;
 const PARTIDAS_SHEET_ID='1PEVPvNUiTXXOEviVi_BRX-5ZEq3ysngE';
 const PARTIDAS_EXPORT_URL='https://docs.google.com/spreadsheets/d/'+PARTIDAS_SHEET_ID+'/export?format=xlsx';
@@ -643,7 +645,7 @@ let chk={},chkOrder=[],cachedDet={},cachedU={},cachedQ={},cachedP={},cachedL={},
 // dupOf[idxBase] = [key1, key2, ...] -> claves de las copias de esa partida base
 // dupBase[key] = idxBase -> a qué partida del catálogo (DB) pertenece esa copia
 let dupOf={},dupBase={},dupCtr=0;
-let editRid=null,editPid=null,pidCtr=1,ridCtr=1,activeCap='Todos';
+let editRid=null,editPid=null,pidCtr=1,ridCtr=1,activeCap='Todos',activeLiq='Todos';
 let dbActiveCap='Todos',dbEditIdx=null,logoPngB64=null;
 let casosCache=null;
 
@@ -755,6 +757,11 @@ function renderCapTabs(){
   el.innerHTML=['Todos',...CAPS()].map(c=>'<div class="cap-tab'+(c===activeCap?' active':'')+'" onclick="selectCap(\''+c.replace(/'/g,"\\'")+'\')">' +c+'</div>').join('');
 }
 function selectCap(c){savePickerState();activeCap=c;renderCapTabs();renderPicker(document.getElementById('mr-search').value);}
+function renderLiqTabs(){
+  const el=document.getElementById('liq-tabs');
+  el.innerHTML=['Todos',...LIQS()].map(l=>'<div class="cap-tab'+(l===activeLiq?' active':'')+'" onclick="selectLiq(\''+l.replace(/'/g,"\\'")+'\')">' +l+'</div>').join('');
+}
+function selectLiq(l){savePickerState();activeLiq=l;renderLiqTabs();renderPicker(document.getElementById('mr-search').value);}
 function filtrarPicker(){savePickerState();renderPicker(document.getElementById('mr-search').value);}
 function savePickerState(){
   const map={det:cachedDet,u:cachedU,q:cachedQ,p:cachedP,l:cachedL,a:cachedA,obs:cachedObs};
@@ -765,7 +772,7 @@ function savePickerState(){
 function renderPicker(q){
   const el=document.getElementById('modal-picker-list');
   const ql=q.toLowerCase();
-  const filtered=DB.filter(p=>(activeCap==='Todos'||p.c===activeCap)&&(p.d.toLowerCase().includes(ql)||p.c.toLowerCase().includes(ql)));
+  const filtered=DB.filter(p=>(activeCap==='Todos'||p.c===activeCap)&&(activeLiq==='Todos'||p.l===activeLiq)&&(p.d.toLowerCase().includes(ql)||p.c.toLowerCase().includes(ql)));
   if(!filtered.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px;">Sin resultados</div>';return;}
   el.innerHTML=filtered.map(p=>{
     const idx=DB.indexOf(p);
@@ -904,7 +911,7 @@ function abrirModalRecinto(rid){
   document.getElementById('mr-search').value='';
   document.getElementById('sel-cont').style.display='none';
   document.getElementById('sel-list').innerHTML='';
-  activeCap='Todos';renderCapTabs();renderPicker('');
+  activeCap='Todos';activeLiq='Todos';renderCapTabs();renderLiqTabs();renderPicker('');
   document.getElementById('modal-recinto').classList.add('open');
 }
 function confirmarRecinto(){
@@ -1221,9 +1228,9 @@ function abrirModalFinal(){
   document.getElementById('mr-search').value='';
   document.getElementById('sel-cont').style.display='none';
   document.getElementById('sel-list').innerHTML='';
-  activeCap='Proteccion / Logistica';
+  activeCap='Proteccion / Logistica';activeLiq='Todos';
   document.getElementById('modal-recinto-title').textContent='Agregar partidas finales';
-  renderCapTabs();renderPicker('');
+  renderCapTabs();renderLiqTabs();renderPicker('');
   document.getElementById('modal-recinto').classList.add('open');
 }
 function getObservaciones(){
@@ -1352,6 +1359,6 @@ renderRecintos();
 cargarDBdesdeDrive();
 renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v24 · 09/2026</div>
+<div class="version-tag">CR Consulting · v25 · 09/2026</div>
 </body>
 </html>
