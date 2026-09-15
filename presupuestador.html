@@ -1316,6 +1316,8 @@ function cargarLogoPNG(input){
 const LOGO_FALLBACK='<svg width="70" height="80" viewBox="0 0 100 115" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00657e"/><stop offset="100%" stop-color="#002b41"/></linearGradient></defs><path d="M50 4 L92 22 L92 58 C92 80 73 98 50 107 C27 98 8 80 8 58 L8 22 Z" fill="url(#lg)" stroke="#fff7ee" stroke-width="1.5"/><g fill="none" stroke="#fff7ee" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="28,58 50,35 72,58"/><polyline points="36,58 36,76 64,76 64,58"/><line x1="44" y1="76" x2="44" y2="63"/><line x1="56" y1="76" x2="56" y2="63"/><line x1="44" y1="63" x2="56" y2="63"/></g><text x="50" y="96" text-anchor="middle" font-family="Tahoma,sans-serif" font-size="12" font-weight="700" fill="#fff7ee">CR</text></svg>';
 
 function exportarExcel(){
+ try{
+  if(typeof XLSX==='undefined'){alert('No se pudo cargar la libreria de Excel (XLSX). Revisa tu conexion a internet, o que el navegador/adblock no este bloqueando cdnjs.cloudflare.com, y recarga la pagina.');return;}
   const all=S.recintos.flatMap(r=>r.partidas);
   if(!all.length) return alert('No hay partidas para exportar.');
   const d=S.datos;
@@ -1356,6 +1358,10 @@ function exportarExcel(){
   XLSX.utils.book_append_sheet(wb,wsB,'_CR_BACKUP');
   const fn=(d.nombre||'ppto').replace(/\s+/g,'_').toUpperCase();
   XLSX.writeFile(wb,'PPTO_'+fn+'_'+(d.fecha||'SINFECHA')+'.xlsx');
+ }catch(err){
+  console.error('Error en exportarExcel:',err);
+  alert('No se pudo generar el Excel.\n\nDetalle tecnico: '+(err&&err.message?err.message:err)+'\n\nEnvia una captura de este mensaje para revisarlo.');
+ }
 }
 function importarExcel(input){
   const file=input.files[0];if(!file)return;
@@ -1381,6 +1387,7 @@ function importarExcel(input){
   reader.readAsArrayBuffer(file);
 }
 function exportarPDF(){
+ try{
   const all=S.recintos.flatMap(r=>r.partidas);
   if(!all.length) return alert('No hay partidas para exportar.');
   const d=S.datos;
@@ -1408,9 +1415,16 @@ function exportarPDF(){
     '<table><thead><tr><th style="width:55px">ITEM N<\/th><th>Designacion<\/th><th style="width:36px;text-align:center">Un.<\/th><th style="width:58px;text-align:right">Cantidad<\/th><th style="width:88px;text-align:right">Unitario<\/th><th style="width:88px;text-align:right">Total<\/th><\/tr><\/thead><tbody>'+tbody+'<\/tbody><\/table>'+
     '<div class="tots"><div class="tr"><span>COSTO DIRECTO<\/span><strong>$ '+fmtN(cd)+'<\/strong><\/div>'+(S.showGG!==false?'<div class="tr"><span>G.GENERALES Y UTILIDADES ('+S.pctGG+'%)<\/span><strong>$ '+fmtN(gguu)+'<\/strong><\/div><div class="tr"><span>NETO<\/span><strong>$ '+fmtN(neto)+'<\/strong><\/div>':'')+(S.showIVA!==false?'<div class="tr"><span>IVA ('+S.pctIVA+'%)<\/span><strong>$ '+fmtN(iva)+'<\/strong><\/div>':'')+'<div class="tr ttot"><span>TOTAL<\/span><strong>$ '+fmtN(total)+'<\/strong><\/div><\/div>'+
     obsHTML+'<script>window.onload=function(){window.print();}<\/script><\/body><\/html>';
-  const w=window.open('','_blank');w.document.write(html);w.document.close();
+  const w=window.open('','_blank');
+  if(!w){alert('El navegador bloqueo la ventana del PDF. Permite las ventanas emergentes para este sitio e intenta de nuevo.');return;}
+  w.document.write(html);w.document.close();
+ }catch(err){
+  console.error('Error en exportarPDF:',err);
+  alert('No se pudo generar el PDF.\n\nDetalle tecnico: '+(err&&err.message?err.message:err)+'\n\nEnvia una captura de este mensaje para revisarlo.');
+ }
 }
 function exportarPDFAlt(){
+ try{
   const all=S.recintos.flatMap(r=>r.partidas);
   if(!all.length) return alert('No hay partidas para exportar.');
   const d=S.datos;
@@ -1474,7 +1488,13 @@ function exportarPDFAlt(){
     '<div class="firmas"><div class="firma"><div class="ln">Elaborado por<\/div><\/div><div class="firma"><div class="ln">Aprobado por<\/div><\/div><\/div>'+
     '<\/div>'+
     '<script>window.onload=function(){window.print();}<\/script><\/body><\/html>';
-  const w=window.open('','_blank');w.document.write(html);w.document.close();
+  const w=window.open('','_blank');
+  if(!w){alert('El navegador bloqueo la ventana del PDF. Permite las ventanas emergentes para este sitio e intenta de nuevo.');return;}
+  w.document.write(html);w.document.close();
+ }catch(err){
+  console.error('Error en exportarPDFAlt:',err);
+  alert('No se pudo generar el PDF.\n\nDetalle tecnico: '+(err&&err.message?err.message:err)+'\n\nEnvia una captura de este mensaje para revisarlo.');
+ }
 }
 function confirmarNuevo(){
   if(confirm('Borrar todo y comenzar un nuevo presupuesto?')){
@@ -1489,6 +1509,6 @@ renderRecintos();
 cargarDBdesdeDrive();
 renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v28 · 09/2026</div>
+<div class="version-tag">CR Consulting · v29 · 09/2026</div>
 </body>
 </html>
