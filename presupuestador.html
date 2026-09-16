@@ -439,6 +439,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
         <div class="calc-res" id="ep-r">-- m2</div>
       </div>
     </div>
+    <div class="ig">
+      <label>Calculadora ml (perimetro)</label>
+      <div class="calc-row">
+        <input type="number" id="ep-pl" placeholder="Largo" step="0.01" oninput="calcEPML()">
+        <span>x</span>
+        <input type="number" id="ep-pa" placeholder="Ancho" step="0.01" oninput="calcEPML()">
+        <span>=</span>
+        <div class="calc-res" id="ep-pr">-- ml</div>
+      </div>
+      <div class="cap-tabs" style="margin-top:7px;">
+        <div class="cap-tab active" id="ep-muros-4" onclick="setEpMuros(4)">4 muros</div>
+        <div class="cap-tab" id="ep-muros-3" onclick="setEpMuros(3)">3 muros</div>
+      </div>
+    </div>
     <div class="g2">
       <div class="ig"><label>Unidad</label><select id="ep-u"><option>m2</option><option>ml</option><option>gl</option><option>un</option><option>m3</option></select></div>
       <div class="ig"><label>Cantidad</label><input type="number" id="ep-q" step="0.01" oninput="calcEPTot()"></div>
@@ -1085,7 +1099,10 @@ function abrirEditPartida(rid,pid){
   document.getElementById('ep-obs').value=p.obs||'';
   setEpObsPos(p.obsPos==='inline'?'inline':'final');
   document.getElementById('ep-l').value='';document.getElementById('ep-a').value='';
-  document.getElementById('ep-r').textContent='-- m2';calcEPTot();
+  document.getElementById('ep-r').textContent='-- m2';
+  document.getElementById('ep-pl').value='';document.getElementById('ep-pa').value='';
+  document.getElementById('ep-pr').textContent='-- ml';setEpMuros(4);
+  calcEPTot();
   document.getElementById('modal-edit-partida').classList.add('open');
 }
 let epObsPos='final';
@@ -1097,6 +1114,20 @@ function setEpObsPos(pos){
 function calcEP(){
   const l=parseFloat(document.getElementById('ep-l').value)||0,a=parseFloat(document.getElementById('ep-a').value)||0,r=l*a;
   document.getElementById('ep-r').textContent=r>0?r.toFixed(2)+' m2':'-- m2';
+  if(r>0){document.getElementById('ep-q').value=r.toFixed(2);calcEPTot();}
+}
+let epMuros=4;
+function setEpMuros(n){
+  epMuros=n;
+  document.getElementById('ep-muros-4').className='cap-tab'+(epMuros===4?' active':'');
+  document.getElementById('ep-muros-3').className='cap-tab'+(epMuros===3?' active':'');
+  calcEPML();
+}
+// Perimetro: 4 muros = (largo+ancho)*2 · 3 muros = (largo+ancho)*2 menos 1 ancho (se asume que falta un muro corto; si falta uno largo, invierte los valores de Largo/Ancho)
+function calcEPML(){
+  const l=parseFloat(document.getElementById('ep-pl').value)||0,a=parseFloat(document.getElementById('ep-pa').value)||0;
+  const r=epMuros===3?(l*2+a):((l+a)*2);
+  document.getElementById('ep-pr').textContent=r>0?r.toFixed(2)+' ml':'-- ml';
   if(r>0){document.getElementById('ep-q').value=r.toFixed(2);calcEPTot();}
 }
 function calcEPTot(){
@@ -1509,6 +1540,6 @@ renderRecintos();
 cargarDBdesdeDrive();
 renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v29 · 09/2026</div>
+<div class="version-tag">CR Consulting · v30 · 09/2026</div>
 </body>
 </html>
