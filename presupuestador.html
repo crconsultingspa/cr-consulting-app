@@ -438,6 +438,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
         <span>=</span>
         <div class="calc-res" id="ep-r">-- m2</div>
       </div>
+      <div class="cap-tabs" style="margin-top:7px;">
+        <div class="cap-tab active" id="ep-murosa-1" onclick="setEpMurosArea(1)">1 muro</div>
+        <div class="cap-tab" id="ep-murosa-2" onclick="setEpMurosArea(2)">2 muros</div>
+        <div class="cap-tab" id="ep-murosa-3" onclick="setEpMurosArea(3)">3 muros</div>
+        <div class="cap-tab" id="ep-murosa-4" onclick="setEpMurosArea(4)">4 muros</div>
+      </div>
     </div>
     <div class="ig">
       <label>Calculadora ml (perimetro)</label>
@@ -1099,7 +1105,7 @@ function abrirEditPartida(rid,pid){
   document.getElementById('ep-obs').value=p.obs||'';
   setEpObsPos(p.obsPos==='inline'?'inline':'final');
   document.getElementById('ep-l').value='';document.getElementById('ep-a').value='';
-  document.getElementById('ep-r').textContent='-- m2';
+  document.getElementById('ep-r').textContent='-- m2';setEpMurosArea(1);
   document.getElementById('ep-pl').value='';document.getElementById('ep-pa').value='';
   document.getElementById('ep-pr').textContent='-- ml';setEpMuros(4);
   calcEPTot();
@@ -1111,8 +1117,14 @@ function setEpObsPos(pos){
   document.getElementById('ep-obspos-inline').className='obspos-btn'+(epObsPos==='inline'?' active':'');
   document.getElementById('ep-obspos-final').className='obspos-btn'+(epObsPos==='final'?' active':'');
 }
+let epMurosArea=1;
+function setEpMurosArea(n){
+  epMurosArea=n;
+  [1,2,3,4].forEach(function(i){document.getElementById('ep-murosa-'+i).className='cap-tab'+(epMurosArea===i?' active':'');});
+  calcEP();
+}
 function calcEP(){
-  const l=parseFloat(document.getElementById('ep-l').value)||0,a=parseFloat(document.getElementById('ep-a').value)||0,r=l*a;
+  const l=parseFloat(document.getElementById('ep-l').value)||0,a=parseFloat(document.getElementById('ep-a').value)||0,r=l*a*epMurosArea;
   document.getElementById('ep-r').textContent=r>0?r.toFixed(2)+' m2':'-- m2';
   if(r>0){document.getElementById('ep-q').value=r.toFixed(2);calcEPTot();}
 }
@@ -1540,6 +1552,6 @@ renderRecintos();
 cargarDBdesdeDrive();
 renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v30 · 09/2026</div>
+<div class="version-tag">CR Consulting · v31 · 09/2026</div>
 </body>
 </html>
