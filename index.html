@@ -1571,6 +1571,10 @@
           <input type="text" id="f-correlativo" placeholder="FOLIO 00000" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:500;color:#002b41;padding:9px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid rgba(0,43,65,.2);border-radius:10px;background:#f6fafb;outline:none;width:100%"/>
         </div>
       </div>
+      <div style="margin-top:16px">
+        <button type="button" class="btn" id="btn-agendar-calendar" style="color:var(--teal);border-color:var(--teal)" onclick="agendarEnCalendar()"><i class="ti ti-calendar-event"></i> Agendar en Calendar</button>
+        <span style="font-size:11px;color:#6b93a3;margin-left:10px">Invita al asegurado y al inspector de CR con la fecha, dirección y datos de contacto.</span>
+      </div>
     </section>
 
     <section data-sec="antecedentes" style="padding:24px 28px 26px;border-top:1px solid rgba(0,43,65,.08);background:#fbfdfe">
@@ -1984,6 +1988,32 @@ function formPost(url, data) {
     body: JSON.stringify(data)
   }).then(() => ({ ok: true }))
     .catch(() => ({ ok: true })); // asumimos ok; loadFromSheets confirmará
+}
+
+// ── AGENDAR INSPECCIÓN EN CALENDAR ────────────────────────────────────────────
+// Crea un evento en el Calendar de CR Consulting e invita al asegurado (con su
+// email ya guardado en el caso) y al inspector de CR (email fijo en el backend).
+async function agendarEnCalendar() {
+  if (!editingId) { showToast('Guarda el caso primero', 'error'); return; }
+  const fecha = document.getElementById('f-fechaAgendamiento').value;
+  if (!fecha) { showToast('Ingresa la fecha de agendamiento primero', 'error'); return; }
+  const email = (document.getElementById('f-email').value || '').trim();
+  if (!email && !confirm('El asegurado no tiene correo registrado: solo se invitará al inspector de CR. ¿Continuar?')) return;
+
+  const btn = document.getElementById('btn-agendar-calendar');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Agendando…';
+  try {
+    await formPost(SHEETS_URL, { action: 'agendarCalendar', id: editingId, fecha });
+    await new Promise(r => setTimeout(r, 2000));
+    showToast('✓ Invitación de Calendar enviada');
+  } catch (err) {
+    showToast('Error al agendar en Calendar', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
+  }
 }
 
 // ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
