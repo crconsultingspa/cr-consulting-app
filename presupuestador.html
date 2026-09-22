@@ -106,6 +106,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .rc-meta{font-size:10.5px;color:rgba(255,247,238,.70);margin-top:2px}
 .rc-actions{display:flex;gap:6px;flex-shrink:0}
 .rc-body{padding:11px 12px}
+.cat-hdr{font-family:var(--disp);font-size:10.5px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.10em;padding:9px 4px 5px;border-bottom:1.5px solid var(--teal-soft);margin-top:4px}
+.cat-hdr:first-child{margin-top:0}
 .prow{display:flex;align-items:flex-start;padding:10px;border-bottom:1px solid var(--border);gap:6px;font-size:11.5px}
 .prow:last-child{border:none}
 .prow-det{flex:1;color:var(--text);font-size:11.5px;line-height:1.35}
@@ -429,6 +431,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
   <div class="modal">
     <div class="modal-title">Editar partida<button class="modal-close" onclick="closeModal('modal-edit-partida')"><i class="ti ti-x"></i></button></div>
     <div class="ig"><label>Descripcion</label><input type="text" id="ep-det"></div>
+    <div class="ig">
+      <label>Categoria</label>
+      <input type="text" id="ep-cat" placeholder="Ej: Cielo, Muro, Piso..." list="ep-cat-dl">
+      <datalist id="ep-cat-dl"></datalist>
+    </div>
     <div class="ig">
       <label>Calculadora m2</label>
       <div class="calc-row">
@@ -968,6 +975,19 @@ function confirmarRecinto(){
   else{const r=S.recintos.find(x=>x.id===editRid);r.nombre=nombre;r.partidas=[...r.partidas,...nuevas];}
   closeModal('modal-recinto');renderRecintos();updateMini();
 }
+// Agrupa las partidas de un recinto por su categoria (p.capitulo), respetando
+// el orden en que aparece cada categoria por primera vez, y el orden interno
+// de las partidas dentro de cada grupo. Se usa tanto en la app (Recintos,
+// Resumen) como en los dos PDF, para que se vea siempre igual.
+function agruparPorCategoria(partidas){
+  const orden=[],map={};
+  partidas.forEach(function(p){
+    const cat=(p.capitulo||'Otros').trim()||'Otros';
+    if(!map[cat]){map[cat]=[];orden.push(cat);}
+    map[cat].push(p);
+  });
+  return orden.map(function(cat){return{cat:cat,items:map[cat]};});
+}
 function renderRecintos(){
   const c=document.getElementById('recintos-list');
   if(!S.recintos.length){c.innerHTML='<div class="empty"><div class="empty-icon"><i class="ti ti-tools"></i></div><div class="empty-txt">No hay recintos aún.<br>Pulsa "Agregar recinto" para comenzar.</div></div>';return;}
@@ -984,7 +1004,8 @@ function renderRecintos(){
         '<button class="btn-sm btn-sm-sec" onclick="duplicarRecinto('+r.id+')" title="Duplicar recinto completo (copia todas sus partidas, precios y cantidades a uno nuevo)"><i class="ti ti-copy"></i></button>'+
         '<button class="btn-sm btn-sm-red" onclick="eliminarRecinto('+r.id+')" title="Eliminar recinto"><i class="ti ti-trash"></i></button>'+
       '</div></div>';
-    const filas=r.partidas.length?r.partidas.map(p=>{
+    const filas=r.partidas.length?agruparPorCategoria(r.partidas).map(function(g){
+      const catRows=g.items.map(p=>{
         const checked=isSel&&selPids[r.id]&&selPids[r.id][p.id];
         const leftCol=isSel
           ?'<div class="ord-col" style="align-items:center;justify-content:center;"><input type="checkbox" style="width:15px;height:15px;cursor:pointer;" '+(checked?'checked':'')+' onchange="toggleSelPid('+r.id+','+p.id+')"></div>'
@@ -998,7 +1019,9 @@ function renderRecintos(){
           '<span class="prow-tot">'+fmt(p.total)+'</span>'+
           rightBtns+
         '</div>';
-      }).join(''):'<div style="padding:14px;text-align:center;color:var(--text-3);font-size:11.5px;">Recinto sin partidas. Usa los botones de abajo.</div>';
+      }).join('');
+      return'<div class="cat-hdr">'+esc(g.cat)+'</div>'+catRows;
+    }).join(''):'<div style="padding:14px;text-align:center;color:var(--text-3);font-size:11.5px;">Recinto sin partidas. Usa los botones de abajo.</div>';
     const foot=isSel
       ?'<div class="rc-foot-actions">'+
         '<div style="font-size:12px;font-weight:700;color:var(--teal);">'+selCount+' seleccionada'+(selCount!==1?'s':'')+'</div>'+
@@ -1094,10 +1117,20 @@ function updateMini(){
   document.getElementById('mini-cd').textContent=fmt(cd);
   document.getElementById('mini-cnt').textContent=all.length;
 }
+// Lista de categorias sugeridas para el selector de partida: las que ya trae
+// la base de Partidas + las que ya se hayan usado manualmente en este presupuesto,
+// para que las categorias creadas "a mano" (ej. en partidas personalizadas)
+// tambien queden disponibles despues como sugerencia.
+function categoriasSugeridas(){
+  const enUso=S.recintos.flatMap(r=>r.partidas).map(p=>p.capitulo).filter(Boolean);
+  return[...new Set([...CAPS(),...enUso])];
+}
 function abrirEditPartida(rid,pid){
   editRid=rid;editPid=pid;
   const p=S.recintos.find(x=>x.id===rid).partidas.find(x=>x.id===pid);
   document.getElementById('ep-det').value=p.detalle;
+  document.getElementById('ep-cat').value=p.capitulo||'';
+  document.getElementById('ep-cat-dl').innerHTML=categoriasSugeridas().map(c=>'<option value="'+String(c).replace(/"/g,'&quot;')+'">').join('');
   const uSel=document.getElementById('ep-u');
   [...uSel.options].forEach((o,i)=>{if(o.value===p.unidad)uSel.selectedIndex=i;});
   document.getElementById('ep-q').value=p.cantidad;
@@ -1149,6 +1182,7 @@ function calcEPTot(){
 function guardarEditPartida(){
   const r=S.recintos.find(x=>x.id===editRid),p=r.partidas.find(x=>x.id===editPid);
   p.detalle=document.getElementById('ep-det').value.trim()||p.detalle;
+  p.capitulo=document.getElementById('ep-cat').value.trim()||p.capitulo||'Otros';
   p.unidad=document.getElementById('ep-u').value;
   p.cantidad=parseFloat(document.getElementById('ep-q').value)||p.cantidad;
   p.precioUnit=parseFloat(document.getElementById('ep-p').value)||p.precioUnit;
@@ -1299,11 +1333,15 @@ function renderResumen(){
   const sinInfo=S.siniestro?'<div class="sin-disp '+SIN_CFG[S.siniestro].disp+'" style="margin-bottom:11px;font-size:12px;">'+esc(S.siniestro==='custom'?(S.datos.sinCustom||'Personalizado'):SIN_CFG[S.siniestro].label)+'</div>':'';
   const detRows=S.recintos.map(r=>{
     const sub=r.partidas.reduce((s,p)=>s+pTotalInf(p),0);
-    return'<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px;border-bottom:1.5px solid var(--teal);margin-bottom:4px;display:flex;justify-content:space-between;"><span>'+esc(r.nombre)+'</span><span style="color:var(--green);">'+fmt(sub)+'</span></div>'+
-      r.partidas.map(p=>{
+    const gruposHTML=agruparPorCategoria(r.partidas).map(function(g){
+      const catRows=g.items.map(p=>{
         const noInf=infPct>0?'<button class="noinf-btn'+(p.noInflar?' on':'')+'" onclick="toggleNoInflar('+r.id+','+p.id+')" title="No inflar esta partida"><i class="ti ti-flame-off"></i>'+(p.noInflar?'No inflada':'Inflar')+'</button>':'';
         return'<div class="rp-row"><div class="rp-det">'+esc(p.detalle)+(p.obs?'<div style="font-size:9px;color:var(--muted)">'+esc(p.obs)+(p.obsPos==='inline'?' · (junto a la partida)':'')+'</div>':'')+'</div><span class="rp-un">'+esc((p.unidad||'').toUpperCase())+'</span><span class="rp-qty">'+p.cantidad+'</span><span class="rp-tot">'+fmt(pTotalInf(p))+'</span>'+noInf+'<button class="btn-sm btn-sm-sec" onclick="abrirEditPartida('+r.id+','+p.id+')" style="padding:4px 6px;font-size:10px;"><i class="ti ti-pencil"></i></button></div>';
-      }).join('')+
+      }).join('');
+      return'<div class="cat-hdr">'+esc(g.cat)+'</div>'+catRows;
+    }).join('');
+    return'<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px;border-bottom:1.5px solid var(--teal);margin-bottom:4px;display:flex;justify-content:space-between;"><span>'+esc(r.nombre)+'</span><span style="color:var(--green);">'+fmt(sub)+'</span></div>'+
+      gruposHTML+
       '</div>';
   }).join('');
   const recRows=S.recintos.map(r=>{
@@ -1439,12 +1477,15 @@ function exportarPDF(){
   const obsArr=getObservaciones();
   let n=1;
   const tbody=S.recintos.map(r=>{
-    const rRows=r.partidas.map(p=>'<tr><td>'+n+++',001</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#00657e;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>').join('');
-    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+rRows;
+    const gruposRows=agruparPorCategoria(r.partidas).map(function(g){
+      const catRows=g.items.map(p=>'<tr><td>'+n+++',001</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#00657e;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>').join('');
+      return'<tr><td colspan="6" class="cat-hdr-pdf">'+esc(g.cat.toUpperCase())+'</td></tr>'+catRows;
+    }).join('');
+    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+gruposRows;
   }).join('');
   const obsHTML=obsArr.length?'<div class="obs-box"><div class="obs-title">OBSERVACIONES:</div>'+obsArr.map((o,i)=>'<div class="obs-item"><strong>'+(i+1)+':</strong> '+o+'</div>').join('')+'</div>':'';
   const logoHTML=logoPngB64?'<img src="'+logoPngB64+'" style="width:80px;height:auto;display:block;" alt="CR Consulting">':LOGO_FALLBACK;
-  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Tahoma,Arial,sans-serif;font-size:11px;color:#111;padding:20px 24px}.hdr{display:flex;align-items:flex-end;gap:20px;margin-bottom:12px}.hdr-logo{flex-shrink:0;padding-bottom:4px}.hdr-main{flex:1;text-align:center;padding-bottom:4px}.hdr-line{border-bottom:3px solid #002b41;margin-bottom:14px}h1{font-size:13px;font-weight:700;color:#002b41;text-transform:uppercase;margin-bottom:5px;letter-spacing:.5px}.sin-badge{display:inline-block;background:#e0f0f4;color:#00657e;padding:3px 14px;border-radius:20px;font-weight:700;font-size:10px;border:1px solid #00657e}.datos{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;background:#f5fbfc;border:1px solid #b8d4dc;padding:9px 13px;border-radius:5px;margin-bottom:14px}.dato{display:flex;gap:6px;font-size:10px;padding:2px 0}.dl{color:#555;min-width:82px;font-weight:700;flex-shrink:0}table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:10px}th{background:#002b41;color:#fff7ee;padding:6px 8px;text-align:left;font-size:10px}td{padding:5px 7px;border-bottom:1px solid #eee;}tr:nth-child(even) td{background:#f5fbfc}.rc-hdr-pdf{background:#002b41;color:#fff7ee;font-weight:700;font-size:11px;}.tots{border-top:2px solid #002b41;padding-top:8px;margin-top:4px}.tr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;font-size:11px}.ttot{font-weight:700;font-size:13px;color:#002b41;border:none;padding-top:7px}.obs-box{border:1.5px solid #002b41;border-radius:4px;padding:10px 12px;margin-top:16px;background:#f9fbfc}.obs-title{font-weight:700;font-size:11px;color:#002b41;margin-bottom:6px;}.obs-item{font-size:10px;margin-bottom:4px;line-height:1.4}<\/style><\/head><body>'+
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Tahoma,Arial,sans-serif;font-size:11px;color:#111;padding:20px 24px}.hdr{display:flex;align-items:flex-end;gap:20px;margin-bottom:12px}.hdr-logo{flex-shrink:0;padding-bottom:4px}.hdr-main{flex:1;text-align:center;padding-bottom:4px}.hdr-line{border-bottom:3px solid #002b41;margin-bottom:14px}h1{font-size:13px;font-weight:700;color:#002b41;text-transform:uppercase;margin-bottom:5px;letter-spacing:.5px}.sin-badge{display:inline-block;background:#e0f0f4;color:#00657e;padding:3px 14px;border-radius:20px;font-weight:700;font-size:10px;border:1px solid #00657e}.datos{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;background:#f5fbfc;border:1px solid #b8d4dc;padding:9px 13px;border-radius:5px;margin-bottom:14px}.dato{display:flex;gap:6px;font-size:10px;padding:2px 0}.dl{color:#555;min-width:82px;font-weight:700;flex-shrink:0}table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:10px}th{background:#002b41;color:#fff7ee;padding:6px 8px;text-align:left;font-size:10px}td{padding:5px 7px;border-bottom:1px solid #eee;}tr:nth-child(even) td{background:#f5fbfc}.rc-hdr-pdf{background:#002b41;color:#fff7ee;font-weight:700;font-size:11px;}.cat-hdr-pdf{background:#e0f0f4;color:#00657e;font-weight:700;font-size:9.5px;letter-spacing:.5px;}.tots{border-top:2px solid #002b41;padding-top:8px;margin-top:4px}.tr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;font-size:11px}.ttot{font-weight:700;font-size:13px;color:#002b41;border:none;padding-top:7px}.obs-box{border:1.5px solid #002b41;border-radius:4px;padding:10px 12px;margin-top:16px;background:#f9fbfc}.obs-title{font-weight:700;font-size:11px;color:#002b41;margin-bottom:6px;}.obs-item{font-size:10px;margin-bottom:4px;line-height:1.4}<\/style><\/head><body>'+
     '<div class="hdr"><div class="hdr-logo">'+logoHTML+'<\/div><div class="hdr-main"><h1>Presupuesto de Reparacion<\/h1>'+(sinTxt?'<span class="sin-badge">'+esc(sinTxt)+'<\/span>':'')+'<\/div><\/div>'+
     '<div class="hdr-line"><\/div>'+
     '<div class="datos">'+
@@ -1477,8 +1518,11 @@ function exportarPDFAlt(){
   const nombreEmp=(document.getElementById('d-nombre-constructora').value||'').trim();
   let n=1;
   const tbody=S.recintos.map(r=>{
-    const rRows=r.partidas.map(p=>'<tr><td>'+String(n++).padStart(2,'0')+'</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#5b7f4f;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>').join('');
-    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+rRows;
+    const gruposRows=agruparPorCategoria(r.partidas).map(function(g){
+      const catRows=g.items.map(p=>'<tr><td>'+String(n++).padStart(2,'0')+'</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#5b7f4f;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>').join('');
+      return'<tr><td colspan="6" class="cat-hdr-pdf">'+esc(g.cat.toUpperCase())+'</td></tr>'+catRows;
+    }).join('');
+    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+gruposRows;
   }).join('');
   const obsHTML=obsArr.length?'<div class="obs-box"><div class="obs-title">OBSERVACIONES</div>'+obsArr.map((o,i)=>'<div class="obs-item"><strong>'+(i+1)+'.</strong> '+o+'</div>').join('')+'</div>':'';
   const empHTML=nombreEmp?'<div class="emp-name">'+esc(nombreEmp)+'</div>':'<div class="emp-name emp-name-ph">CONSTRUCTORA</div>';
@@ -1502,6 +1546,7 @@ function exportarPDFAlt(){
     'th{background:#33393c;color:#fff;padding:7px 8px;text-align:left;font-size:9.5px;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px;text-transform:uppercase;font-weight:600;}'+
     'td{padding:6px 7px;border-bottom:1px solid #e3e5e1;}tr:nth-child(even) td{background:#f7f8f6}'+
     '.rc-hdr-pdf{background:#5b7f4f;color:#fff;font-weight:700;font-size:10.5px;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px;text-transform:uppercase;}'+
+    '.cat-hdr-pdf{background:#eef2ea;color:#4c6b40;font-weight:700;font-size:9.5px;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:.8px;text-transform:uppercase;}'+
     '.tots{border-top:2px solid #33393c;padding-top:9px;margin-top:6px;max-width:320px;margin-left:auto;}'+
     '.tr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #e3e5e1;font-size:10.5px;}'+
     '.ttot{font-weight:700;font-size:14px;color:#fff;background:#5b7f4f;border:none;padding:8px 10px;margin-top:6px;border-radius:3px;}'+
@@ -1552,6 +1597,6 @@ renderRecintos();
 cargarDBdesdeDrive();
 renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v31 · 09/2026</div>
+<div class="version-tag">CR Consulting · v32 · 09/2026</div>
 </body>
 </html>
