@@ -106,8 +106,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .rc-meta{font-size:10.5px;color:rgba(255,247,238,.70);margin-top:2px}
 .rc-actions{display:flex;gap:6px;flex-shrink:0}
 .rc-body{padding:11px 12px}
-.cat-hdr{font-family:var(--disp);font-size:10.5px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.10em;padding:9px 4px 5px;border-bottom:1.5px solid var(--teal-soft);margin-top:4px}
+.cat-hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:var(--disp);font-size:10.5px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.10em;padding:9px 4px 5px;border-bottom:1.5px solid var(--teal-soft);margin-top:4px}
 .cat-hdr:first-child{margin-top:0}
+.cat-hdr.cat-suelta{color:var(--text-3);border-bottom-color:var(--border-strong)}
+.cat-hdr-actions{display:flex;gap:2px;flex-shrink:0}
+.cat-mini-btn{background:none;border:none;color:var(--teal);cursor:pointer;padding:3px 4px;font-size:13px;line-height:1;border-radius:5px;display:inline-flex}
+.cat-mini-btn:hover{background:var(--teal-soft)}
+.cat-mini-btn-red{color:var(--red)}
+.cat-mini-btn-red:hover{background:var(--red-bg)}
 .prow{display:flex;align-items:flex-start;padding:10px;border-bottom:1px solid var(--border);gap:6px;font-size:11.5px}
 .prow:last-child{border:none}
 .prow-det{flex:1;color:var(--text);font-size:11.5px;line-height:1.35}
@@ -403,7 +409,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
   <div class="modal">
     <div class="modal-title"><span id="modal-recinto-title">Agregar Recinto</span><button class="modal-close" onclick="closeModal('modal-recinto')">X</button></div>
     <div class="ig">
-      <label>Nombre del recinto</label>
+      <label id="mr-nombre-label">Nombre del recinto</label>
       <input type="text" id="mr-nombre" placeholder="Ej: Bano, Dormitorio Principal..." list="recintos-dl">
       <datalist id="recintos-dl">
         <option value="Antejardin"><option value="Bano"><option value="Bodega"><option value="Cocina">
@@ -413,6 +419,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
         <option value="Logistica"><option value="Pasillo"><option value="Proteccion Zona de Trabajo">
         <option value="Quincho"><option value="Terraza">
       </datalist>
+      <datalist id="categorias-dl"></datalist>
     </div>
     <div class="ig"><label>Categoria</label><div class="cap-tabs" id="cap-tabs"></div></div>
     <div class="ig"><label>Liquidadora</label><div class="cap-tabs" id="liq-tabs"></div></div>
@@ -431,11 +438,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
   <div class="modal">
     <div class="modal-title">Editar partida<button class="modal-close" onclick="closeModal('modal-edit-partida')"><i class="ti ti-x"></i></button></div>
     <div class="ig"><label>Descripcion</label><input type="text" id="ep-det"></div>
-    <div class="ig">
-      <label>Categoria</label>
-      <input type="text" id="ep-cat" placeholder="Ej: Cielo, Muro, Piso..." list="ep-cat-dl">
-      <datalist id="ep-cat-dl"></datalist>
-    </div>
     <div class="ig">
       <label>Calculadora m2</label>
       <div class="calc-row">
@@ -679,7 +681,11 @@ let chk={},chkOrder=[],cachedDet={},cachedU={},cachedQ={},cachedP={},cachedL={},
 // dupOf[idxBase] = [key1, key2, ...] -> claves de las copias de esa partida base
 // dupBase[key] = idxBase -> a qué partida del catálogo (DB) pertenece esa copia
 let dupOf={},dupBase={},dupCtr=0;
-let editRid=null,editPid=null,pidCtr=1,ridCtr=1,activeCap='Todos',activeLiq='Todos';
+let editRid=null,editPid=null,pidCtr=1,ridCtr=1,catCtr=1,activeCap='Todos',activeLiq='Todos';
+// modalTarget: 'recinto' (crear/anadir a un recinto, partidas sueltas) o
+// 'categoria' (crear/anadir a una categoria manual dentro de un recinto).
+// editCatId: id de la categoria que se esta editando/anadiendo (null = categoria nueva).
+let modalTarget='recinto',editCatId=null;
 let selMode={},selPids={},clipboardPartidas=null;
 let dbActiveCap='Todos',dbEditIdx=null,logoPngB64=null;
 let casosCache=null;
@@ -807,7 +813,10 @@ function savePickerState(){
 function renderPicker(q){
   const el=document.getElementById('modal-picker-list');
   const ql=q.toLowerCase();
-  const filtered=DB.filter(p=>(activeCap==='Todos'||p.c===activeCap)&&(activeLiq==='Todos'||p.l===activeLiq)&&(p.d.toLowerCase().includes(ql)||p.c.toLowerCase().includes(ql)));
+  // Si hay texto en el buscador, se busca en TODAS las categorias (la pestaña
+  // de categoria activa deja de restringir); si el buscador esta vacio, la
+  // pestaña sigue funcionando como filtro de navegacion normal.
+  const filtered=DB.filter(p=>(ql||activeCap==='Todos'||p.c===activeCap)&&(activeLiq==='Todos'||p.l===activeLiq)&&(p.d.toLowerCase().includes(ql)||p.c.toLowerCase().includes(ql)));
   if(!filtered.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px;">Sin resultados</div>';return;}
   el.innerHTML=filtered.map(p=>{
     const idx=DB.indexOf(p);
@@ -940,7 +949,11 @@ function updateSpTot(ref){
   document.getElementById('sp-'+ref+'-tot').textContent='Total: '+fmt(q*p);
 }
 function abrirModalRecinto(rid){
+  modalTarget='recinto';editCatId=null;
   editRid=rid;chk={};chkOrder=[];cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};dupOf={};dupBase={};
+  document.getElementById('mr-nombre').setAttribute('list','recintos-dl');
+  document.getElementById('mr-nombre-label').textContent='Nombre del recinto';
+  document.getElementById('mr-nombre').placeholder='Ej: Bano, Dormitorio Principal...';
   if(rid===null){document.getElementById('modal-recinto-title').textContent='Agregar Recinto';document.getElementById('mr-nombre').value='';}
   else{const r=S.recintos.find(x=>x.id===rid);document.getElementById('modal-recinto-title').textContent='Anadir a: '+r.nombre;document.getElementById('mr-nombre').value=r.nombre;}
   document.getElementById('mr-search').value='';
@@ -949,9 +962,30 @@ function abrirModalRecinto(rid){
   activeCap='Todos';activeLiq='Todos';renderCapTabs();renderLiqTabs();renderPicker('');
   document.getElementById('modal-recinto').classList.add('open');
 }
+// Abre el mismo modal pero en modo "categoria": catId===null crea una
+// categoria nueva dentro del recinto rid; con un id existente, anade mas
+// partidas a esa categoria (y permite corregirle el nombre).
+function abrirModalCategoria(rid,catId){
+  modalTarget='categoria';editRid=rid;editCatId=catId;
+  chk={};chkOrder=[];cachedDet={};cachedU={};cachedQ={};cachedP={};cachedL={};cachedA={};cachedObs={};dupOf={};dupBase={};
+  document.getElementById('categorias-dl').innerHTML=categoriasSugeridas().map(c=>'<option value="'+String(c).replace(/"/g,'&quot;')+'">').join('');
+  document.getElementById('mr-nombre').setAttribute('list','categorias-dl');
+  document.getElementById('mr-nombre-label').textContent='Nombre de la categoría';
+  document.getElementById('mr-nombre').placeholder='Ej: Muro, Cielo, Piso...';
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  if(!r.categorias)r.categorias=[];
+  if(catId===null){document.getElementById('modal-recinto-title').textContent='Agregar categoría';document.getElementById('mr-nombre').value='';}
+  else{const cat=r.categorias.find(c=>c.id===catId);document.getElementById('modal-recinto-title').textContent='Anadir a: '+cat.nombre;document.getElementById('mr-nombre').value=cat.nombre;}
+  document.getElementById('mr-search').value='';
+  document.getElementById('sel-cont').style.display='none';
+  document.getElementById('sel-list').innerHTML='';
+  activeCap='Todos';activeLiq='Todos';renderCapTabs();renderLiqTabs();renderPicker('');
+  document.getElementById('modal-recinto').classList.add('open');
+}
 function confirmarRecinto(){
+  const esCategoria=modalTarget==='categoria';
   const nombre=document.getElementById('mr-nombre').value.trim();
-  if(!nombre) return alert('Ingresa el nombre del recinto.');
+  if(!nombre) return alert(esCategoria?'Ingresa el nombre de la categoría.':'Ingresa el nombre del recinto.');
   savePickerState();
   const keys=chkOrder.slice();
   if(!keys.length) return alert('Selecciona al menos una partida.');
@@ -971,32 +1005,52 @@ function confirmarRecinto(){
     const obs=(cachedObs[ref]||'').trim();
     nuevas.push({id:pidCtr++,capitulo:p.c,detalle:det,unidad:u,cantidad:qty,precioUnit:precio,total:qty*precio,obs,obsPos:"final",noInflar:false});
   }
-  if(editRid===null){S.recintos.push({id:ridCtr++,nombre,partidas:nuevas});}
-  else{const r=S.recintos.find(x=>x.id===editRid);r.nombre=nombre;r.partidas=[...r.partidas,...nuevas];}
+  if(esCategoria){
+    const r=S.recintos.find(x=>x.id===editRid);if(!r)return;
+    if(!r.categorias)r.categorias=[];
+    if(editCatId===null){r.categorias.push({id:catCtr++,nombre,partidas:nuevas});}
+    else{const cat=r.categorias.find(c=>c.id===editCatId);if(cat){cat.nombre=nombre;cat.partidas=[...cat.partidas,...nuevas];}}
+  }else{
+    if(editRid===null){S.recintos.push({id:ridCtr++,nombre,partidas:nuevas,categorias:[]});}
+    else{const r=S.recintos.find(x=>x.id===editRid);r.nombre=nombre;r.partidas=[...r.partidas,...nuevas];}
+  }
   closeModal('modal-recinto');renderRecintos();updateMini();
 }
-// Agrupa las partidas de un recinto por su categoria (p.capitulo), respetando
-// el orden en que aparece cada categoria por primera vez, y el orden interno
-// de las partidas dentro de cada grupo. Se usa tanto en la app (Recintos,
-// Resumen) como en los dos PDF, para que se vea siempre igual.
-function agruparPorCategoria(partidas){
-  const orden=[],map={};
-  partidas.forEach(function(p){
-    const cat=(p.capitulo||'Otros').trim()||'Otros';
-    if(!map[cat]){map[cat]=[];orden.push(cat);}
-    map[cat].push(p);
-  });
-  return orden.map(function(cat){return{cat:cat,items:map[cat]};});
+// Todas las partidas de un recinto: las sueltas + las de todas sus categorias
+// manuales. Se usa para totales, conteos, exportaciones, etc.
+function todasPartidas(r){
+  return[...(r.partidas||[]),...((r.categorias||[]).flatMap(c=>c.partidas||[]))];
+}
+// Nombres de categoria sugeridos al crear una nueva: las que ya se han creado
+// a mano en este presupuesto + las categorias de la base de Partidas (por si
+// quieres reusar esos mismos nombres, ej. "Muro", "Cielo").
+function categoriasSugeridas(){
+  const enUso=S.recintos.flatMap(r=>(r.categorias||[]).map(c=>c.nombre));
+  return[...new Set([...enUso,...CAPS()])];
+}
+// Ubica una partida por su id dentro de un recinto, sea que este suelta o
+// dentro de una de sus categorias. Devuelve {cont:arregloQueLaContiene,idx,cat}.
+function localizarPartida(rid,pid){
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return null;
+  let idx=(r.partidas||[]).findIndex(p=>p.id===pid);
+  if(idx>=0)return{r,cont:r.partidas,idx,cat:null};
+  for(const cat of(r.categorias||[])){
+    idx=(cat.partidas||[]).findIndex(p=>p.id===pid);
+    if(idx>=0)return{r,cont:cat.partidas,idx,cat};
+  }
+  return null;
 }
 function renderRecintos(){
   const c=document.getElementById('recintos-list');
   if(!S.recintos.length){c.innerHTML='<div class="empty"><div class="empty-icon"><i class="ti ti-tools"></i></div><div class="empty-txt">No hay recintos aún.<br>Pulsa "Agregar recinto" para comenzar.</div></div>';return;}
   c.innerHTML=S.recintos.map((r,ri)=>{
-    const sub=r.partidas.reduce((s,p)=>s+p.total,0);
+    if(!r.categorias)r.categorias=[];
+    const todas=todasPartidas(r);
+    const sub=todas.reduce((s,p)=>s+p.total,0);
     const isSel=!!selMode[r.id];
     const selCount=isSel?Object.keys(selPids[r.id]||{}).length:0;
     const pegarBtn=(!isSel&&clipboardPartidas&&clipboardPartidas.length)?'<button class="btn-sm btn-sm-teal" onclick="pegarPartidas('+r.id+')" title="Pegar '+clipboardPartidas.length+' partida'+(clipboardPartidas.length!==1?'s':'')+' copiada'+(clipboardPartidas.length!==1?'s':'')+'"><i class="ti ti-clipboard"></i> Pegar ('+clipboardPartidas.length+')</button>':'';
-    const head='<div class="rc-hdr"><div><div class="rc-name">'+esc(r.nombre.toUpperCase())+'</div><div class="rc-meta">'+r.partidas.length+' partida'+(r.partidas.length!==1?'s':'')+' · '+fmt(sub)+'</div></div>'+
+    const head='<div class="rc-hdr"><div><div class="rc-name">'+esc(r.nombre.toUpperCase())+'</div><div class="rc-meta">'+todas.length+' partida'+(todas.length!==1?'s':'')+' · '+fmt(sub)+'</div></div>'+
       '<div class="rc-actions">'+
         '<div class="ord-col"><button class="ord-btn" onclick="moverRecinto('+r.id+',-1)" title="Subir recinto"><i class="ti ti-chevron-up"></i></button><button class="ord-btn" onclick="moverRecinto('+r.id+',1)" title="Bajar recinto"><i class="ti ti-chevron-down"></i></button></div>'+
         '<button class="btn-sm '+(isSel?'btn-sm-teal':'btn-sm-sec')+'" onclick="toggleSelMode('+r.id+')" title="'+(isSel?'Cancelar selección':'Seleccionar partidas para copiar')+'"><i class="ti '+(isSel?'ti-x':'ti-list-check')+'"></i></button>'+
@@ -1004,24 +1058,42 @@ function renderRecintos(){
         '<button class="btn-sm btn-sm-sec" onclick="duplicarRecinto('+r.id+')" title="Duplicar recinto completo (copia todas sus partidas, precios y cantidades a uno nuevo)"><i class="ti ti-copy"></i></button>'+
         '<button class="btn-sm btn-sm-red" onclick="eliminarRecinto('+r.id+')" title="Eliminar recinto"><i class="ti ti-trash"></i></button>'+
       '</div></div>';
-    const filas=r.partidas.length?agruparPorCategoria(r.partidas).map(function(g){
-      const catRows=g.items.map(p=>{
-        const checked=isSel&&selPids[r.id]&&selPids[r.id][p.id];
-        const leftCol=isSel
-          ?'<div class="ord-col" style="align-items:center;justify-content:center;"><input type="checkbox" style="width:15px;height:15px;cursor:pointer;" '+(checked?'checked':'')+' onchange="toggleSelPid('+r.id+','+p.id+')"></div>'
-          :'<div class="ord-col"><button class="ord-btn" onclick="moverPartida('+r.id+','+p.id+',-1)" title="Subir"><i class="ti ti-chevron-up"></i></button><button class="ord-btn" onclick="moverPartida('+r.id+','+p.id+',1)" title="Bajar"><i class="ti ti-chevron-down"></i></button></div>';
-        const rightBtns=isSel?'':'<div class="prow-btns"><button class="btn-sm btn-sm-sec" style="padding:5px 7px;" onclick="abrirEditPartida('+r.id+','+p.id+')"><i class="ti ti-pencil"></i></button><button class="btn-sm btn-sm-red" style="padding:5px 7px;" onclick="eliminarPartida('+r.id+','+p.id+')"><i class="ti ti-x"></i></button></div>';
-        return'<div class="prow"'+(checked?' style="background:var(--teal-soft)"':'')+'>'+
-          leftCol+
-          '<div style="flex:1"><div class="prow-det">'+esc(p.detalle)+'</div>'+(p.obs?'<div class="prow-obs">'+esc(p.obs)+'</div>':'')+'</div>'+
-          '<span class="prow-un">'+esc((p.unidad||'').toUpperCase())+'</span>'+
-          '<span class="prow-qty">'+p.cantidad+'</span>'+
-          '<span class="prow-tot">'+fmt(p.total)+'</span>'+
-          rightBtns+
-        '</div>';
-      }).join('');
-      return'<div class="cat-hdr">'+esc(g.cat)+'</div>'+catRows;
-    }).join(''):'<div style="padding:14px;text-align:center;color:var(--text-3);font-size:11.5px;">Recinto sin partidas. Usa los botones de abajo.</div>';
+    // Fila de una partida (sirve tanto para sueltas como para las de una categoria)
+    const filaPartida=p=>{
+      const checked=isSel&&selPids[r.id]&&selPids[r.id][p.id];
+      const leftCol=isSel
+        ?'<div class="ord-col" style="align-items:center;justify-content:center;"><input type="checkbox" style="width:15px;height:15px;cursor:pointer;" '+(checked?'checked':'')+' onchange="toggleSelPid('+r.id+','+p.id+')"></div>'
+        :'<div class="ord-col"><button class="ord-btn" onclick="moverPartida('+r.id+','+p.id+',-1)" title="Subir"><i class="ti ti-chevron-up"></i></button><button class="ord-btn" onclick="moverPartida('+r.id+','+p.id+',1)" title="Bajar"><i class="ti ti-chevron-down"></i></button></div>';
+      const rightBtns=isSel?'':'<div class="prow-btns"><button class="btn-sm btn-sm-sec" style="padding:5px 7px;" onclick="abrirEditPartida('+r.id+','+p.id+')"><i class="ti ti-pencil"></i></button><button class="btn-sm btn-sm-red" style="padding:5px 7px;" onclick="eliminarPartida('+r.id+','+p.id+')"><i class="ti ti-x"></i></button></div>';
+      return'<div class="prow"'+(checked?' style="background:var(--teal-soft)"':'')+'>'+
+        leftCol+
+        '<div style="flex:1"><div class="prow-det">'+esc(p.detalle)+'</div>'+(p.obs?'<div class="prow-obs">'+esc(p.obs)+'</div>':'')+'</div>'+
+        '<span class="prow-un">'+esc((p.unidad||'').toUpperCase())+'</span>'+
+        '<span class="prow-qty">'+p.cantidad+'</span>'+
+        '<span class="prow-tot">'+fmt(p.total)+'</span>'+
+        rightBtns+
+      '</div>';
+    };
+    // Bloque de partidas sueltas (sin categoria); si ya hay categorias creadas
+    // se les pone un encabezado "Sin categoría" para que no se confundan.
+    const bloqueSueltas=r.partidas.length
+      ?(r.categorias.length?'<div class="cat-hdr cat-suelta"><span>Sin categoría</span></div>':'')+r.partidas.map(filaPartida).join('')
+      :'';
+    // Un bloque por cada categoria manual, con sus acciones (mover, renombrar, añadir, eliminar)
+    const bloquesCategorias=r.categorias.map((cat,ci)=>{
+      const subCat=(cat.partidas||[]).reduce((s,p)=>s+p.total,0);
+      const catHdr='<div class="cat-hdr"><span>'+esc(cat.nombre.toUpperCase())+' · '+fmt(subCat)+'</span>'+
+        '<span class="cat-hdr-actions">'+
+          '<button class="cat-mini-btn" onclick="moverCategoria('+r.id+','+cat.id+',-1)" title="Subir categoría"'+(ci===0?' disabled style="opacity:.3"':'')+'><i class="ti ti-chevron-up"></i></button>'+
+          '<button class="cat-mini-btn" onclick="moverCategoria('+r.id+','+cat.id+',1)" title="Bajar categoría"'+(ci===r.categorias.length-1?' disabled style="opacity:.3"':'')+'><i class="ti ti-chevron-down"></i></button>'+
+          '<button class="cat-mini-btn" onclick="renombrarCategoria('+r.id+','+cat.id+')" title="Renombrar categoría"><i class="ti ti-pencil"></i></button>'+
+          '<button class="cat-mini-btn" onclick="abrirModalCategoria('+r.id+','+cat.id+')" title="Añadir partida a esta categoría"><i class="ti ti-plus"></i></button>'+
+          '<button class="cat-mini-btn cat-mini-btn-red" onclick="eliminarCategoria('+r.id+','+cat.id+')" title="Eliminar categoría"><i class="ti ti-trash"></i></button>'+
+        '</span></div>';
+      const filas=(cat.partidas||[]).length?cat.partidas.map(filaPartida).join(''):'<div style="padding:8px 6px;text-align:center;color:var(--text-3);font-size:11px;">Categoría vacía. Usa el + de arriba para añadir partidas.</div>';
+      return catHdr+filas;
+    }).join('');
+    const filas=todas.length?(bloqueSueltas+bloquesCategorias):'<div style="padding:14px;text-align:center;color:var(--text-3);font-size:11.5px;">Recinto sin partidas. Usa los botones de abajo.</div>';
     const foot=isSel
       ?'<div class="rc-foot-actions">'+
         '<div style="font-size:12px;font-weight:700;color:var(--teal);">'+selCount+' seleccionada'+(selCount!==1?'s':'')+'</div>'+
@@ -1031,6 +1103,7 @@ function renderRecintos(){
       :'<div class="rc-foot-actions">'+
         '<button class="cube-btn" onclick="abrirModalRecinto('+r.id+')"><i class="ti ti-plus"></i><span>Añadir<br>partida</span></button>'+
         '<button class="cube-btn cube-sec" onclick="agregarPartidaBlanco('+r.id+')"><i class="ti ti-square-plus"></i><span>En<br>blanco</span></button>'+
+        '<button class="cube-btn cube-sec" onclick="abrirModalCategoria('+r.id+',null)"><i class="ti ti-folder-plus"></i><span>+<br>Categoría</span></button>'+
         '<div style="margin-left:auto;text-align:right;"><div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Subtotal</div><div style="font-family:var(--disp);font-size:18px;color:var(--navy);font-weight:600;">'+fmt(sub)+'</div></div>'+
       '</div>';
     return'<div class="rc-card">'+head+'<div class="rc-body">'+filas+'</div>'+foot+'</div>';
@@ -1042,13 +1115,17 @@ function moverRecinto(rid,dir){
   if(j<0||j>=S.recintos.length)return;
   const tmp=S.recintos[i];S.recintos[i]=S.recintos[j];S.recintos[j]=tmp;renderRecintos();
 }
-// Copia un recinto completo (todas sus partidas, con precios, unidad, cantidad, obs, etc.) a un recinto nuevo
+// Copia un recinto completo (todas sus partidas, sueltas y por categoria, con
+// precios, unidad, cantidad, obs, etc.) a un recinto nuevo
 function duplicarRecinto(rid){
   const r=S.recintos.find(x=>x.id===rid);if(!r)return;
   const nombre=(prompt('Nombre para el recinto copiado:',r.nombre+' (copia)')||'').trim();
   if(!nombre)return;
   const partidas=r.partidas.map(function(p){return Object.assign({},p,{id:pidCtr++});});
-  S.recintos.push({id:ridCtr++,nombre,partidas});
+  const categorias=(r.categorias||[]).map(function(cat){
+    return{id:catCtr++,nombre:cat.nombre,partidas:(cat.partidas||[]).map(function(p){return Object.assign({},p,{id:pidCtr++});})};
+  });
+  S.recintos.push({id:ridCtr++,nombre,partidas,categorias});
   renderRecintos();
 }
 // ── Copiar/pegar partidas sueltas entre recintos ──
@@ -1065,7 +1142,7 @@ function toggleSelPid(rid,pid){
 function copiarSeleccion(rid){
   const r=S.recintos.find(x=>x.id===rid);if(!r)return;
   const ids=selPids[rid]||{};
-  const partidas=r.partidas.filter(function(p){return ids[p.id];});
+  const partidas=todasPartidas(r).filter(function(p){return ids[p.id];});
   if(!partidas.length){alert('Selecciona al menos una partida.');return;}
   clipboardPartidas=partidas.map(function(p){const c=Object.assign({},p);delete c.id;return c;});
   selMode[rid]=false;delete selPids[rid];
@@ -1081,13 +1158,14 @@ function pegarPartidas(rid){
 }
 function moverPartida(rid,pid,dir){
   const ri=S.recintos.findIndex(r=>r.id===rid);if(ri<0)return;
-  const r=S.recintos[ri],pi=r.partidas.findIndex(p=>p.id===pid);if(pi<0)return;
+  const loc=localizarPartida(rid,pid);if(!loc)return;
+  const arr=loc.cont,pi=loc.idx;
   if(dir<0){
-    if(pi>0){const t=r.partidas[pi-1];r.partidas[pi-1]=r.partidas[pi];r.partidas[pi]=t;}
-    else if(ri>0){const [p]=r.partidas.splice(pi,1);S.recintos[ri-1].partidas.push(p);}
+    if(pi>0){const t=arr[pi-1];arr[pi-1]=arr[pi];arr[pi]=t;}
+    else if(!loc.cat&&ri>0){const [p]=arr.splice(pi,1);S.recintos[ri-1].partidas.push(p);}
   }else{
-    if(pi<r.partidas.length-1){const t=r.partidas[pi+1];r.partidas[pi+1]=r.partidas[pi];r.partidas[pi]=t;}
-    else if(ri<S.recintos.length-1){const [p]=r.partidas.splice(pi,1);S.recintos[ri+1].partidas.unshift(p);}
+    if(pi<arr.length-1){const t=arr[pi+1];arr[pi+1]=arr[pi];arr[pi]=t;}
+    else if(!loc.cat&&ri<S.recintos.length-1){const [p]=arr.splice(pi,1);S.recintos[ri+1].partidas.unshift(p);}
   }
   renderRecintos();
 }
@@ -1100,37 +1178,50 @@ function crearRecintoBlanco(){
   const nombre=(prompt('Nombre del recinto en blanco:')||'').trim();
   if(!nombre)return;
   const p={id:pidCtr++,capitulo:'Personalizada',detalle:'Partida personalizada',unidad:'m2',cantidad:1,precioUnit:0,total:0,obs:''};
-  S.recintos.push({id:ridCtr++,nombre,partidas:[p]});renderRecintos();
+  S.recintos.push({id:ridCtr++,nombre,partidas:[p],categorias:[]});renderRecintos();
   abrirEditPartida(S.recintos[S.recintos.length-1].id,p.id);
 }
 function eliminarRecinto(rid){if(confirm('Eliminar este recinto?')){S.recintos=S.recintos.filter(r=>r.id!==rid);renderRecintos();}}
 function eliminarPartida(rid,pid){
-  const r=S.recintos.find(r=>r.id===rid);if(!r)return;
-  r.partidas=r.partidas.filter(p=>p.id!==pid);
+  const loc=localizarPartida(rid,pid);if(!loc)return;
+  loc.cont.splice(loc.idx,1);
+  renderRecintos();
+}
+function renombrarCategoria(rid,catId){
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  const cat=(r.categorias||[]).find(c=>c.id===catId);if(!cat)return;
+  const nuevo=(prompt('Nuevo nombre para la categoría:',cat.nombre)||'').trim();
+  if(!nuevo)return;
+  cat.nombre=nuevo;renderRecintos();
+}
+function eliminarCategoria(rid,catId){
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  const cat=(r.categorias||[]).find(c=>c.id===catId);if(!cat)return;
+  const n=(cat.partidas||[]).length;
+  if(!confirm('¿Eliminar la categoría "'+cat.nombre+'"'+(n?' junto con sus '+n+' partida'+(n!==1?'s':'')+'?':'?'))) return;
+  r.categorias=r.categorias.filter(c=>c.id!==catId);
+  renderRecintos();
+}
+function moverCategoria(rid,catId,dir){
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  const i=(r.categorias||[]).findIndex(c=>c.id===catId),j=i+dir;
+  if(i<0||j<0||j>=r.categorias.length)return;
+  const t=r.categorias[i];r.categorias[i]=r.categorias[j];r.categorias[j]=t;
   renderRecintos();
 }
 function updateMini(){
-  const all=S.recintos.flatMap(r=>r.partidas);
+  const all=S.recintos.flatMap(r=>todasPartidas(r));
   const cd=all.reduce((s,p)=>s+p.total,0);
   const mini=document.getElementById('mini-res');
   mini.style.display=all.length?'flex':'none';
   document.getElementById('mini-cd').textContent=fmt(cd);
   document.getElementById('mini-cnt').textContent=all.length;
 }
-// Lista de categorias sugeridas para el selector de partida: las que ya trae
-// la base de Partidas + las que ya se hayan usado manualmente en este presupuesto,
-// para que las categorias creadas "a mano" (ej. en partidas personalizadas)
-// tambien queden disponibles despues como sugerencia.
-function categoriasSugeridas(){
-  const enUso=S.recintos.flatMap(r=>r.partidas).map(p=>p.capitulo).filter(Boolean);
-  return[...new Set([...CAPS(),...enUso])];
-}
 function abrirEditPartida(rid,pid){
   editRid=rid;editPid=pid;
-  const p=S.recintos.find(x=>x.id===rid).partidas.find(x=>x.id===pid);
+  const loc=localizarPartida(rid,pid);if(!loc)return;
+  const p=loc.cont[loc.idx];
   document.getElementById('ep-det').value=p.detalle;
-  document.getElementById('ep-cat').value=p.capitulo||'';
-  document.getElementById('ep-cat-dl').innerHTML=categoriasSugeridas().map(c=>'<option value="'+String(c).replace(/"/g,'&quot;')+'">').join('');
   const uSel=document.getElementById('ep-u');
   [...uSel.options].forEach((o,i)=>{if(o.value===p.unidad)uSel.selectedIndex=i;});
   document.getElementById('ep-q').value=p.cantidad;
@@ -1180,9 +1271,9 @@ function calcEPTot(){
   document.getElementById('ep-tot').textContent='Total: '+fmt(q*p);
 }
 function guardarEditPartida(){
-  const r=S.recintos.find(x=>x.id===editRid),p=r.partidas.find(x=>x.id===editPid);
+  const loc=localizarPartida(editRid,editPid);if(!loc)return;
+  const p=loc.cont[loc.idx];
   p.detalle=document.getElementById('ep-det').value.trim()||p.detalle;
-  p.capitulo=document.getElementById('ep-cat').value.trim()||p.capitulo||'Otros';
   p.unidad=document.getElementById('ep-u').value;
   p.cantidad=parseFloat(document.getElementById('ep-q').value)||p.cantidad;
   p.precioUnit=parseFloat(document.getElementById('ep-p').value)||p.precioUnit;
@@ -1194,7 +1285,7 @@ function renderDB(){
   const capEl=document.getElementById('db-cap-tabs');
   capEl.innerHTML=['Todos',...CAPS()].map(c=>'<div class="cap-tab'+(c===dbActiveCap?' active':'')+'" onclick="dbSelectCap(\''+c.replace(/'/g,"\\'")+'\')">' +c+'</div>').join('');
   const q=(document.getElementById('db-search').value||'').toLowerCase();
-  const filtered=DB.filter(p=>(dbActiveCap==='Todos'||p.c===dbActiveCap)&&(p.d.toLowerCase().includes(q)||p.c.toLowerCase().includes(q)));
+  const filtered=DB.filter(p=>(q||dbActiveCap==='Todos'||p.c===dbActiveCap)&&(p.d.toLowerCase().includes(q)||p.c.toLowerCase().includes(q)));
   const listEl=document.getElementById('db-list');
   if(!filtered.length){listEl.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">Sin resultados</div>';return;}
   listEl.innerHTML=filtered.map(p=>{
@@ -1314,7 +1405,7 @@ function guardarPartidasEnDrive(){
 function pFactor(p){return (S.pctInflar>0 && !p.noInflar)?(1+S.pctInflar/100):1;}
 function pTotalInf(p){return p.total*pFactor(p);}
 function pUnitInf(p){return p.precioUnit*pFactor(p);}
-function calcCD(){return S.recintos.flatMap(r=>r.partidas).reduce((s,p)=>s+pTotalInf(p),0);}
+function calcCD(){return S.recintos.flatMap(r=>todasPartidas(r)).reduce((s,p)=>s+pTotalInf(p),0);}
 function calcFinales(){
   const cd=calcCD();
   const gguu=(S.showGG!==false)?cd*(S.pctGG/100):0;
@@ -1325,27 +1416,27 @@ function calcFinales(){
 }
 function renderResumen(){
   const c=document.getElementById('resumen-content');
-  const all=S.recintos.flatMap(r=>r.partidas);
+  const all=S.recintos.flatMap(r=>todasPartidas(r));
   if(!all.length){c.innerHTML='<div class="empty"><div class="empty-icon"><i class="ti ti-chart-bar"></i></div><div class="empty-txt">Agrega recintos y partidas para ver el resumen.</div></div>';return;}
   const cdRaw=all.reduce((s,p)=>s+p.total,0);
   const{cd,gguu,neto,iva,total}=calcFinales();
   const infPct=S.pctInflar||0;
   const sinInfo=S.siniestro?'<div class="sin-disp '+SIN_CFG[S.siniestro].disp+'" style="margin-bottom:11px;font-size:12px;">'+esc(S.siniestro==='custom'?(S.datos.sinCustom||'Personalizado'):SIN_CFG[S.siniestro].label)+'</div>':'';
+  const filaResumen=(r,p)=>{
+    const noInf=infPct>0?'<button class="noinf-btn'+(p.noInflar?' on':'')+'" onclick="toggleNoInflar('+r.id+','+p.id+')" title="No inflar esta partida"><i class="ti ti-flame-off"></i>'+(p.noInflar?'No inflada':'Inflar')+'</button>':'';
+    return'<div class="rp-row"><div class="rp-det">'+esc(p.detalle)+(p.obs?'<div style="font-size:9px;color:var(--muted)">'+esc(p.obs)+(p.obsPos==='inline'?' · (junto a la partida)':'')+'</div>':'')+'</div><span class="rp-un">'+esc((p.unidad||'').toUpperCase())+'</span><span class="rp-qty">'+p.cantidad+'</span><span class="rp-tot">'+fmt(pTotalInf(p))+'</span>'+noInf+'<button class="btn-sm btn-sm-sec" onclick="abrirEditPartida('+r.id+','+p.id+')" style="padding:4px 6px;font-size:10px;"><i class="ti ti-pencil"></i></button></div>';
+  };
   const detRows=S.recintos.map(r=>{
-    const sub=r.partidas.reduce((s,p)=>s+pTotalInf(p),0);
-    const gruposHTML=agruparPorCategoria(r.partidas).map(function(g){
-      const catRows=g.items.map(p=>{
-        const noInf=infPct>0?'<button class="noinf-btn'+(p.noInflar?' on':'')+'" onclick="toggleNoInflar('+r.id+','+p.id+')" title="No inflar esta partida"><i class="ti ti-flame-off"></i>'+(p.noInflar?'No inflada':'Inflar')+'</button>':'';
-        return'<div class="rp-row"><div class="rp-det">'+esc(p.detalle)+(p.obs?'<div style="font-size:9px;color:var(--muted)">'+esc(p.obs)+(p.obsPos==='inline'?' · (junto a la partida)':'')+'</div>':'')+'</div><span class="rp-un">'+esc((p.unidad||'').toUpperCase())+'</span><span class="rp-qty">'+p.cantidad+'</span><span class="rp-tot">'+fmt(pTotalInf(p))+'</span>'+noInf+'<button class="btn-sm btn-sm-sec" onclick="abrirEditPartida('+r.id+','+p.id+')" style="padding:4px 6px;font-size:10px;"><i class="ti ti-pencil"></i></button></div>';
-      }).join('');
-      return'<div class="cat-hdr">'+esc(g.cat)+'</div>'+catRows;
-    }).join('');
+    const cats=r.categorias||[];
+    const sub=todasPartidas(r).reduce((s,p)=>s+pTotalInf(p),0);
+    const bloqueSueltas=r.partidas.length?(cats.length?'<div class="cat-hdr cat-suelta"><span>Sin categoría</span></div>':'')+r.partidas.map(p=>filaResumen(r,p)).join(''):'';
+    const bloquesCategorias=cats.map(cat=>'<div class="cat-hdr"><span>'+esc(cat.nombre.toUpperCase())+'</span></div>'+(cat.partidas||[]).map(p=>filaResumen(r,p)).join('')).join('');
     return'<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px;border-bottom:1.5px solid var(--teal);margin-bottom:4px;display:flex;justify-content:space-between;"><span>'+esc(r.nombre)+'</span><span style="color:var(--green);">'+fmt(sub)+'</span></div>'+
-      gruposHTML+
+      bloqueSueltas+bloquesCategorias+
       '</div>';
   }).join('');
   const recRows=S.recintos.map(r=>{
-    const sub=r.partidas.reduce((s,p)=>s+pTotalInf(p),0),pct=cd>0?((sub/cd)*100).toFixed(1):'0.0';
+    const sub=todasPartidas(r).reduce((s,p)=>s+pTotalInf(p),0),pct=cd>0?((sub/cd)*100).toFixed(1):'0.0';
     return'<div class="res-row"><span class="res-label">'+esc(r.nombre)+'</span><div style="text-align:right"><div class="res-val">'+fmt(sub)+'</div><div style="font-size:10px;color:var(--muted)">'+pct+'%</div></div></div>';
   }).join('');
   const ggOn=S.showGG!==false, ivaOn=S.showIVA!==false;
@@ -1363,8 +1454,8 @@ function renderResumen(){
     '</div>';
 }
 function toggleNoInflar(rid,pid){
-  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
-  const p=r.partidas.find(x=>x.id===pid);if(!p)return;
+  const loc=localizarPartida(rid,pid);if(!loc)return;
+  const p=loc.cont[loc.idx];
   p.noInflar=!p.noInflar;renderResumen();
 }
 function abrirModalFinal(){
@@ -1380,7 +1471,7 @@ function abrirModalFinal(){
 }
 function getObservaciones(){
   const obs=[];
-  S.recintos.forEach(r=>r.partidas.forEach(p=>{if(p.obs&&p.obs.trim()&&p.obsPos!=='inline')obs.push(p.obs.trim());}));
+  S.recintos.forEach(r=>todasPartidas(r).forEach(p=>{if(p.obs&&p.obs.trim()&&p.obsPos!=='inline')obs.push(p.obs.trim());}));
   return[...new Set(obs)];
 }
 function cargarLogoPNG(input){
@@ -1399,7 +1490,7 @@ const LOGO_FALLBACK='<svg width="70" height="80" viewBox="0 0 100 115" xmlns="ht
 function exportarExcel(){
  try{
   if(typeof XLSX==='undefined'){alert('No se pudo cargar la libreria de Excel (XLSX). Revisa tu conexion a internet, o que el navegador/adblock no este bloqueando cdnjs.cloudflare.com, y recarga la pagina.');return;}
-  const all=S.recintos.flatMap(r=>r.partidas);
+  const all=S.recintos.flatMap(r=>todasPartidas(r));
   if(!all.length) return alert('No hay partidas para exportar.');
   const d=S.datos;
   const sinTxt=getSinTxt();
@@ -1414,11 +1505,16 @@ function exportarExcel(){
   rows.push(['','','','','','']);
   rows.push(['ITEM N','Designacion','Un.','Cantidad','Unitario','Total']);
   let n=1;
+  const filaExcel=p=>{
+    const desig=(p.obs&&p.obsPos==='inline')?(p.detalle+'\nObs.: '+p.obs):p.detalle;
+    return[n+++',001',desig,(p.unidad||'').toUpperCase(),p.cantidad,Math.round(pUnitInf(p)),Math.round(pTotalInf(p))];
+  };
   S.recintos.forEach(r=>{
     rows.push([r.nombre.toUpperCase(),'','','','','']);
-    r.partidas.forEach(p=>{
-      const desig=(p.obs&&p.obsPos==='inline')?(p.detalle+'\nObs.: '+p.obs):p.detalle;
-      rows.push([n+++',001',desig,(p.unidad||'').toUpperCase(),p.cantidad,Math.round(pUnitInf(p)),Math.round(pTotalInf(p))]);
+    r.partidas.forEach(p=>rows.push(filaExcel(p)));
+    (r.categorias||[]).forEach(cat=>{
+      rows.push(['  '+cat.nombre.toUpperCase(),'','','','','']);
+      (cat.partidas||[]).forEach(p=>rows.push(filaExcel(p)));
     });
   });
   rows.push(['','','','','','']);
@@ -1456,8 +1552,16 @@ function importarExcel(input){
       const backup=JSON.parse(data[0][0]);
       if(!backup.state) throw new Error('Formato invalido');
       S=backup.state;if(backup.db) DB=backup.db;
-      pidCtr=1;ridCtr=1;
-      S.recintos.forEach(r=>{if(r.id>=ridCtr)ridCtr=r.id+1;r.partidas.forEach(p=>{if(p.id>=pidCtr)pidCtr=p.id+1;});});
+      pidCtr=1;ridCtr=1;catCtr=1;
+      S.recintos.forEach(r=>{
+        if(!r.categorias)r.categorias=[];
+        if(r.id>=ridCtr)ridCtr=r.id+1;
+        (r.partidas||[]).forEach(p=>{if(p.id>=pidCtr)pidCtr=p.id+1;});
+        r.categorias.forEach(cat=>{
+          if(cat.id>=catCtr)catCtr=cat.id+1;
+          (cat.partidas||[]).forEach(p=>{if(p.id>=pidCtr)pidCtr=p.id+1;});
+        });
+      });
       const campos={nombre:'d-nombre',rut:'d-rut',siniestro:'d-sin',direccion:'d-dir',comuna:'d-comuna',fecha:'d-fecha',sinCustom:'d-sin-custom'};
       Object.entries(campos).forEach(function(e){const el=document.getElementById(e[1]);if(el)el.value=(S.datos&&S.datos[e[0]])||'';});
       const st=S.siniestro;S.siniestro=null;if(st)setSiniestro(st);
@@ -1467,21 +1571,29 @@ function importarExcel(input){
   };
   reader.readAsArrayBuffer(file);
 }
+// Arma las filas <tr> de un recinto para los PDF: primero sus partidas
+// sueltas (con encabezado "Sin categoría" solo si tambien hay categorias),
+// luego un bloque por cada categoria manual creada. filaFn(p) arma UNA fila.
+function bloquesRecintoPDF(r,filaFn){
+  const cats=r.categorias||[];
+  let out=r.partidas.length?(cats.length?'<tr><td colspan="6" class="cat-hdr-pdf">SIN CATEGORÍA</td></tr>':'')+r.partidas.map(filaFn).join(''):'';
+  cats.forEach(function(cat){
+    out+='<tr><td colspan="6" class="cat-hdr-pdf">'+esc(cat.nombre.toUpperCase())+'</td></tr>'+(cat.partidas||[]).map(filaFn).join('');
+  });
+  return out;
+}
 function exportarPDF(){
  try{
-  const all=S.recintos.flatMap(r=>r.partidas);
+  const all=S.recintos.flatMap(r=>todasPartidas(r));
   if(!all.length) return alert('No hay partidas para exportar.');
   const d=S.datos;
   const sinTxt=getSinTxt();
   const{cd,gguu,neto,iva,total}=calcFinales();
   const obsArr=getObservaciones();
   let n=1;
+  const filaPDF=p=>'<tr><td>'+n+++',001</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#00657e;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>';
   const tbody=S.recintos.map(r=>{
-    const gruposRows=agruparPorCategoria(r.partidas).map(function(g){
-      const catRows=g.items.map(p=>'<tr><td>'+n+++',001</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#00657e;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>').join('');
-      return'<tr><td colspan="6" class="cat-hdr-pdf">'+esc(g.cat.toUpperCase())+'</td></tr>'+catRows;
-    }).join('');
-    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+gruposRows;
+    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+bloquesRecintoPDF(r,filaPDF);
   }).join('');
   const obsHTML=obsArr.length?'<div class="obs-box"><div class="obs-title">OBSERVACIONES:</div>'+obsArr.map((o,i)=>'<div class="obs-item"><strong>'+(i+1)+':</strong> '+o+'</div>').join('')+'</div>':'';
   const logoHTML=logoPngB64?'<img src="'+logoPngB64+'" style="width:80px;height:auto;display:block;" alt="CR Consulting">':LOGO_FALLBACK;
@@ -1509,7 +1621,7 @@ function exportarPDF(){
 }
 function exportarPDFAlt(){
  try{
-  const all=S.recintos.flatMap(r=>r.partidas);
+  const all=S.recintos.flatMap(r=>todasPartidas(r));
   if(!all.length) return alert('No hay partidas para exportar.');
   const d=S.datos;
   const sinTxt=getSinTxt();
@@ -1517,12 +1629,9 @@ function exportarPDFAlt(){
   const obsArr=getObservaciones();
   const nombreEmp=(document.getElementById('d-nombre-constructora').value||'').trim();
   let n=1;
+  const filaPDFAlt=p=>'<tr><td>'+String(n++).padStart(2,'0')+'</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#5b7f4f;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>';
   const tbody=S.recintos.map(r=>{
-    const gruposRows=agruparPorCategoria(r.partidas).map(function(g){
-      const catRows=g.items.map(p=>'<tr><td>'+String(n++).padStart(2,'0')+'</td><td>'+esc(p.detalle)+((p.obs&&p.obsPos==='inline')?'<div style="font-size:8.5px;color:#5b7f4f;font-style:italic;margin-top:2px;">Obs.: '+esc(p.obs)+'</div>':'')+'</td><td style="text-align:center;">'+esc((p.unidad||'').toUpperCase())+'</td><td style="text-align:right;">'+p.cantidad+'</td><td style="text-align:right;">$ '+fmtN(Math.round(pUnitInf(p)))+'</td><td style="text-align:right;font-weight:700;">$ '+fmtN(Math.round(pTotalInf(p)))+'</td></tr>').join('');
-      return'<tr><td colspan="6" class="cat-hdr-pdf">'+esc(g.cat.toUpperCase())+'</td></tr>'+catRows;
-    }).join('');
-    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+gruposRows;
+    return'<tr><td colspan="6" class="rc-hdr-pdf">'+esc(r.nombre.toUpperCase())+'</td></tr>'+bloquesRecintoPDF(r,filaPDFAlt);
   }).join('');
   const obsHTML=obsArr.length?'<div class="obs-box"><div class="obs-title">OBSERVACIONES</div>'+obsArr.map((o,i)=>'<div class="obs-item"><strong>'+(i+1)+'.</strong> '+o+'</div>').join('')+'</div>':'';
   const empHTML=nombreEmp?'<div class="emp-name">'+esc(nombreEmp)+'</div>':'<div class="emp-name emp-name-ph">CONSTRUCTORA</div>';
@@ -1586,7 +1695,7 @@ function exportarPDFAlt(){
 }
 function confirmarNuevo(){
   if(confirm('Borrar todo y comenzar un nuevo presupuesto?')){
-    S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0,showGG:true,showIVA:true};pidCtr=1;ridCtr=1;
+    S={siniestro:null,datos:{},recintos:[],pctGG:25,pctIVA:19,pctInflar:0,showGG:true,showIVA:true};pidCtr=1;ridCtr=1;catCtr=1;
     ['d-nombre','d-rut','d-sin','d-dir','d-comuna','d-fecha','d-sin-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     ['btn-can','btn-vie','btn-sis','btn-inc','btn-cus'].forEach(id=>{const el=document.getElementById(id);if(el)el.className='sin-btn';});
     document.getElementById('sin-custom-wrap').style.display='none';
@@ -1597,6 +1706,6 @@ renderRecintos();
 cargarDBdesdeDrive();
 renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v32 · 09/2026</div>
+<div class="version-tag">CR Consulting · v34 · 09/2026</div>
 </body>
 </html>
