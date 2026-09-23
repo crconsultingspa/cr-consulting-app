@@ -109,6 +109,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 
 .cat-hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:var(--disp);font-size:10.5px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.10em;padding:9px 4px 5px;border-bottom:1.5px solid var(--teal-soft);margin-top:4px}
 .cat-hdr:first-child{margin-top:0}
 .cat-hdr.cat-suelta{color:var(--text-3);border-bottom-color:var(--border-strong)}
+.cat-nombre{cursor:pointer;border-radius:4px;padding:2px 4px;margin:-2px -4px}
+.cat-nombre:hover{background:var(--teal-soft);text-decoration:underline}
 .cat-hdr-actions{display:flex;gap:2px;flex-shrink:0}
 .cat-mini-btn{background:none;border:none;color:var(--teal);cursor:pointer;padding:3px 4px;font-size:13px;line-height:1;border-radius:5px;display:inline-flex}
 .cat-mini-btn:hover{background:var(--teal-soft)}
@@ -1082,11 +1084,13 @@ function renderRecintos(){
     // Un bloque por cada categoria manual, con sus acciones (mover, renombrar, añadir, eliminar)
     const bloquesCategorias=r.categorias.map((cat,ci)=>{
       const subCat=(cat.partidas||[]).reduce((s,p)=>s+p.total,0);
-      const catHdr='<div class="cat-hdr"><span>'+esc(cat.nombre.toUpperCase())+' · '+fmt(subCat)+'</span>'+
+      const pegarCat=(!isSel&&clipboardPartidas&&clipboardPartidas.length)?'<button class="cat-mini-btn" onclick="pegarEnCategoria('+r.id+','+cat.id+')" title="Pegar '+clipboardPartidas.length+' partida'+(clipboardPartidas.length!==1?'s':'')+' aquí"><i class="ti ti-clipboard"></i></button>':'';
+      const catHdr='<div class="cat-hdr"><span class="cat-nombre" onclick="renombrarCategoria('+r.id+','+cat.id+')" title="Click para renombrar la categoría">'+esc(cat.nombre.toUpperCase())+' · '+fmt(subCat)+'</span>'+
         '<span class="cat-hdr-actions">'+
           '<button class="cat-mini-btn" onclick="moverCategoria('+r.id+','+cat.id+',-1)" title="Subir categoría"'+(ci===0?' disabled style="opacity:.3"':'')+'><i class="ti ti-chevron-up"></i></button>'+
           '<button class="cat-mini-btn" onclick="moverCategoria('+r.id+','+cat.id+',1)" title="Bajar categoría"'+(ci===r.categorias.length-1?' disabled style="opacity:.3"':'')+'><i class="ti ti-chevron-down"></i></button>'+
           '<button class="cat-mini-btn" onclick="renombrarCategoria('+r.id+','+cat.id+')" title="Renombrar categoría"><i class="ti ti-pencil"></i></button>'+
+          pegarCat+
           '<button class="cat-mini-btn" onclick="abrirModalCategoria('+r.id+','+cat.id+')" title="Añadir partida a esta categoría"><i class="ti ti-plus"></i></button>'+
           '<button class="cat-mini-btn cat-mini-btn-red" onclick="eliminarCategoria('+r.id+','+cat.id+')" title="Eliminar categoría"><i class="ti ti-trash"></i></button>'+
         '</span></div>';
@@ -1142,18 +1146,52 @@ function toggleSelPid(rid,pid){
 function copiarSeleccion(rid){
   const r=S.recintos.find(x=>x.id===rid);if(!r)return;
   const ids=selPids[rid]||{};
-  const partidas=todasPartidas(r).filter(function(p){return ids[p.id];});
-  if(!partidas.length){alert('Selecciona al menos una partida.');return;}
-  clipboardPartidas=partidas.map(function(p){const c=Object.assign({},p);delete c.id;return c;});
+  // Se recorre por separado para recordar de que categoria venia cada partida,
+  // asi al pegar se puede reconstruir la misma estructura en el recinto destino.
+  const sel=[];
+  (r.partidas||[]).forEach(function(p){ if(ids[p.id]) sel.push({p:p,cat:null}); });
+  (r.categorias||[]).forEach(function(cat){
+    (cat.partidas||[]).forEach(function(p){ if(ids[p.id]) sel.push({p:p,cat:cat.nombre}); });
+  });
+  if(!sel.length){alert('Selecciona al menos una partida.');return;}
+  clipboardPartidas=sel.map(function(x){const c=Object.assign({},x.p);delete c.id;c.__cat=x.cat;return c;});
   selMode[rid]=false;delete selPids[rid];
   renderRecintos();
-  alert(clipboardPartidas.length+' partida'+(clipboardPartidas.length!==1?'s':'')+' copiada'+(clipboardPartidas.length!==1?'s':'')+'. Ve al recinto donde quieras pegarlas (o crea uno nuevo) y presiona "Pegar".');
+  const conCat=clipboardPartidas.filter(function(p){return p.__cat;}).length;
+  alert(clipboardPartidas.length+' partida'+(clipboardPartidas.length!==1?'s':'')+' copiada'+(clipboardPartidas.length!==1?'s':'')+'.'+
+    (conCat?' Se recordó su categoría: al pegar en un recinto se recrean las mismas categorías.':'')+
+    ' Ve al recinto (o a una categoría) donde quieras pegarlas y presiona "Pegar".');
 }
+// Pega en el recinto: respeta la categoria de origen de cada partida. Las que
+// venian sueltas quedan sueltas; las que venian de una categoria se agregan a
+// la categoria del mismo nombre en el recinto destino (se crea si no existe).
 function pegarPartidas(rid){
   if(!clipboardPartidas||!clipboardPartidas.length){alert('No hay partidas copiadas todavía. Usa el botón de selección en un recinto primero.');return;}
   const r=S.recintos.find(x=>x.id===rid);if(!r)return;
-  const nuevas=clipboardPartidas.map(function(p){return Object.assign({},p,{id:pidCtr++});});
-  r.partidas=[...r.partidas,...nuevas];
+  if(!r.categorias)r.categorias=[];
+  let nSueltas=0;const catsTocadas=[];
+  clipboardPartidas.forEach(function(p){
+    const nueva=Object.assign({},p,{id:pidCtr++});
+    const nombreCat=nueva.__cat;delete nueva.__cat;
+    if(!nombreCat){r.partidas.push(nueva);nSueltas++;return;}
+    let cat=r.categorias.find(function(c){return c.nombre.toLowerCase()===String(nombreCat).toLowerCase();});
+    if(!cat){cat={id:catCtr++,nombre:nombreCat,partidas:[]};r.categorias.push(cat);}
+    cat.partidas.push(nueva);
+    if(catsTocadas.indexOf(cat.nombre)===-1)catsTocadas.push(cat.nombre);
+  });
+  renderRecintos();
+  if(catsTocadas.length)alert('Pegado en "'+r.nombre+'": '+(nSueltas?nSueltas+' suelta(s) y ':'')+'partidas en '+catsTocadas.join(', ')+'.');
+}
+// Pega TODAS las partidas copiadas dentro de una categoria concreta, sin
+// importar de donde vinieran (aqui manda la categoria donde presionaste pegar).
+function pegarEnCategoria(rid,catId){
+  if(!clipboardPartidas||!clipboardPartidas.length){alert('No hay partidas copiadas todavía.');return;}
+  const r=S.recintos.find(x=>x.id===rid);if(!r)return;
+  const cat=(r.categorias||[]).find(c=>c.id===catId);if(!cat)return;
+  clipboardPartidas.forEach(function(p){
+    const nueva=Object.assign({},p,{id:pidCtr++});delete nueva.__cat;
+    cat.partidas.push(nueva);
+  });
   renderRecintos();
 }
 function moverPartida(rid,pid,dir){
@@ -1531,7 +1569,14 @@ function exportarExcel(){
   try{Object.keys(ws).forEach(function(k){if(k[0]==='B'){if(!ws[k].s)ws[k].s={};ws[k].s.alignment={wrapText:true,vertical:'top'};}});}catch(e){}
   XLSX.utils.book_append_sheet(wb,ws,'Presupuesto');
   const backup={version:3,state:JSON.parse(JSON.stringify(S)),db:DB};
-  const wsB=XLSX.utils.aoa_to_sheet([[JSON.stringify(backup)]]);
+  // Excel no admite mas de 32.767 caracteres por celda, y el respaldo (estado +
+  // base de partidas) ya supera ese tamano. Por eso se parte en trozos de
+  // 30.000 y se escribe uno por fila; al importar se vuelven a unir en orden.
+  const backupTxt=JSON.stringify(backup);
+  const TROZO=30000;
+  const filasBackup=[];
+  for(let i=0;i<backupTxt.length;i+=TROZO) filasBackup.push([backupTxt.slice(i,i+TROZO)]);
+  const wsB=XLSX.utils.aoa_to_sheet(filasBackup.length?filasBackup:[['']]);
   XLSX.utils.book_append_sheet(wb,wsB,'_CR_BACKUP');
   const fn=(d.nombre||'ppto').replace(/\s+/g,'_').toUpperCase();
   XLSX.writeFile(wb,'PPTO_'+fn+'_'+(d.fecha||'SINFECHA')+'.xlsx');
@@ -1549,7 +1594,12 @@ function importarExcel(input){
       const bs=wb.Sheets['_CR_BACKUP'];
       if(!bs){alert('Este archivo no fue generado por PresupuestApp.');return;}
       const data=XLSX.utils.sheet_to_json(bs,{header:1});
-      const backup=JSON.parse(data[0][0]);
+      // El respaldo viene partido en varias filas (una por trozo) porque Excel
+      // limita cada celda a 32.767 caracteres. Se unen en orden. Los archivos
+      // antiguos traian todo en una sola fila, y este mismo codigo los abre igual.
+      const backupTxt=data.map(function(fila){return (fila&&fila[0]!==undefined&&fila[0]!==null)?String(fila[0]):'';}).join('');
+      if(!backupTxt.trim()){alert('Este archivo no tiene un respaldo legible.');return;}
+      const backup=JSON.parse(backupTxt);
       if(!backup.state) throw new Error('Formato invalido');
       S=backup.state;if(backup.db) DB=backup.db;
       pidCtr=1;ridCtr=1;catCtr=1;
@@ -1706,6 +1756,6 @@ renderRecintos();
 cargarDBdesdeDrive();
 renderLiqDatalist();
 </script>
-<div class="version-tag">CR Consulting · v34 · 09/2026</div>
+<div class="version-tag">CR Consulting · v36 · 09/2026</div>
 </body>
 </html>
