@@ -1993,6 +1993,10 @@ function formPost(url, data) {
 // ── AGENDAR INSPECCIÓN EN CALENDAR ────────────────────────────────────────────
 // Crea un evento en el Calendar de CR Consulting e invita al asegurado (con su
 // email ya guardado en el caso) y al inspector de CR (email fijo en el backend).
+// Primero GUARDA el caso (para que la fecha quede en la Hoja aunque no se haya
+// apretado "Guardar" antes) y recién después pide el agendamiento — por vía
+// JSONP (GET), no con el formPost de "no-cors", para poder mostrar un error
+// real si algo falla (por ejemplo si el backend aún no tiene esta acción).
 async function agendarEnCalendar() {
   if (!editingId) { showToast('Guarda el caso primero', 'error'); return; }
   const fecha = document.getElementById('f-fechaAgendamiento').value;
@@ -2003,13 +2007,28 @@ async function agendarEnCalendar() {
   const btn = document.getElementById('btn-agendar-calendar');
   const original = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader"></i> Agendando…';
+  btn.innerHTML = '<i class="ti ti-loader"></i> Guardando fecha…';
   try {
-    await formPost(SHEETS_URL, { action: 'agendarCalendar', id: editingId, fecha });
-    await new Promise(r => setTimeout(r, 2000));
-    showToast('✓ Invitación de Calendar enviada');
+    // 1) Guarda la fecha (y solo la fecha) en la Hoja, por si no se había
+    //    guardado el caso todavía.
+    await apiCall({ action: 'update', id: editingId, fechaAgendamiento: fecha });
+
+    // 2) Pide el agendamiento en Calendar y espera una respuesta real.
+    btn.innerHTML = '<i class="ti ti-loader"></i> Agendando…';
+    const url = SHEETS_URL
+      + '?action=agendarCalendar'
+      + '&id=' + encodeURIComponent(editingId)
+      + '&fecha=' + encodeURIComponent(fecha);
+    const res = await jsonpFetch(url, 'cr_agenda');
+
+    if (res && res.ok) {
+      const omitidos = res.omitidos && res.omitidos.length ? ` (sin invitar: ${res.omitidos.join(', ')})` : '';
+      showToast('✓ Invitación de Calendar enviada' + omitidos);
+    } else {
+      showToast('Error al agendar: ' + ((res && res.error) || 'respuesta inválida del servidor'), 'error');
+    }
   } catch (err) {
-    showToast('Error al agendar en Calendar', 'error');
+    showToast('Error al agendar en Calendar: ' + (err && err.message ? err.message : 'sin conexión'), 'error');
   } finally {
     btn.disabled = false;
     btn.innerHTML = original;
