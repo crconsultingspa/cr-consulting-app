@@ -801,7 +801,7 @@
     .pendientes-cols-wrap > .pendientes-cols { min-height:0; overflow:hidden; }
     .pendientes-bar.pend-collapsed { padding-bottom: 14px; }
     .pendientes-cols { display: flex; gap: 18px; flex: 1; flex-wrap: wrap; z-index:1; }
-    .pendiente-col { flex: 1; min-width: 210px; }
+    .pendiente-col { flex: 1; min-width: 170px; }
     .pendiente-col-title { font-family:var(--disp); font-size: 12px; font-weight: 600; color: var(--teal-2); letter-spacing: .08em; text-transform:uppercase; margin-bottom: 9px; display:flex; align-items:center; gap:6px; }
     .pendiente-col-title::before { content:''; width:6px; height:6px; border-radius:50%; background: var(--teal-2); }
     .pendiente-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
@@ -812,10 +812,10 @@
     .pendiente-item button { background: none; border: none; cursor: pointer; color: rgba(255,247,238,0.35); font-size: 15px; padding: 0 2px; line-height: 1; }
     .pendiente-item button:hover { color: #e35d4e; }
     .pendiente-add { display: flex; gap: 7px; }
-    .pendiente-add input { flex: 1; font-size: 12.5px; padding: 7px 11px; border: 1px solid rgba(255,247,238,0.16); border-radius: var(--radius-sm); background: rgba(255,247,238,0.08); color: var(--cream); font-family: inherit; }
+    .pendiente-add input { flex: 1; min-width: 0; width: 100%; font-size: 12.5px; padding: 7px 11px; border: 1px solid rgba(255,247,238,0.16); border-radius: var(--radius-sm); background: rgba(255,247,238,0.08); color: var(--cream); font-family: inherit; }
     .pendiente-add input::placeholder { color: rgba(255,247,238,0.34); }
     .pendiente-add input:focus { outline: none; border-color: var(--teal-2); }
-    .pendiente-add button { padding: 7px 13px; border-radius: var(--radius-sm); background: var(--teal); color: #fff; border: none; cursor: pointer; font-size: 16px; font-family: inherit; font-weight: 600; line-height:1; transition: background .15s; }
+    .pendiente-add button { flex-shrink: 0; padding: 7px 13px; border-radius: var(--radius-sm); background: var(--teal); color: #fff; border: none; cursor: pointer; font-size: 16px; font-family: inherit; font-weight: 600; line-height:1; transition: background .15s; }
     .pendiente-add button:hover { background: var(--teal-2); }
 
     /* ─────────────────────────── AJUSTES ─────────────────────────── */
@@ -928,7 +928,7 @@
 
       /* Pendientes en columna */
       .pendientes-bar { flex-direction: column; gap: 14px; padding: 14px 16px; }
-      .pendiente-col { min-width: 0; }
+      .pendiente-col { min-width: 0; flex: 1 1 100%; }
 
       /* Funnel / barras compactas */
       .funnel-name { width: 96px; font-size:10.5px; }
@@ -1121,16 +1121,7 @@
           <i class="ti ti-chevron-up pend-chev"></i>
         </button>
         <div class="pendientes-cols-wrap">
-        <div class="pendientes-cols">
-          <div class="pendiente-col">
-            <div class="pendiente-col-title">Maglin</div>
-            <div class="pendiente-list" id="pend-maglin"></div>
-            <div class="pendiente-add">
-              <input type="text" id="pend-maglin-input" placeholder="Agregar pendiente…" onkeydown="if(event.key==='Enter') addPendiente('maglin')"/>
-              <button onclick="addPendiente('maglin')">+</button>
-            </div>
-          </div>
-        </div>
+        <div class="pendientes-cols" id="pendientes-cols"></div>
         </div>
       </div>
 
@@ -1682,6 +1673,10 @@ if (!SHEETS_URL || !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(
 // entrada con la misma clave y la lista de cambios. Es lo que se muestra al
 // pasar el mouse sobre el número de versión en la esquina inferior izquierda.
 const APP_CHANGELOG = {
+  '2026-09-30-v21': [
+    'Pendientes de hoy separados otra vez: Camilo, René y Maglin',
+    'Inspección de terreno: acta escrita a mano (queda como Doc en la carpeta del asegurado) + fotos por recinto',
+  ],
   '2026-09-29-v20': [
     'Arreglado el falso "Sin conexión" al sincronizar',
     'Fecha de contratos y mandatos ya no se repite; viene prellenada con la de hoy',
@@ -4002,9 +3997,14 @@ function chartToggleHTML() {
 }
 
 // ── PENDIENTES DEL DÍA ───────────────────────────────────────────────────────
-// Lista única "Maglin". Al cargar se fusiona cualquier pendiente antiguo de
-// René/Camilo, y al primer guardado quedan migrados a maglin en la Hoja.
-var pendientesData = { maglin: [] };
+// Una lista por persona. Para agregar a alguien más, basta con sumarlo aquí
+// (y en getPendientesData / savePendientesData del Codigo.gs).
+const PEND_PERSONAS = [
+  { k: 'camilo', n: 'Camilo' },
+  { k: 'rene',   n: 'René' },
+  { k: 'maglin', n: 'Maglin' }
+];
+var pendientesData = { camilo: [], rene: [], maglin: [] };
 
 function getTodayKey() {
   var d = new Date();
@@ -4016,7 +4016,8 @@ async function loadPendientes() {
     const result = await jsonpFetch(SHEETS_URL + '?action=getPendientes', 'cr_pend');
     if (result && result.ok && result.data) {
       const d = result.data;
-      pendientesData = { maglin: [].concat(d.maglin || [], d.rene || [], d.camilo || []) };
+      pendientesData = {};
+      PEND_PERSONAS.forEach(function(p) { pendientesData[p.k] = Array.isArray(d[p.k]) ? d[p.k] : []; });
       renderPendientes();
     }
   } catch(e) {
@@ -4033,22 +4034,41 @@ async function savePendientes() {
   }
 }
 
-function renderPendientes() {
-  actualizarContadorPendientes();
-  var el = document.getElementById('pend-maglin');
-  if (!el) return;
-  var items = pendientesData.maglin || [];
-  if (!items.length) {
-    el.innerHTML = '<div style="font-size:11px;color:rgba(255,247,238,0.3);padding:4px 0">Sin pendientes hoy</div>';
-    return;
-  }
-  el.innerHTML = items.map(function(item, i) {
-    return '<div class="pendiente-item' + (item.done?' done':'') + '">' +
-      '<input type="checkbox"' + (item.done?' checked':'') + ' onchange="togglePendiente(\'maglin\',' + i + ')">' +
-      '<span style="flex:1">' + escapeHtml(item.texto) + '</span>' +
-      '<button onclick="deletePendiente(\'maglin\',' + i + ')">&#x00D7;</button>' +
-      '</div>';
+// Arma las columnas una sola vez (así no se pierde lo que se está escribiendo
+// en otra columna al re-renderizar las listas).
+function construirColumnasPendientes() {
+  var cols = document.getElementById('pendientes-cols');
+  if (!cols || cols.childElementCount) return;
+  cols.innerHTML = PEND_PERSONAS.map(function(p) {
+    return '<div class="pendiente-col">' +
+      '<div class="pendiente-col-title">' + escapeHtml(p.n) + '</div>' +
+      '<div class="pendiente-list" id="pend-' + p.k + '"></div>' +
+      '<div class="pendiente-add">' +
+        '<input type="text" id="pend-' + p.k + '-input" placeholder="Agregar pendiente…" onkeydown="if(event.key===\'Enter\') addPendiente(\'' + p.k + '\')"/>' +
+        '<button onclick="addPendiente(\'' + p.k + '\')">+</button>' +
+      '</div></div>';
   }).join('');
+}
+
+function renderPendientes() {
+  construirColumnasPendientes();
+  actualizarContadorPendientes();
+  PEND_PERSONAS.forEach(function(p) {
+    var el = document.getElementById('pend-' + p.k);
+    if (!el) return;
+    var items = pendientesData[p.k] || [];
+    if (!items.length) {
+      el.innerHTML = '<div style="font-size:11px;color:rgba(255,247,238,0.3);padding:4px 0">Sin pendientes hoy</div>';
+      return;
+    }
+    el.innerHTML = items.map(function(item, i) {
+      return '<div class="pendiente-item' + (item.done?' done':'') + '">' +
+        '<input type="checkbox"' + (item.done?' checked':'') + ' onchange="togglePendiente(\'' + p.k + '\',' + i + ')">' +
+        '<span style="flex:1">' + escapeHtml(item.texto) + '</span>' +
+        '<button onclick="deletePendiente(\'' + p.k + '\',' + i + ')">&#x00D7;</button>' +
+        '</div>';
+    }).join('');
+  });
 }
 
 function escapeHtml(t) {
@@ -4070,8 +4090,8 @@ function togglePendientes() {
 function actualizarContadorPendientes() {
   const el = document.getElementById('pend-count');
   if (!el) return;
-  const p = (typeof pendientesData !== 'undefined' && pendientesData) ? pendientesData : { maglin: [] };
-  const n = (p.maglin || []).filter(x => !x.done).length;
+  const p = (typeof pendientesData !== 'undefined' && pendientesData) ? pendientesData : {};
+  const n = PEND_PERSONAS.reduce((t, x) => t + (p[x.k] || []).filter(i => !i.done).length, 0);
   el.textContent = n ? String(n) : '';
 }
 
