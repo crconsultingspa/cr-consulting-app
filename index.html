@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="config.js"></script>
+  <script src="config.js?v=20260929b"></script>
   <title>CR Consulting — Gestión de Casos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1672,12 +1672,26 @@
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const SHEETS_URL = window.SHEETS_URL;
+if (!SHEETS_URL || !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(SHEETS_URL)) {
+  console.error('SHEETS_URL inválida o config.js no cargó:', SHEETS_URL);
+  document.addEventListener('DOMContentLoaded', () => setSyncStatus('error', 'Falta config.js'));
+}
 
 // ── CHANGELOG POR VERSIÓN ────────────────────────────────────────────────────
 // IMPORTANTE: cada vez que se suba APP_VERSION en Código.gs, agregar aquí una
 // entrada con la misma clave y la lista de cambios. Es lo que se muestra al
 // pasar el mouse sobre el número de versión en la esquina inferior izquierda.
 const APP_CHANGELOG = {
+  '2026-09-29-v20': [
+    'Arreglado el falso "Sin conexión" al sincronizar',
+    'Fecha de contratos y mandatos ya no se repite; viene prellenada con la de hoy',
+    'Editar un caso ya no borra la boleta',
+    'Nuevo caso ya no hereda banco, siniestro ni responsable del caso anterior',
+    'Horas de inspección ya no se corren 3 horas al guardar',
+    'Antigüedad de los casos se calcula bien',
+    'Mandato, contrato y correo muestran el resultado real (o el error)',
+    'Guardados simultáneos de dos personas ya no se pisan',
+  ],
   '2026-09-03-v11': [
     'Guardado de casos ~3 segundos más rápido',
     'Subida de archivos más veloz (cache en el servidor + más subidas en paralelo)',
@@ -1733,18 +1747,36 @@ function toggleArchivar(id){
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
+// Google Sheets convierte las fechas escritas en objetos Date y el backend las
+// devuelve en UTC ("2026-09-29T18:00:00.000Z"). Leídas tal cual, la hora
+// quedaba 3-4 h corrida y cada vez que se guardaba el caso se corría otra vez.
+// Esto las pasa a hora local de Chile antes de mostrarlas o editarlas.
+function isoLocal(v) {
+  const s = String(v == null ? '' : v).trim();
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})$/.test(s)) return s;
+  const d = new Date(s);
+  if (isNaN(d)) return s;
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+// Fecha de hoy en formato largo para contratos y mandatos: "29 de septiembre de 2026"
+function fechaLargaHoy() {
+  const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const d = new Date();
+  return `${d.getDate()} de ${M[d.getMonth()]} de ${d.getFullYear()}`;
+}
 const fmtCLP = n => n ? '$' + Math.round(n).toLocaleString('es-CL') : '—';
 function formatFechaSin(f) {
   // Convierte 'aaaa-mm-dd' a 'dd/mm/aaaa'; si ya viene en otro formato lo deja igual
   if (!f) return '—';
-  const s = String(f);
+  const s = isoLocal(f);
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   return m ? `${m[3]}/${m[2]}/${m[1]}` : s;
 }
 // Formatea fecha+hora de agendamiento: 'aaaa-mm-ddThh:mm' → 'dd/mm/aaaa · HH:mm hrs'
 function formatFechaHora(f) {
   if (!f) return '—';
-  const s = String(f).trim();
+  const s = isoLocal(f);
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})/);
   if (m) return `${m[3]}/${m[2]}/${m[1]} · ${m[4].padStart(2,'0')}:${m[5]} hrs`;
   m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -1756,7 +1788,7 @@ function formatFechaHora(f) {
 // de ocurrencia se borre al editar un caso.
 function toDateInput(f) {
   if (!f) return '';
-  const s = String(f).trim();
+  const s = isoLocal(f);
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);             // ISO / aaaa-mm-dd
   if (m) return `${m[1]}-${m[2]}-${m[3]}`;
   m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);   // dd/mm/aaaa
@@ -1766,7 +1798,7 @@ function toDateInput(f) {
 // Convierte un valor guardado a formato datetime-local (aaaa-mm-ddThh:mm)
 function toDateTimeInput(f) {
   if (!f) return '';
-  const s = String(f).trim();
+  const s = isoLocal(f);
   // Ya viene en formato datetime-local o ISO
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})/);
   if (m) return `${m[1]}-${m[2]}-${m[3]}T${m[4].padStart(2,'0')}:${m[5]}`;
@@ -1905,6 +1937,7 @@ function estadoSelectHTML(c) {
 async function cambiarEstado(id, nuevo) {
   const c = cases.find(x => String(x.id) === String(id));
   if (!c || c.estado === nuevo) return;
+  const previo = { estado: c.estado, fechaEstado: c.fechaEstado };
   c.estado = nuevo;
   c.fechaEstado = new Date().toISOString();  // reinicia el semáforo al instante
   buildMetrics(); renderCases(); buildResumen();
@@ -1913,15 +1946,20 @@ async function cambiarEstado(id, nuevo) {
     await formPost(SHEETS_URL, { action:'update', id:String(id), estado:nuevo });
     showToast('Estado actualizado ✓');
   } catch(e) {
+    // Si no se guardó, se vuelve al estado anterior para no mostrar algo falso
+    Object.assign(c, previo);
+    buildMetrics(); renderCases(); buildResumen();
     showToast('Error al actualizar estado', 'error');
   }
 }
 function diasColor(d){ return d<=30?'var(--green)':d<=60?'var(--amber)':'var(--red)'; }
 
+let _toastTimer = null;
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast show ' + type;
-  setTimeout(()=>t.className='toast', 2800);
+  clearTimeout(_toastTimer);   // un toast nuevo ya no se corta por el timer del anterior
+  _toastTimer = setTimeout(()=>t.className='toast', type === 'error' ? 4500 : 2800);
 }
 function setSyncStatus(s, msg) {
   document.getElementById('sync-dot').className = 'sync-dot sync-' + s;
@@ -1986,8 +2024,31 @@ function formPost(url, data) {
     mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(data)
-  }).then(() => ({ ok: true }))
-    .catch(() => ({ ok: true })); // asumimos ok; loadFromSheets confirmará
+  }).then(() => ({ ok: true }));
+  // Si falla la red, la promesa se rechaza y quien llama muestra el error
+  // (antes se ocultaba y aparecía "Caso actualizado ✓" aunque no se guardara).
+}
+
+// POST que SÍ lee la respuesta del backend (Apps Script redirige a
+// googleusercontent, que permite CORS). Se usa para mandato, contrato y
+// correo, donde importa saber si de verdad funcionó.
+// Devuelve { ok, error } o lanza 'SIN_CONFIRMAR' si la acción se envió pero
+// no se pudo leer la respuesta (en ese caso NO se reintenta, para no duplicar).
+async function postJson(url, data) {
+  let resp;
+  try {
+    resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    });
+  } catch (e) {
+    if (!navigator.onLine) throw new Error('Sin conexión a internet');
+    // Enviado, pero el navegador no dejó leer la respuesta
+    const err = new Error('SIN_CONFIRMAR'); err.sinConfirmar = true; throw err;
+  }
+  try { return await resp.json(); }
+  catch (e) { const err = new Error('SIN_CONFIRMAR'); err.sinConfirmar = true; throw err; }
 }
 
 // ── AGENDAR INSPECCIÓN EN CALENDAR ────────────────────────────────────────────
@@ -2036,39 +2097,55 @@ async function agendarEnCalendar() {
 }
 
 // ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
-async function loadFromSheets() {
-  setSyncStatus('loading', 'Sincronizando…');
-  try {
-    const json = await jsonpFetch(SHEETS_URL);
-    if(json.ok && Array.isArray(json.data)) {
-      cases = json.data.map(r => ({
-        ...r,
-        id: String(r.id),
-        monto:      r.monto      ? parseFloat(r.monto)      : null,
-        porcentaje: r.porcentaje ? parseFloat(r.porcentaje) : 0.25,
-        comision:   r.comision   ? parseFloat(r.comision)   : null,
-        fondo:      r.fondo      ? parseFloat(r.fondo)      : null,
-        retiro:     r.retiro     ? parseFloat(r.retiro)     : null,
-      }));
-      setSyncStatus('ok', `${cases.length} casos · sync ✓`);
-      // Cache local: la próxima vez que se abra la app, se pinta al instante
-      // con estos datos mientras se sincroniza en segundo plano.
-      try { localStorage.setItem('cr_cases_cache_v1', JSON.stringify(cases)); } catch(e) {}
-      if (json.version) {
-        const vEl = document.getElementById('app-version');
-        if (vEl) vEl.textContent = '· ' + json.version;
-        setVersionTip(json.version);
+let _syncEnCurso = null;
+function loadFromSheets() {
+  // Si ya hay una sincronización en curso, se reutiliza (evita cargas que se pisan)
+  if (_syncEnCurso) return _syncEnCurso;
+  _syncEnCurso = (async () => {
+    setSyncStatus('loading', 'Sincronizando…');
+    try {
+      const json = await jsonpFetch(SHEETS_URL);
+      if (json && json.ok && Array.isArray(json.data)) {
+        cases = json.data.map(r => ({
+          ...r,
+          id: String(r.id),
+          monto:      r.monto      ? parseFloat(r.monto)      : null,
+          porcentaje: r.porcentaje ? parseFloat(r.porcentaje) : 0.25,
+          comision:   r.comision   ? parseFloat(r.comision)   : null,
+          fondo:      r.fondo      ? parseFloat(r.fondo)      : null,
+          retiro:     r.retiro     ? parseFloat(r.retiro)     : null,
+        }));
+        setSyncStatus('ok', `${cases.length} casos · sync ✓`);
+        // Cache local: la próxima vez que se abra la app, se pinta al instante
+        // con estos datos mientras se sincroniza en segundo plano.
+        try { localStorage.setItem('cr_cases_cache_v1', JSON.stringify(cases)); } catch(e) {}
+        if (json.version) {
+          const vEl = document.getElementById('app-version');
+          if (vEl) vEl.textContent = '· ' + json.version;
+          setVersionTip(json.version);
+        }
+        buildMetrics(); renderCases(); buildResumen();
+        if (typeof renderInspecciones === 'function') renderInspecciones();
+        return true;
       }
-      buildMetrics(); renderCases(); buildResumen();
-      if (typeof renderInspecciones === 'function') renderInspecciones();
-    } else {
-      setSyncStatus('error', 'Error al cargar');
+      // El servidor respondió, pero con un error: se muestra el motivo real
+      console.error('Respuesta inválida del backend:', json);
+      setSyncStatus('error', 'Error del servidor');
+      if (json && json.error) showToast('Servidor: ' + json.error, 'error');
+      return false;
+    } catch(e) {
+      // "Sin conexión" solo si de verdad no hay internet
+      setSyncStatus('error', navigator.onLine ? 'Servidor no responde' : 'Sin conexión');
+      console.error('loadFromSheets:', e);
+      return false;
+    } finally {
+      _syncEnCurso = null;
     }
-  } catch(e) {
-    setSyncStatus('error', 'Sin conexión');
-    console.error(e);
-  }
+  })();
+  return _syncEnCurso;
 }
+// Al volver la conexión, sincroniza solo
+window.addEventListener('online', () => loadFromSheets());
 
 async function apiCall(body) {
   await formPost(SHEETS_URL, body);
@@ -2110,11 +2187,12 @@ function getExtractCity(dir) {
 }
 
 function getDaysOld(fechaCreacion) {
+  // Acepta dd/mm/aaaa, dd-mm-aaaa y fechas ISO (antes solo dd/mm/aaaa: con
+  // cualquier otro formato la antigüedad salía siempre 0)
   if(!fechaCreacion) return 0;
-  const parts = String(fechaCreacion).split('/');
-  if(parts.length!==3) return 0;
-  const d = new Date(parts[2], parts[1]-1, parts[0]);
-  return Math.floor((Date.now()-d.getTime())/(1000*60*60*24));
+  const d = parseAgenda(fechaCreacion);
+  if(!d) return 0;
+  return Math.max(0, Math.floor((Date.now()-d.getTime())/(1000*60*60*24)));
 }
 
 function countActiveFilters() {
@@ -2398,7 +2476,7 @@ const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio',
 // Convierte fechaAgendamiento a objeto Date (o null si no hay/está mal)
 function parseAgenda(v) {
   if (!v) return null;
-  const s = String(v).trim();
+  const s = isoLocal(v);
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})/);
   if (m) return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]);
   m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -3132,7 +3210,15 @@ function openModal(prefill) {
     document.getElementById('f-monto').value = prefill.monto || '';
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
   } else {
-    document.querySelectorAll('#modal-backdrop input,#modal-backdrop textarea').forEach(i=>i.value='');
+    document.querySelectorAll('#modal-backdrop input:not([type=file]):not([type=checkbox]):not([type=radio]),#modal-backdrop textarea').forEach(i=>i.value='');
+    // Los <select> no se limpiaban: "Nuevo caso" heredaba banco, siniestro,
+    // responsable, comuna, etc. del último caso abierto.
+    ['f-banco','f-caso','f-ciudad','f-comuna','f-impugnacion','f-siniestro','f-tratamiento'].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const vacia = Array.from(sel.options).some(o => o.value === '');
+      if (vacia) sel.value = ''; else sel.selectedIndex = 0;
+    });
     document.getElementById('f-porcentaje').value='0.25';
     const fe = document.getElementById('f-estado'); if (fe) fe.value = '';
   }
@@ -3392,7 +3478,6 @@ async function saveCase(e) {
     correlativo: document.getElementById('f-correlativo').value,
     cobertura:   document.getElementById('f-cobertura')?.value || '',
     monto, porcentaje:pct, comision, fondo, retiro,
-    boleta: 'NO',
     obs:      document.getElementById('f-obs').value,
     relato:   document.getElementById('f-relato')?.value || '',
     telefono: document.getElementById('f-telefono').value,
@@ -3423,11 +3508,11 @@ async function saveCase(e) {
       closeModal();
     } else {
       const rutNuevo = data.rut;
-      await apiCall({action:'add', ...data, estado:'Pendiente denuncio'});
+      await apiCall({action:'add', ...data, boleta:'NO', estado:'Pendiente denuncio'});
       // No cerramos el modal: pasamos a modo edición para que se puedan
       // completar las siguientes etapas (Denuncio, Inspección, etc.) sin
       // tener que reabrir el caso desde la lista.
-      const creado = encontrarCasoReciente(rutNuevo);
+      const creado = encontrarCasoReciente(rutNuevo, data.nombre);
       if (creado) {
         showToast('Caso creado ✓ — continúa con las siguientes etapas');
         openModal(creado);
@@ -3449,10 +3534,17 @@ async function saveCase(e) {
 // subida usa fetch no-cors (no se puede leer el id devuelto por el backend),
 // ubicamos el caso recién creado por RUT + el id más reciente (los id son
 // 'CR-' + timestamp, así que el mayor numéricamente es el más nuevo).
-function encontrarCasoReciente(rut) {
-  const candidatos = cases.filter(c => String(c.rut || '').trim() === String(rut || '').trim());
+function encontrarCasoReciente(rut, nombre) {
+  // Busca por RUT + nombre (antes solo RUT: con RUT vacío abría CUALQUIER caso
+  // sin RUT). Orden numérico del id: el mayor timestamp es el más nuevo.
+  const r = String(rut || '').trim();
+  const n = String(nombre || '').trim().toLowerCase();
+  const candidatos = cases.filter(c =>
+    (r ? String(c.rut || '').trim() === r : true) &&
+    String(c.nombre || '').trim().toLowerCase() === n);
   if (!candidatos.length) return null;
-  candidatos.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+  const num = id => parseInt(String(id).replace(/\D/g, ''), 10) || 0;
+  candidatos.sort((a, b) => num(b.id) - num(a.id));
   return candidatos[0];
 }
 
@@ -3805,7 +3897,7 @@ function deletePeriodo(idx) {
 
 function diasDesde(fechaStr) {
   const hoy   = new Date(); hoy.setHours(0,0,0,0);
-  const fecha = new Date(fechaStr + 'T00:00:00');
+  const fecha = new Date(toDateInput(fechaStr) + 'T00:00:00');
   return Math.floor((hoy - fecha) / (1000 * 60 * 60 * 24));
 }
 
@@ -3818,8 +3910,7 @@ function renderPeriodos() {
   el.innerHTML = periodos.map((p, i) => {
     const dias = diasDesde(p.fecha);
     const cls  = dias > 90 ? 'danger' : dias > 30 ? 'warning' : '';
-    const [y, m, d] = String(p.fecha).split('-');
-    const fechaFmt  = d + '/' + m + '/' + y;
+    const fechaFmt  = formatFechaSin(toDateInput(p.fecha) || p.fecha);
     const t = tipoEvento(p);
     return `<div class="periodo-card ${cls} pev-${t}">
       <span class="periodo-bg">${evIco(t)}</span>
@@ -3961,7 +4052,9 @@ function renderPendientes() {
 }
 
 function escapeHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // String(...) evita que un valor vacío o numérico rompa todo el render
+  return String(t ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ── Colapsar/expandir la barra de pendientes ────────────────────────────────
@@ -4153,7 +4246,7 @@ function openMandato(id) {
   document.getElementById('mandato-nombre').textContent = c.nombre || '—';
   document.getElementById('mandato-rut').textContent    = c.rut    || '—';
   document.getElementById('m-direccion').value = c.dir || '';
-  document.getElementById('m-fecha').value     = '';
+  document.getElementById('m-fecha').value     = fechaLargaHoy();
   const st = document.getElementById('mandato-status');
   st.style.display = 'none'; st.textContent = '';
   const btn = document.getElementById('mandato-btn');
@@ -4184,18 +4277,20 @@ async function generarMandato() {
   btn.innerHTML = '<i class="ti ti-loader"></i> Generando…';
   showMandatoStatus('Generando documento y guardando en Drive…', 'loading');
   try {
-    await formPost(SHEETS_URL, {
+    const res = await postJson(SHEETS_URL, {
       action: 'generateDoc',
       id: mandatoCaseId,
       tipo: mandatoTipo,
       fecha, direccion
     });
-    await new Promise(r => setTimeout(r, 3000));
+    if (!res || !res.ok) throw new Error((res && res.error) || 'Respuesta inválida del servidor');
     showMandatoStatus('✓ Mandato generado y guardado en la carpeta Drive del asegurado.', 'success');
     btn.innerHTML = '<i class="ti ti-check"></i> Listo';
     setTimeout(() => closeMandato(), 1500);
   } catch (err) {
-    showMandatoStatus('Error al generar el mandato. Intenta nuevamente.', 'error');
+    showMandatoStatus(err && err.sinConfirmar
+      ? 'Se envió la solicitud, pero no se pudo confirmar. Revisa la carpeta del caso en Drive antes de reintentar.'
+      : 'Error al generar el mandato: ' + (err && err.message || 'desconocido'), 'error');
     btn.disabled = false;
     btn.innerHTML = '<i class="ti ti-file-text"></i> Generar y guardar en Drive';
   }
@@ -4322,7 +4417,7 @@ function openContrato(id) {
   pctSel.value = [25, 20, 15].includes(pct) ? String(pct) : '25';
 
   // Solo limpiar fecha, poliza y aseguradora (no se guardan en el caso)
-  document.getElementById('ct-fecha').value       = '';
+  document.getElementById('ct-fecha').value       = fechaLargaHoy();
   document.getElementById('ct-poliza').value      = '';
   document.getElementById('ct-aseguradora').value = '';
 
@@ -4359,15 +4454,16 @@ async function generarContrato() {
   if (!comuna) return showContratoStatus('Ingresa la comuna.', 'error');
   if (!ciudad) return showContratoStatus('Ingresa la ciudad.', 'error');
 
+  // (antes esta validación iba después de bloquear el botón y lo dejaba pegado)
+  if (!contratoCaseId) return showContratoStatus('Error: ID del caso no encontrado. Cierra y vuelve a abrir el modal.', 'error');
+
   const btn = document.getElementById('contrato-btn');
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader"></i> Generando…';
   showContratoStatus('Generando contrato y guardando en Drive…', 'loading');
 
-  if (!contratoCaseId) return showContratoStatus('Error: ID del caso no encontrado. Cierra y vuelve a abrir el modal.', 'error');
-
   try {
-    await formPost(SHEETS_URL, {
+    const res = await postJson(SHEETS_URL, {
       action: 'generateContrato',
       id: String(contratoCaseId),
       fecha, direccion: dir, comuna, ciudad,
@@ -4377,12 +4473,14 @@ async function generarContrato() {
       porcentaje,
       poliza, aseguradora
     });
-    await new Promise(r => setTimeout(r, 3000));
+    if (!res || !res.ok) throw new Error((res && res.error) || 'Respuesta inválida del servidor');
     showContratoStatus('✓ Contrato generado y guardado en la carpeta Drive del asegurado.', 'success');
     btn.innerHTML = '<i class="ti ti-check"></i> Listo';
     setTimeout(() => closeContrato(), 1500);
   } catch (err) {
-    showContratoStatus('Error al generar el contrato. Intenta nuevamente.', 'error');
+    showContratoStatus(err && err.sinConfirmar
+      ? 'Se envió la solicitud, pero no se pudo confirmar. Revisa la carpeta del caso en Drive antes de reintentar.'
+      : 'Error al generar el contrato: ' + (err && err.message || 'desconocido'), 'error');
     btn.disabled = false;
     btn.innerHTML = '<i class="ti ti-file-description"></i> Generar y guardar en Drive';
   }
@@ -4817,18 +4915,21 @@ async function enviarCorreoCaso() {
   showEmailStatus('Enviando correo…', 'loading');
 
   try {
-    await formPost(SHEETS_URL, {
+    const res = await postJson(SHEETS_URL, {
       action: 'sendEmail',
       id: emailCaseId,
       to, cc, subject, body,
       attachContrato, attachMandato
     });
-    await new Promise(r => setTimeout(r, 2500));
-    showEmailStatus('✓ Correo enviado correctamente.', 'success');
+    if (!res || !res.ok) throw new Error((res && res.error) || 'Respuesta inválida del servidor');
+    const omit = res.omitidos && res.omitidos.length ? ' (sin adjuntar: ' + res.omitidos.join(', ') + ')' : '';
+    showEmailStatus('✓ Correo enviado correctamente' + omit + '.', omit ? 'loading' : 'success');
     btn.innerHTML = '<i class="ti ti-check"></i> Enviado';
     setTimeout(() => closeEmail(), 1500);
   } catch (err) {
-    showEmailStatus('Error al enviar el correo. Intenta nuevamente.', 'error');
+    showEmailStatus(err && err.sinConfirmar
+      ? 'Se envió la solicitud, pero no se pudo confirmar. Revisa tu bandeja de Enviados antes de reintentar (para no duplicar el correo).'
+      : 'Error al enviar el correo: ' + (err && err.message || 'desconocido'), 'error');
     btn.disabled = false;
     btn.innerHTML = '<i class="ti ti-send"></i> Enviar correo';
   }
@@ -5091,8 +5192,9 @@ function ajSavePlazo() {
 
 function ajDeletePlazo(i) {
   if (!confirm('¿Eliminar este plazo?')) return;
+  const p = plazosData[i] || {};
   plazosData.splice(i, 1);
-  formPost(SHEETS_URL, { action:'deletePlazo', index:i }).catch(()=>{});
+  formPost(SHEETS_URL, { action:'deletePlazo', index:i, banco:p.banco, compania:p.compania }).catch(()=>{});
   renderAjustesPlazos();
   buildPlazos();
   setTimeout(loadAjustes, 2500);
