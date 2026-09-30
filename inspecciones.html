@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#002b41">
-<script src="config.js"></script>
+<script src="config.js?v=20260929b"></script>
 <title>Inspección de Terreno · CR Consulting</title>
 <link rel="icon" type="image/png" href="https://i.imgur.com/USzJtPh.png">
 <link rel="apple-touch-icon" href="https://i.imgur.com/USzJtPh.png">
@@ -14,1270 +14,1165 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 :root{
-  --navy:#002b41; --navy-2:#013852; --navy-deep:#001b2b;
+  --navy:#002b41; --navy-deep:#001b2b;
   --teal:#00657e; --teal-2:#00819e; --teal-soft:#e3f0f4;
-  --cream:#fff7ee; --cream2:#fdeedd;
+  --cream:#fff7ee; --paper:#fffdf8; --paper-line:#e9eef1;
   --surface:#fff; --surface2:#f4f9fb;
   --border:rgba(0,43,65,.10); --border-strong:rgba(0,43,65,.22);
   --text:#002b41; --text-2:#335f73; --text-3:#6b93a3;
   --green:#1a7a52; --green-bg:#e2f4ec;
   --red:#c0392b; --red-bg:#fbeae8;
   --amber:#ad6a13; --amber-bg:#fdf3e2;
-  --radius:20px; --radius-sm:9px;
-  --shadow:0 10px 30px rgba(0,43,65,.10);
-  --shadow-lg:0 18px 44px rgba(0,27,43,.20);
+  --radius:18px; --radius-sm:10px;
+  --shadow:0 8px 26px rgba(0,43,65,.09);
+  --shadow-lg:0 18px 44px rgba(0,27,43,.22);
   --disp:'Oswald','Arial Narrow',sans-serif;
   --ui:'Open Sans','Segoe UI',Tahoma,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
 body{font-family:var(--ui);background:#eef5f7;color:var(--text);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+[hidden]{display:none!important}
 
-/* ── Header con escudo ── */
-.app-header{background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 130%);padding:10px 16px 18px;position:sticky;top:0;z-index:100;box-shadow:0 2px 18px rgba(0,27,43,.30)}
-.header-top{display:flex;align-items:center;justify-content:space-between}
-.back-btn{background:rgba(255,247,238,.12);border:1px solid rgba(255,247,238,.30);color:var(--cream);padding:6px 11px;border-radius:8px;font-family:var(--ui);font-size:11.5px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
-.back-btn:hover{background:rgba(255,247,238,.22)}
-.status-pill{display:flex;align-items:center;gap:5px;background:rgba(255,247,238,.10);padding:4px 10px;border-radius:20px;font-size:10.5px;color:var(--cream);font-weight:600;white-space:nowrap}
-.status-pill .dot{width:6px;height:6px;border-radius:3px;background:#5ee0b0;flex-shrink:0}
-.header-brand{text-align:center;margin-top:8px}
-.header-logo{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
-.header-title{font-family:var(--disp);font-size:17px;font-weight:600;color:var(--cream);letter-spacing:.02em;margin-top:2px}
-.header-sub{font-family:var(--disp);font-size:9px;color:#7fd0e0;margin-top:3px;letter-spacing:.30em;text-transform:uppercase}
+/* ── Header ── */
+.app-header{background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 130%);padding:calc(8px + env(safe-area-inset-top)) 14px 10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 18px rgba(0,27,43,.30)}
+.header-top{display:flex;align-items:center;gap:10px}
+.back-btn{background:rgba(255,247,238,.12);border:1px solid rgba(255,247,238,.30);color:var(--cream);width:36px;height:36px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.back-btn i{font-size:18px}
+.header-logo{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));flex-shrink:0}
+.header-txt{flex:1;min-width:0}
+.header-title{font-family:var(--disp);font-size:16px;font-weight:600;color:var(--cream);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-sub{font-size:10.5px;color:#9fdbe8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status-pill{display:flex;align-items:center;gap:5px;background:rgba(255,247,238,.12);padding:5px 10px;border-radius:20px;font-size:10.5px;color:var(--cream);font-weight:700;white-space:nowrap;border:none;cursor:pointer}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;background:#5ee0b0;flex-shrink:0}
+.status-pill.warn .dot{background:#f0b35e}
+.status-pill.off .dot{background:#ff8a7a}
 
-/* ── Banner de sincronización / sin conexión ── */
-.sync-banner{display:none;align-items:center;gap:8px;justify-content:center;background:var(--amber-bg);color:var(--amber);font-size:11.5px;font-weight:700;padding:8px 14px;border-bottom:1px solid rgba(173,106,19,.22);text-align:center}
-.sync-banner i{font-size:15px;flex-shrink:0}
-.sync-banner button{background:none;border:1px solid var(--amber);color:var(--amber);border-radius:7px;padding:3px 10px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+/* ── Tabs Acta / Fotos ── */
+.tabs{display:flex;gap:6px;margin-top:10px;background:rgba(0,27,43,.28);padding:4px;border-radius:12px}
+.tab{flex:1;border:none;background:transparent;color:#cfe9f0;padding:9px 6px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.tab i{font-size:17px}
+.tab.ac{background:var(--cream);color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.tab .badge{background:var(--teal-2);color:#fff;border-radius:10px;padding:1px 7px;font-size:10.5px}
+.tab:not(.ac) .badge{background:rgba(255,255,255,.18)}
 
-/* ── Page / Cards ── */
-.page{padding:14px 12px 90px;max-width:640px;margin:0 auto}
-.card{background:var(--surface);border:1px solid rgba(0,43,65,.05);border-radius:var(--radius);padding:17px;margin-bottom:15px;box-shadow:var(--shadow)}
-.card-title{font-family:var(--disp);font-size:11px;font-weight:600;color:var(--teal-2);text-transform:uppercase;letter-spacing:.10em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+/* ── Layout ── */
+.page{padding:14px 12px calc(110px + env(safe-area-inset-bottom));max-width:680px;margin:0 auto}
+.card{background:var(--surface);border:1px solid rgba(0,43,65,.05);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-title{font-family:var(--disp);font-size:11px;font-weight:600;color:var(--teal-2);text-transform:uppercase;letter-spacing:.10em;margin-bottom:12px;display:flex;align-items:center;gap:7px}
 .card-title i{font-size:15px}
-
-/* ── Forms ── */
-.ig{margin-bottom:11px}
-label{display:block;font-size:9px;color:var(--text-3);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px;color:var(--text);font-family:var(--ui);font-size:12.5px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
-input:focus,select:focus,textarea:focus{border-color:var(--teal-2);box-shadow:0 0 0 3px var(--teal-soft)}
-select{background:var(--surface2)}
-textarea{resize:vertical;min-height:70px;font-family:inherit;line-height:1.5}
+.muted{color:var(--text-3);font-size:12px}
+label.lbl{display:block;font-size:10px;color:var(--text-3);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+input[type=text],input[type=search]{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 12px;color:var(--text);font-family:var(--ui);font-size:16px;outline:none;-webkit-appearance:none}
+input:focus{border-color:var(--teal-2);box-shadow:0 0 0 3px var(--teal-soft)}
 
 /* ── Buttons ── */
-.btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:var(--ui);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:9px}
-.btn:hover{background:var(--surface2);border-color:var(--teal-2)}
-.btn:last-child{margin-bottom:0}
-.btn i{font-size:16px}
+.btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:12px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;transition:background .15s,transform .05s}
+.btn:active{transform:scale(.98)}
+.btn i{font-size:18px}
 .btn-teal{background:var(--teal-2);color:#fff;border-color:var(--teal-2);box-shadow:0 8px 20px rgba(0,129,158,.28)}
-.btn-teal:hover{background:var(--navy);border-color:var(--navy)}
-.btn-save{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 4px 14px rgba(26,122,82,.25)}
-.btn-save:hover{background:#155f40;border-color:#155f40}
-.btn-sm{width:auto;display:inline-flex;align-items:center;gap:4px;padding:6px 10px;font-size:11px;border-radius:8px;border:1px solid var(--border-strong);cursor:pointer;font-family:var(--ui);font-weight:600;transition:all .15s;white-space:nowrap;background:var(--surface);margin-bottom:0}
-.btn-sm i{font-size:13px}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 6px 16px rgba(26,122,82,.25)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text-2)}
+.btn-sm{width:auto;padding:8px 12px;font-size:12px;border-radius:10px}
+.btn-sm i{font-size:15px}
+.btn-danger{color:var(--red);border-color:rgba(192,57,43,.3)}
 
-/* ── Search / picker ── */
-.sw{position:relative;margin-bottom:9px}
-.sw input{padding-left:32px}
-.sw-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:14px;pointer-events:none}
-.sw-ico i{font-size:14px}
-.picker-list{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;max-height:340px;overflow-y:auto}
-.aseg-row{display:flex;align-items:center;gap:9px;padding:9px 11px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+/* ── Picker de casos ── */
+.sw{position:relative;margin-bottom:10px}
+.sw input{padding-left:36px}
+.sw i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:16px;pointer-events:none}
+.picker-list{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.picker-sec{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--teal-2);background:var(--teal-soft);padding:6px 12px}
+.aseg-row{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--border);cursor:pointer}
 .aseg-row:last-child{border:none}
-.aseg-row:hover{background:var(--surface2)}
-.aseg-nom{font-size:12px;font-weight:600;color:var(--navy)}
-.aseg-meta{font-size:10px;color:var(--text-3);margin-top:2px}
-.aseg-go{color:var(--teal-2);font-size:17px;flex-shrink:0}
+.aseg-row:active{background:var(--surface2)}
+.aseg-nom{font-size:13.5px;font-weight:700;color:var(--navy)}
+.aseg-meta{font-size:11px;color:var(--text-3);margin-top:2px}
+.aseg-hoy{font-size:10.5px;font-weight:800;color:var(--green);background:var(--green-bg);padding:3px 8px;border-radius:8px;white-space:nowrap}
 
-/* ── Caso info ── */
-.caso-nombre{font-weight:700;font-size:14px;color:var(--navy)}
-.caso-detalle{color:var(--text-3);font-size:11.5px;margin-top:3px;line-height:1.5}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:13px}
+/* ── Caso ── */
+.caso-head{display:flex;align-items:flex-start;gap:10px}
+.caso-nombre{font-weight:800;font-size:15px;color:var(--navy)}
+.caso-detalle{color:var(--text-3);font-size:12px;margin-top:3px;line-height:1.5}
+.caso-more{margin-top:10px}
+.caso-more summary{font-size:12px;font-weight:700;color:var(--teal-2);cursor:pointer;list-style:none;display:flex;align-items:center;gap:4px}
+.caso-more summary::-webkit-details-marker{display:none}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .info-item{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 10px;min-width:0}
-.info-item.full{grid-column:1 / -1}
-.info-item label{margin-bottom:2px}
-.info-item .val{font-size:12px;font-weight:700;color:var(--navy);word-break:break-word;line-height:1.4}
-.caso-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
-.caso-actions a.btn-sm,.caso-actions button.btn-sm{flex:1 1 auto;justify-content:center;min-width:118px;text-decoration:none;padding:9px 10px}
-.readonly-field{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px;font-size:12.5px;color:var(--text-2);font-weight:600;min-height:35px;display:flex;align-items:center}
+.info-item.full{grid-column:1/-1}
+.info-item .k{font-size:9.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.info-item .v{font-size:12.5px;font-weight:700;color:var(--navy);word-break:break-word;margin-top:2px}
+.caso-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.caso-actions a{flex:1 1 30%;justify-content:center;text-decoration:none;min-width:96px}
 
-/* ── Chips tipo de siniestro ── */
-.sin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.sin-btn{padding:13px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text-2);font-family:var(--ui);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:5px}
-.sin-btn:hover{border-color:var(--teal-2)}
+/* ── Inicio ── */
+.sin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.sin-btn{padding:13px 6px;border-radius:12px;border:1.5px solid var(--border-strong);background:var(--surface2);color:var(--text-2);font-size:12.5px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px}
+.sin-btn i{font-size:21px}
 .sin-btn.ac{border-color:var(--teal-2);background:var(--teal-2);color:#fff;box-shadow:0 8px 20px rgba(0,129,158,.28)}
-.sin-btn i{font-size:20px}
+
+/* ── Acta (bloc de notas) ── */
+.acta-card{padding:0;overflow:hidden}
+.acta-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--surface)}
+.acta-state{font-size:11.5px;font-weight:700;color:var(--text-3);display:flex;align-items:center;gap:5px;flex:1;min-width:0}
+.acta-state.ok{color:var(--green)}
+.acta-state.warn{color:var(--amber)}
+.acta-state i{font-size:15px}
+.acta-tools{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;border-bottom:1px solid var(--border);background:var(--surface2);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.acta-tools::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-2);border-radius:20px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.chip i{font-size:14px}
+.chip:active{background:var(--teal-soft)}
+.chip.teal{border-color:var(--teal-2);color:var(--teal-2)}
+#acta-texto{display:block;width:100%;min-height:58vh;border:none;outline:none;resize:none;padding:6px 16px 24px;font-family:var(--ui);font-size:16px;line-height:30px;color:var(--navy);
+  background-color:var(--paper);
+  background-image:linear-gradient(to bottom,transparent 29px,var(--paper-line) 29px);
+  background-size:100% 30px;background-attachment:local;background-position:0 6px}
+#acta-texto::placeholder{color:#a9bfc9}
+.acta-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;font-size:11px;color:var(--text-3);border-top:1px solid var(--border);background:var(--surface)}
+.acta-foot a{color:var(--teal-2);font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
 
 /* ── Recintos ── */
-.insp-recinto-card{border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden}
-.insp-recinto-head{display:flex;align-items:center;gap:7px;padding:9px 11px;background:var(--surface2);cursor:pointer}
-.insp-recinto-head i.ti-chevron-right,.insp-recinto-head i.ti-chevron-down{color:var(--text-3);flex-shrink:0;font-size:15px}
-.insp-recinto-head input{flex:1;min-width:0;border:none;background:transparent;font-weight:600;color:var(--navy);font-size:12.5px;font-family:inherit;outline:none;padding:0}
-.insp-recinto-head input::placeholder{color:var(--text-3)}
-.insp-recinto-head .dirty-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0}
-.insp-recinto-body{padding:12px;display:none}
-.insp-recinto-card.open .insp-recinto-body{display:block}
-.dims-row{display:flex;gap:5px;margin-bottom:6px}
-.dims-field{flex:1;min-width:0}
-.dims-field label{font-size:8px;margin-bottom:3px}
-.dims-field input{padding:7px 6px;font-size:11px;text-align:center}
-.m2-box{padding:7px 4px;border-radius:var(--radius-sm);border:1.5px solid var(--teal-soft);background:var(--teal-soft);display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:11px;font-weight:700;min-height:31px}
-
-/* Calculadora m2 auxiliar */
-.calc-m2{background:rgba(0,43,65,.03);border:1px dashed var(--border-strong);border-radius:var(--radius-sm);padding:8px 9px;margin-bottom:10px}
-.calc-m2-title{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-bottom:6px;display:flex;align-items:center;gap:4px}
-.calc-m2-title i{font-size:12px;color:var(--teal-2)}
-.calc-m2-row{display:flex;align-items:center;gap:5px}
-.calc-m2-row input{padding:6px;font-size:11px;text-align:center;background:var(--surface)}
-.calc-m2-row .op{font-size:12px;color:var(--text-3);font-weight:700;flex-shrink:0}
-.calc-m2-res{flex:1;min-width:52px;text-align:center;font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-soft);border-radius:7px;padding:6px 4px}
-.calc-m2-apply{flex-shrink:0;background:var(--teal-2);color:#fff;border:none;border-radius:7px;padding:6px 8px;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
-
-.insp-cat-row{border:1px solid var(--border);border-radius:8px;padding:9px 9px 1px;margin-bottom:8px;background:var(--surface2);position:relative}
-.insp-cat-remove{position:absolute;top:5px;right:8px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:16px;line-height:1;padding:2px}
-.insp-cat-remove:hover{color:var(--red)}
-.cat-fields{display:flex;gap:7px;margin-bottom:8px}
-.cat-fields .ig{flex:1;margin-bottom:0}
-
-/* ── Fotos ── */
-.insp-photo-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
-.insp-photo-tile{width:66px;height:66px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--border);background:#e5edf1;flex-shrink:0}
-.insp-photo-tile img{width:100%;height:100%;object-fit:cover;display:block}
-.insp-photo-tile .insp-photo-del{position:absolute;top:3px;right:3px;background:rgba(0,43,65,.72);color:#fff;border:none;border-radius:8px;width:16px;height:16px;font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.insp-photo-tile.pending{display:flex;align-items:center;justify-content:center}
-.insp-photo-tile.pending .spin{animation:spin 1s linear infinite;color:var(--teal-2);font-size:18px}
-.insp-photo-tile.queued{display:flex;align-items:center;justify-content:center;background:var(--amber-bg);border:1.5px dashed var(--amber)}
-.insp-photo-tile.queued i{color:var(--amber);font-size:18px}
+.quick{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.add-row{display:flex;gap:8px}
+.add-row input{flex:1}
+.add-row .btn{width:auto;padding:0 16px}
+.rec{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;border:1px solid rgba(0,43,65,.05)}
+.rec.flash{animation:flash 1.2s ease}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--teal-2)}100%{box-shadow:var(--shadow)}}
+.rec-head{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 14px;cursor:pointer}
+.rec-ico{width:36px;height:36px;border-radius:10px;background:var(--teal-soft);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.rec-ico img{width:100%;height:100%;object-fit:cover}
+.rec-ico i{font-size:18px}
+.rec-name{flex:1;min-width:0}
+.rec-name b{display:block;font-size:14px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-name span{font-size:11px;color:var(--text-3)}
+.rec-name span.warn{color:var(--amber);font-weight:700}
+.cam-btn{width:46px;height:46px;border-radius:14px;border:none;background:var(--teal-2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 6px 14px rgba(0,129,158,.3)}
+.cam-btn i{font-size:22px}
+.cam-btn:active{transform:scale(.95)}
+.rec-body{padding:0 12px 12px;display:none}
+.rec.open .rec-body{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px;margin-bottom:10px}
+.tile{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;background:#dfe9ee;cursor:pointer}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:22px}
+.tile .ov{position:absolute;inset:0;background:rgba(0,27,43,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+.tile .ov.q{background:rgba(173,106,19,.55)}
+.spin{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.insp-photo-add{width:66px;height:66px;border-radius:8px;border:2px dashed var(--teal-2);display:flex;align-items:center;justify-content:center;color:var(--teal-2);font-size:24px;cursor:pointer;background:rgba(0,101,126,.04);flex-shrink:0}
-.insp-empty{text-align:center;padding:22px 12px;color:var(--text-3);font-size:12px}
-.insp-empty i{font-size:26px;display:block;margin-bottom:7px;opacity:.5}
-.fotos-pend-nota{font-size:10.5px;color:var(--amber);margin-top:7px;display:flex;align-items:center;gap:5px}
+.rec-actions{display:flex;gap:8px;flex-wrap:wrap}
+.rec-actions .btn{flex:1 1 auto}
+.empty{text-align:center;padding:26px 12px;color:var(--text-3);font-size:13px}
+.empty i{font-size:30px;display:block;margin-bottom:8px;opacity:.5}
+
+/* ── Barra inferior ── */
+.bottom-bar{position:fixed;left:0;right:0;bottom:0;z-index:90;background:rgba(238,245,247,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--border);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+.bottom-bar .inner{max-width:680px;margin:0 auto}
+
+/* ── Visor de fotos / hojas ── */
+.overlay{position:fixed;inset:0;z-index:300;background:rgba(0,15,25,.92);display:flex;flex-direction:column}
+.overlay .top{display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;color:#fff}
+.overlay .top .t{flex:1;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ov-btn{background:rgba(255,255,255,.12);border:none;color:#fff;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none}
+.ov-btn i{font-size:20px}
+.overlay .img{flex:1;display:flex;align-items:center;justify-content:center;padding:8px;min-height:0}
+.overlay .img img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+.overlay .nav{display:flex;justify-content:space-between;padding:10px 12px calc(14px + env(safe-area-inset-bottom))}
+.sheet-bg{position:fixed;inset:0;z-index:250;background:rgba(0,27,43,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));box-shadow:var(--shadow-lg)}
+.sheet h3{font-family:var(--disp);font-size:16px;font-weight:600;color:var(--navy);margin-bottom:12px}
+.sheet .btn{margin-bottom:8px}
+
+/* ── Final ── */
+.done{text-align:center;padding:26px 16px}
+.done .big{width:64px;height:64px;border-radius:50%;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.done .big i{font-size:34px}
+.done h2{font-family:var(--disp);font-weight:600;font-size:20px;margin-bottom:6px}
+.done .btn{margin-top:10px;text-decoration:none}
 
 /* ── Toast ── */
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:var(--cream);padding:11px 18px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;z-index:999;opacity:0;transition:all .25s;pointer-events:none;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:var(--cream);padding:11px 16px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .25s;pointer-events:none;box-shadow:var(--shadow-lg);max-width:92vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.success{background:var(--green)}
 .toast.error{background:var(--red)}
-
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
 </style>
 </head>
 <body>
 
-<div class="app-header">
+<header class="app-header">
   <div class="header-top">
-    <a href="index.html" class="back-btn"><i class="ti ti-arrow-left"></i> Dashboard</a>
-    <div class="status-pill" id="status-pill" style="visibility:hidden"><span class="dot"></span>En proceso</div>
-  </div>
-  <div class="header-brand">
-    <img src="https://i.imgur.com/USzJtPh.png" alt="CR Consulting" class="header-logo">
-    <div class="header-title">Inspección de Terreno</div>
-    <div class="header-sub">Recintos y daños</div>
-  </div>
-</div>
-<div class="sync-banner" id="sync-banner"></div>
-
-<div class="page">
-
-  <!-- Paso 0: elegir caso -->
-  <div class="card" id="card-caso-picker">
-    <div class="card-title"><i class="ti ti-search"></i><span style="flex:1">Selecciona un caso</span></div>
-    <div class="sw"><span class="sw-ico"><i class="ti ti-search"></i></span>
-      <input type="text" id="caso-search" placeholder="Buscar por nombre, RUT o N° siniestro…" oninput="renderCasoPicker()">
+    <a href="index.html" class="back-btn" id="btn-back" title="Volver"><i class="ti ti-arrow-left"></i></a>
+    <img src="https://i.imgur.com/USzJtPh.png" alt="" class="header-logo">
+    <div class="header-txt">
+      <div class="header-title" id="h-title">Inspección de terreno</div>
+      <div class="header-sub" id="h-sub">Elige el caso a inspeccionar</div>
     </div>
-    <div id="caso-status" style="font-size:10.5px;color:var(--text-3);padding:3px 2px 8px;">Cargando casos…</div>
-    <div class="picker-list" id="caso-picker-list"></div>
+    <button class="status-pill" id="status-pill" hidden onclick="sincronizar(true)"><span class="dot"></span><span id="status-txt">Guardado</span></button>
   </div>
-
-  <!-- Caso seleccionado -->
-  <div class="card" id="card-caso-info" style="display:none">
-    <div class="card-title"><i class="ti ti-user"></i><span style="flex:1">Caso</span>
-      <button type="button" class="btn-sm" onclick="cambiarCaso()"><i class="ti ti-replace"></i> Cambiar</button>
-    </div>
-    <div class="caso-nombre" id="insp-caso-nombre">—</div>
-    <div class="caso-detalle" id="insp-caso-detalle">—</div>
-    <div class="info-grid" id="insp-caso-info-grid"></div>
-    <div class="caso-actions" id="insp-caso-actions"></div>
+  <div class="tabs" id="tabs" hidden>
+    <button class="tab ac" id="tab-acta" onclick="irTab('acta')"><i class="ti ti-notebook"></i>Acta</button>
+    <button class="tab" id="tab-fotos" onclick="irTab('fotos')"><i class="ti ti-camera"></i>Fotos <span class="badge" id="badge-fotos">0</span></button>
   </div>
+</header>
 
-  <!-- Paso inicial: tipo de siniestro + fecha -->
-  <div class="card" id="card-inicio" style="display:none">
-    <div class="card-title"><i class="ti ti-alert-triangle"></i><span style="flex:1">Iniciar inspección</span></div>
-    <label>Tipo de siniestro</label>
-    <div class="sin-grid" id="insp-tipo-chips" style="margin-bottom:14px"></div>
-    <div class="ig" style="max-width:260px">
-      <label>Fecha de ocurrencia (del caso)</label>
-      <div class="readonly-field" id="insp-fecha-ocurrencia-view">—</div>
-    </div>
-    <button class="btn btn-teal" onclick="iniciarInspeccionUI()"><i class="ti ti-player-play"></i> Iniciar Inspección</button>
-  </div>
+<main class="page">
 
-  <!-- Vista principal: recintos -->
-  <div id="insp-main" style="display:none">
-    <div class="card" id="card-observaciones">
-      <div class="card-title"><i class="ti ti-notes"></i><span style="flex:1">Observaciones generales</span></div>
-      <textarea id="insp-observaciones" rows="3" placeholder="Contexto general de la inspección: acceso, clima, personas presentes, etc." oninput="updObservaciones(this.value)" onblur="guardarObservacionesUI()"></textarea>
-    </div>
+  <!-- 1. Elegir caso -->
+  <section id="v-picker">
     <div class="card">
-      <div class="card-title"><i class="ti ti-building-warehouse"></i><span style="flex:1">Recintos</span></div>
-      <div id="insp-recintos-list"></div>
-      <button class="btn" onclick="agregarRecintoUI()"><i class="ti ti-plus"></i> Agregar recinto</button>
+      <div class="sw"><i class="ti ti-search"></i>
+        <input type="search" id="caso-search" placeholder="Nombre, RUT o N° siniestro" oninput="renderPicker()" autocomplete="off">
+      </div>
+      <div class="muted" id="caso-status" style="padding:0 2px 10px">Cargando casos…</div>
+      <div class="picker-list" id="picker-list"></div>
     </div>
-    <button class="btn btn-save" onclick="finalizarInspeccionUI()"><i class="ti ti-check"></i> Finalizar Inspección</button>
-  </div>
+  </section>
 
+  <!-- 2. Datos del caso (siempre visibles una vez elegido) -->
+  <section id="v-caso" hidden>
+    <div class="card">
+      <div class="caso-head">
+        <div style="flex:1;min-width:0">
+          <div class="caso-nombre" id="caso-nombre">—</div>
+          <div class="caso-detalle" id="caso-detalle">—</div>
+        </div>
+        <button class="btn btn-sm" onclick="cambiarCaso()"><i class="ti ti-switch-horizontal"></i>Cambiar</button>
+      </div>
+      <div class="caso-actions" id="caso-actions"></div>
+      <details class="caso-more"><summary><i class="ti ti-chevron-down"></i>Datos del caso</summary>
+        <div class="info-grid" id="caso-info"></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3. Iniciar -->
+  <section id="v-inicio" hidden>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-alert-triangle"></i>Tipo de siniestro</div>
+      <div class="sin-grid" id="tipo-chips"></div>
+      <button class="btn btn-teal" onclick="iniciarInspeccion()"><i class="ti ti-player-play"></i>Comenzar inspección</button>
+      <p class="muted" style="margin-top:10px;text-align:center">Funciona sin señal: todo se guarda en el teléfono y se sube solo.</p>
+    </div>
+  </section>
+
+  <!-- 4a. Acta -->
+  <section id="v-acta" hidden>
+    <div class="card acta-card">
+      <div class="acta-bar">
+        <div class="acta-state" id="acta-state"><i class="ti ti-cloud-check"></i>Guardado</div>
+      </div>
+      <div class="acta-tools" id="acta-tools"></div>
+      <textarea id="acta-texto" spellcheck="true" autocapitalize="sentences"
+        placeholder="Escribe aquí el acta de la inspección…&#10;&#10;Tip: una línea que empieza con ## (ej. ## Cocina) queda como subtítulo en el documento."
+        oninput="onActaInput()" onblur="flushActa()"></textarea>
+      <div class="acta-foot">
+        <span id="acta-count">0 palabras</span>
+        <a id="acta-link" href="#" target="_blank" rel="noopener" hidden><i class="ti ti-file-text"></i>Abrir en Google Docs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4b. Fotos por recinto -->
+  <section id="v-fotos" hidden>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-door"></i>Agregar recinto</div>
+      <div class="quick" id="quick-recintos"></div>
+      <div class="add-row">
+        <input type="text" id="nuevo-recinto" placeholder="Otro nombre…" maxlength="60" onkeydown="if(event.key==='Enter')agregarRecintoCustom()">
+        <button class="btn btn-teal" onclick="agregarRecintoCustom()"><i class="ti ti-plus"></i></button>
+      </div>
+    </div>
+    <div id="recintos-list"></div>
+  </section>
+
+  <!-- 5. Finalizada -->
+  <section id="v-done" hidden>
+    <div class="card done">
+      <div class="big"><i class="ti ti-check"></i></div>
+      <h2>Inspección finalizada</h2>
+      <p class="muted">El acta quedó en la carpeta Drive del asegurado, con el registro fotográfico al final.</p>
+      <a class="btn btn-teal" id="done-acta" target="_blank" rel="noopener" hidden><i class="ti ti-file-text"></i>Abrir acta</a>
+      <a class="btn" id="done-fotos" target="_blank" rel="noopener" hidden><i class="ti ti-folder"></i>Ver fotos en Drive</a>
+      <button class="btn btn-ghost" onclick="cambiarCaso()"><i class="ti ti-list-search"></i>Otro caso</button>
+    </div>
+  </section>
+</main>
+
+<div class="bottom-bar" id="bottom-bar" hidden>
+  <div class="inner"><button class="btn btn-green" onclick="pedirFinalizar()"><i class="ti ti-circle-check"></i>Finalizar inspección</button></div>
 </div>
 
-<input type="file" id="insp-file-input" accept="image/*" multiple style="display:none" onchange="onInspFilesSelected(event)">
+<input type="file" id="in-camara"  accept="image/*" capture="environment" hidden onchange="onFotos(event)">
+<input type="file" id="in-galeria" accept="image/*" multiple hidden onchange="onFotos(event)">
+<div id="overlay-root"></div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ─────────────────────────────────────────────────────────────────────────
-// Config y utilidades compartidas con el dashboard
-// ─────────────────────────────────────────────────────────────────────────
+'use strict';
+// ═════════════════════════════════════════════════════════════════════════
+// Inspección de terreno v2 — Acta escrita a mano + fotos por recinto.
+//
+// Cómo funciona el guardado (pensado para terreno con mala señal):
+//  • Todo se guarda primero en el teléfono (localStorage + IndexedDB).
+//  • Los ids de inspección y recinto se crean aquí, así que se puede trabajar
+//    100% sin conexión desde el primer segundo.
+//  • Una única "cola de salida" envía los cambios en orden cuando hay red.
+//    Todas las operaciones son idempotentes: reintentar nunca duplica nada.
+//  • Las fotos se guardan en IndexedDB ANTES de subirse y solo se borran del
+//    teléfono cuando Drive confirma la subida. Si se cierra la app, no se
+//    pierden.
+// ═════════════════════════════════════════════════════════════════════════
 const SHEETS_URL = window.SHEETS_URL;
+const TIPOS = [
+  { t: 'Viento y Lluvia', i: 'ti-cloud-rain' },
+  { t: 'Inundación',      i: 'ti-ripple' },
+  { t: 'Sismo',           i: 'ti-activity' },
+  { t: 'Incendio',        i: 'ti-flame' }
+];
+const RECINTOS_RAPIDOS = ['Fachada','Techumbre','Living','Comedor','Cocina','Dormitorio','Baño','Pasillo','Logia','Entretecho','Exterior','Bodega'];
 
-function escapeHtml(t) {
+// ── Utilidades ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+function esc(t) {
   return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
+let toastTimer = null;
+function toast(msg, type) {
+  const t = $('toast');
   t.textContent = msg;
-  t.className = 'toast show ' + (type || 'success');
-  setTimeout(() => { t.className = 'toast'; }, 2800);
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, type === 'error' ? 4200 : 2600);
 }
+function uid(prefijo) {
+  return prefijo + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+function lsGet(k, def) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
+function lsSet(k, v)   { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+function lsDel(k)      { try { localStorage.removeItem(k); } catch(e) {} }
+function hora() { const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+function plural(n, s, p) { return n + ' ' + (n === 1 ? s : (p || s + 's')); }
 
-function jsonpOnce(fullUrl, cbPrefix, timeoutMs) {
+// ── Comunicación con Apps Script ───────────────────────────────────────────
+function jsonp(params, timeoutMs) {
   return new Promise((resolve, reject) => {
-    const cb = cbPrefix + '_' + Date.now() + '_' + Math.floor(Math.random() * 1e4);
-    const script = document.createElement('script');
-    let settled = false;
-    const cleanup = () => { try { document.head.removeChild(script); } catch(e) {} };
-    const timer = setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      window[cb] = function(){ delete window[cb]; };
-      cleanup();
-      reject(new Error('timeout'));
-    }, timeoutMs);
-    window[cb] = (data) => {
-      if (settled) { delete window[cb]; return; }
-      settled = true; clearTimeout(timer);
-      delete window[cb]; cleanup();
-      resolve(data);
-    };
-    script.onerror = () => {
-      if (settled) return;
-      settled = true; clearTimeout(timer);
-      window[cb] = function(){ delete window[cb]; };
-      cleanup();
-      reject(new Error('JSONP failed'));
-    };
-    script.src = fullUrl + (fullUrl.includes('?') ? '&' : '?') + 'callback=' + cb + '&t=' + Date.now();
-    document.head.appendChild(script);
-  });
-}
-async function jsonpFetch(url, cbPrefix) {
-  const prefix = cbPrefix || 'insp_cb';
-  try {
-    return await jsonpOnce(url, prefix, 15000);
-  } catch(e) {
-    await new Promise(r => setTimeout(r, 1500));
-    return jsonpOnce(url, prefix, 20000);
-  }
-}
-function formPost(url, data) {
-  return fetch(url, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(data)
-  });
-}
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const res = String(reader.result || '');
-      const comma = res.indexOf(',');
-      resolve(comma >= 0 ? res.slice(comma + 1) : res);
-    };
-    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
-    reader.readAsDataURL(file);
+    const cb = 'insp_cb_' + Date.now() + '_' + Math.floor(Math.random() * 1e5);
+    const s = document.createElement('script');
+    let listo = false;
+    const fin = () => { listo = true; clearTimeout(timer); try { s.remove(); } catch(e) {} window[cb] = () => { delete window[cb]; }; };
+    const timer = setTimeout(() => { if (!listo) { fin(); reject(new Error('timeout')); } }, timeoutMs || 20000);
+    window[cb] = data => { if (listo) return; fin(); delete window[cb]; resolve(data); };
+    s.onerror = () => { if (!listo) { fin(); reject(new Error('jsonp')); } };
+    const qs = Object.entries(params || {}).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
+    s.src = SHEETS_URL + '?' + qs + (qs ? '&' : '') + 'callback=' + cb + '&t=' + Date.now();
+    document.head.appendChild(s);
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Modo offline: service worker (deja abrir la app sin conexión), cola de
-// operaciones pendientes (localStorage) y cola de fotos pendientes (IndexedDB)
-// ─────────────────────────────────────────────────────────────────────────
-function registrarSW() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw-inspecciones.js').catch(() => {});
-  }
-}
-
-function queueKey() { return 'insp_queue_' + (casoActual ? casoActual.id : ''); }
-function getQueue() {
-  try { return JSON.parse(localStorage.getItem(queueKey()) || '[]'); } catch(e) { return []; }
-}
-function setQueue(q) {
-  try { localStorage.setItem(queueKey(), JSON.stringify(q)); } catch(e) {}
-  actualizarStatusPill();
-}
-function encolarOperacion(action, body, opId) {
-  const q = getQueue();
-  const idx = opId ? q.findIndex(x => x.opId === opId) : -1;
-  const item = { opId: opId || (action + '_' + Date.now()), action, body, ts: Date.now() };
-  if (idx >= 0) q[idx] = item; else q.push(item);
-  setQueue(q);
-}
-function quitarDeQueue(opId) {
-  setQueue(getQueue().filter(x => x.opId !== opId));
-}
-function postDirecto(action, body) {
-  return fetch(SHEETS_URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(Object.assign({ action }, body))
-  }).then(() => {});
-}
-// Intenta enviar de inmediato; si no hay red (o el navegador reporta error),
-// la operación queda en cola local y se reintenta sola más adelante.
-async function enviarConCola(action, body, opId) {
-  if (!navigator.onLine) { encolarOperacion(action, body, opId); return false; }
+// POST que lee la respuesta real. Devuelve { estado: 'ok'|'retry'|'error', data, error }.
+// Como todas las operaciones son idempotentes, si el navegador no deja leer la
+// respuesta se reenvía "a ciegas" sin riesgo de duplicar.
+async function postApi(payload) {
+  let resp;
   try {
-    await postDirecto(action, body);
-    quitarDeQueue(opId);
-    return true;
-  } catch(e) {
-    encolarOperacion(action, body, opId);
-    return false;
-  }
-}
-async function procesarQueue() {
-  if (!casoActual) return;
-  let q = getQueue();
-  if (!q.length) return;
-  showToast(`Sincronizando ${q.length} cambio${q.length > 1 ? 's' : ''} pendiente${q.length > 1 ? 's' : ''}…`);
-  for (const item of q.slice()) {
-    if (!navigator.onLine) break;
+    resp = await fetch(SHEETS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+  } catch (e) {
+    if (!navigator.onLine) return { estado: 'retry' };
     try {
-      await postDirecto(item.action, item.body);
-      quitarDeQueue(item.opId);
-      // Si recién se creó una inspección que se generó offline, reconciliamos
-      // el id temporal con el id real que le asignó el servidor.
-      if (item.action === 'crearInspeccion' && inspState && String(inspState.inspeccionId).indexOf('LOCAL-') === 0) {
-        await new Promise(r => setTimeout(r, 1300));
-        try {
-          const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoActual.id);
-          const data = await jsonpOnce(url, 'insp_reconciliar', 15000);
-          if (data && data.ok && data.inspeccion && data.inspeccion.estado === 'En proceso') {
-            const idViejo = inspState.inspeccionId;
-            inspState.inspeccionId = data.inspeccion.id;
-            inspState.folderId = data.inspeccion.folderId;
-            delete inspState._localPendingCreacion;
-            const q2 = getQueue().map(x => {
-              if (x.body && x.body.inspeccionId === idViejo) x.body.inspeccionId = data.inspeccion.id;
-              return x;
-            });
-            setQueue(q2);
-            guardarDraftLocal();
-          }
-        } catch(e2) {}
+      await fetch(SHEETS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
+      return { estado: 'ok', data: null };
+    } catch (e2) { return { estado: 'retry' }; }
+  }
+  let data;
+  try { data = await resp.json(); } catch (e) { return { estado: 'retry' }; }
+  if (data && data.ok) return { estado: 'ok', data };
+  const err = (data && data.error) || 'Error del servidor';
+  if (/ocupado/i.test(err)) return { estado: 'retry' };
+  return { estado: 'error', error: err };
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// Cola de salida (operaciones) — localStorage
+// ═════════════════════════════════════════════════════════════════════════
+const OPS_KEY = 'insp2_ops';
+function getOps() { return lsGet(OPS_KEY, []); }
+function setOps(q) { lsSet(OPS_KEY, q); pintarEstado(); }
+// Encola (o reemplaza en su mismo lugar) una operación con opId estable.
+function encolar(opId, action, body) {
+  const q = getOps();
+  const item = { opId, action, body, ts: Date.now() + Math.random() };
+  const i = q.findIndex(x => x.opId === opId);
+  if (i >= 0) q[i] = item; else q.push(item);
+  setOps(q);
+  programarSync();
+}
+function quitarOp(opId, ts) {
+  setOps(getOps().filter(x => !(x.opId === opId && (ts === undefined || x.ts === ts))));
+}
+function opPendiente(opId) { return getOps().some(x => x.opId === opId); }
+
+let syncTimer = null;
+function programarSync(ms) { clearTimeout(syncTimer); syncTimer = setTimeout(() => sincronizar(), ms == null ? 400 : ms); }
+
+let sincronizando = false;
+async function sincronizar(manual) {
+  if (sincronizando) return;
+  if (!navigator.onLine) { pintarEstado(); if (manual) toast('Sin conexión: todo queda guardado en el teléfono', 'error'); return; }
+  sincronizando = true; pintarEstado();
+  try {
+    // 1) Operaciones, en orden
+    while (true) {
+      const q = getOps();
+      if (!q.length) break;
+      const op = q[0];
+      const r = await postApi(Object.assign({ action: op.action }, op.body));
+      if (r.estado === 'retry') break;
+      quitarOp(op.opId, op.ts);
+      if (r.estado === 'error') {
+        // Borrar algo que ya no existe no es un error real
+        if (!/^del/.test(op.opId)) toast('No se pudo guardar (' + op.action + '): ' + r.error, 'error');
+        continue;
       }
-    } catch(e) { break; }
-  }
-  if (!getQueue().length) showToast('Todo sincronizado ✓');
-  actualizarStatusPill();
-  procesarFotosPendientes();
-}
-
-// ── IndexedDB: fotos capturadas sin conexión, a la espera de subirse ──
-const IDB_NAME = 'insp_fotos_pendientes';
-const IDB_STORE = 'fotos';
-let idbPromise = null;
-function idb() {
-  if (idbPromise) return idbPromise;
-  idbPromise = new Promise((resolve, reject) => {
-    try {
-      const req = indexedDB.open(IDB_NAME, 1);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE, { keyPath: 'key' });
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    } catch(e) { reject(e); }
-  });
-  return idbPromise;
-}
-async function idbPut(record) {
-  const db = await idb();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    tx.objectStore(IDB_STORE).put(record);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
-}
-async function idbDelete(key) {
-  const db = await idb();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    tx.objectStore(IDB_STORE).delete(key);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
-}
-async function idbGetAll() {
-  const db = await idb();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(IDB_STORE, 'readonly');
-    const req = tx.objectStore(IDB_STORE).getAll();
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = () => reject(req.error);
-  });
-}
-let fotosPendientesCount = {}; // recintoId -> cantidad de fotos sin subir
-async function recalcularFotosPendientes() {
-  try {
-    const todas = await idbGetAll();
-    fotosPendientesCount = {};
-    todas.forEach(p => { fotosPendientesCount[p.recintoId] = (fotosPendientesCount[p.recintoId] || 0) + 1; });
-  } catch(e) { fotosPendientesCount = {}; }
-}
-async function procesarFotosPendientes() {
-  if (!navigator.onLine) return;
-  let pendientes;
-  try { pendientes = await idbGetAll(); } catch(e) { return; }
-  if (!pendientes.length) return;
-  let subidas = 0;
-  const recintosASincronizar = new Set();
-  for (const p of pendientes) {
-    const okSubida = await subirFotoRecinto(new File([p.blob], p.fileName, { type: p.mimeType }), p.recintoId);
-    if (okSubida) { await idbDelete(p.key); subidas++; recintosASincronizar.add(p.recintoId); }
-    else break; // probablemente seguimos sin conexión real: se reintenta más tarde
-  }
-  await recalcularFotosPendientes();
-  if (subidas) {
-    showToast(`${subidas} foto${subidas > 1 ? 's' : ''} pendiente${subidas > 1 ? 's' : ''} sincronizada${subidas > 1 ? 's' : ''} ✓`);
-    if (inspState) {
-      inspState.recintos.forEach((r, i) => { if (recintosASincronizar.has(r.id)) cargarFotosRecinto(i); });
-      renderRecintosInsp();
+      aplicarRespuesta(op, r.data);
     }
+    // 2) Fotos, solo cuando el servidor ya tiene todos los recintos
+    if (!getOps().length) await subirFotosPendientes();
+  } finally {
+    sincronizando = false;
+    pintarEstado();
+  }
+}
+function aplicarRespuesta(op, data) {
+  if (!data || !insp) return;
+  if (op.action === 'guardarActa' && op.body.inspeccionId === insp.id && data.actaUrl) {
+    insp.actaUrl = data.actaUrl; insp.actaGuardada = hora(); guardarLocal(); pintarActaEstado();
+  }
+  if (op.action === 'crearInspeccion' && op.body.id === insp.id && data.folderId) {
+    insp.folderId = data.folderId; guardarLocal();
   }
 }
 
-// Reduce el tamaño de la foto antes de subirla (menos datos móviles, subida
-// más rápida y menos espacio si queda en cola offline).
-function comprimirImagen(file, maxDim, calidad) {
-  return new Promise((resolve) => {
-    if (!file.type || !file.type.startsWith('image/') || file.type === 'image/gif') { resolve(file); return; }
-    const img = new Image();
-    const url = URL.createObjectURL(file);
+// ═════════════════════════════════════════════════════════════════════════
+// Fotos pendientes — IndexedDB (misma base que la versión anterior, así las
+// fotos que hayan quedado en cola igual se suben)
+// ═════════════════════════════════════════════════════════════════════════
+const IDB_NAME = 'insp_fotos_pendientes', IDB_STORE = 'fotos';
+let idbP = null;
+function idb() {
+  if (!idbP) idbP = new Promise((res, rej) => {
+    const r = indexedDB.open(IDB_NAME, 1);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains(IDB_STORE)) r.result.createObjectStore(IDB_STORE, { keyPath: 'key' }); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return idbP;
+}
+async function idbTx(modo, fn) {
+  const db = await idb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(IDB_STORE, modo);
+    const out = fn(tx.objectStore(IDB_STORE));
+    tx.oncomplete = () => res(out && 'result' in out ? out.result : undefined);
+    tx.onerror = () => rej(tx.error);
+  });
+}
+const idbPut = rec => idbTx('readwrite', s => { s.put(rec); });
+const idbDel = key => idbTx('readwrite', s => { s.delete(key); });
+const idbAll = () => idbTx('readonly', s => s.getAll());
+
+// Copia en memoria de las fotos pendientes: recintoId -> [{key, url, estado}]
+let pendientes = {};
+const blobUrls = {};
+async function recargarPendientes() {
+  let todas = [];
+  try { todas = await idbAll(); } catch(e) {}
+  const nuevo = {};
+  todas.sort((a, b) => a.ts - b.ts).forEach(p => {
+    if (!blobUrls[p.key]) blobUrls[p.key] = URL.createObjectURL(p.blob);
+    const prev = (pendientes[p.recintoId] || []).find(x => x.key === p.key);
+    (nuevo[p.recintoId] = nuevo[p.recintoId] || []).push({ key: p.key, url: blobUrls[p.key], estado: prev ? prev.estado : 'cola', error: prev && prev.error });
+  });
+  Object.keys(blobUrls).forEach(k => { if (!todas.some(p => p.key === k)) { URL.revokeObjectURL(blobUrls[k]); delete blobUrls[k]; } });
+  pendientes = nuevo;
+  return todas;
+}
+function marcarPendiente(key, estado, error) {
+  Object.values(pendientes).forEach(arr => arr.forEach(p => { if (p.key === key) { p.estado = estado; p.error = error; } }));
+  pintarRecintos();
+}
+
+let subiendoFotos = false;
+async function subirFotosPendientes() {
+  if (subiendoFotos || !navigator.onLine) return;
+  subiendoFotos = true;
+  try {
+    const cola = (await recargarPendientes()).filter(p => !(pendientes[p.recintoId] || []).some(x => x.key === p.key && x.estado === 'error'));
+    let i = 0, ok = 0;
+    const worker = async () => {
+      while (i < cola.length && navigator.onLine) {
+        const p = cola[i++];
+        marcarPendiente(p.key, 'subiendo');
+        const r = await subirFoto(p);
+        if (r.ok) {
+          await idbDel(p.key); ok++;
+          const rec = insp && insp.recintos.find(x => x.id === p.recintoId);
+          if (rec && Array.isArray(rec.fotos) && r.id) rec.fotos.unshift({ id: r.id, name: p.fileName });
+        } else {
+          marcarPendiente(p.key, r.definitivo ? 'error' : 'cola', r.error);
+        }
+      }
+    };
+    await Promise.all([worker(), worker(), worker()]);
+    await recargarPendientes();
+    if (ok) toast(plural(ok, 'foto subida', 'fotos subidas') + ' ✓', 'success');
+  } finally {
+    subiendoFotos = false;
+    pintarRecintos(); pintarEstado();
+  }
+}
+async function subirFoto(p) {
+  const file = p.blob, mime = p.mimeType || 'image/jpeg';
+  try {
+    const ini = await jsonp({ action: 'iniciarSubidaRecinto', recintoId: p.recintoId, fileName: p.fileName, mimeType: mime });
+    if (!ini || !ini.ok || !ini.uploadUrl) {
+      const e = (ini && ini.error) || 'sin url';
+      if (/no encontrado/i.test(e)) return { ok: false, definitivo: true, error: e };
+      throw new Error(e);
+    }
+    const put = await fetch(ini.uploadUrl, { method: 'PUT', headers: { 'Content-Type': mime }, body: file });
+    if (!put.ok) throw new Error('PUT ' + put.status);
+    let meta = {}; try { meta = await put.json(); } catch(e) {}
+    return { ok: true, id: meta.id };
+  } catch (e) {
+    if (!navigator.onLine) return { ok: false };
+    // Plan B: subir en base64 por el backend
+    try {
+      const b64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = rej; r.readAsDataURL(file); });
+      const r = await postApi({ action: 'uploadArchivoRecinto', recintoId: p.recintoId, fileName: p.fileName, mimeType: mime, dataBase64: b64 });
+      if (r.estado === 'ok') return { ok: true, id: r.data && r.data.fileId };
+      return { ok: false, definitivo: r.estado === 'error', error: r.error };
+    } catch (e2) { return { ok: false }; }
+  }
+}
+
+// Reduce la foto a 1920 px / JPEG 0.8: menos datos móviles, subida más rápida.
+function comprimir(file) {
+  return new Promise(resolve => {
+    if (!file.type || !/^image\/(jpe?g|png|webp|heic|heif)$/i.test(file.type)) { resolve(file); return; }
+    const img = new Image(), url = URL.createObjectURL(file);
     img.onload = () => {
       URL.revokeObjectURL(url);
-      let width = img.naturalWidth, height = img.naturalHeight;
-      const max = maxDim || 1600;
-      if (width > max || height > max) {
-        const ratio = Math.min(max / width, max / height);
-        width = Math.round(width * ratio); height = Math.round(height * ratio);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width; canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob((blob) => {
-        if (!blob) { resolve(file); return; }
-        resolve(new File([blob], (file.name || 'foto').replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }));
-      }, 'image/jpeg', calidad || 0.72);
+      let w = img.naturalWidth, h = img.naturalHeight; const max = 1920;
+      if (w > max || h > max) { const k = Math.min(max / w, max / h); w = Math.round(w * k); h = Math.round(h * k); }
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      c.toBlob(b => resolve(b && b.size < file.size ? b : file), 'image/jpeg', 0.8);
     };
     img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.src = url;
   });
 }
 
-function actualizarStatusPill() {
-  const pill = document.getElementById('status-pill');
-  const banner = document.getElementById('sync-banner');
-  const pendientes = getQueue().length;
-  if (inspState) {
-    pill.style.visibility = 'visible';
-    if (!navigator.onLine) pill.innerHTML = '<span class="dot" style="background:#e0a95e"></span>Sin conexión';
-    else if (pendientes) pill.innerHTML = '<span class="dot" style="background:#e0a95e"></span>Sincronizando…';
-    else pill.innerHTML = '<span class="dot"></span>En proceso';
-  } else {
-    pill.style.visibility = 'hidden';
-  }
-  if (!navigator.onLine || pendientes) {
-    const msg = !navigator.onLine
-      ? 'Sin conexión — los cambios se guardan en el teléfono y se envían al reconectar'
-      : `${pendientes} cambio${pendientes > 1 ? 's' : ''} pendiente${pendientes > 1 ? 's' : ''} por sincronizar`;
-    banner.style.display = 'flex';
-    banner.innerHTML = `<i class="ti ti-cloud-off"></i><span>${msg}</span>` +
-      (navigator.onLine && pendientes ? `<button onclick="procesarQueue()">Reintentar</button>` : '');
-  } else {
-    banner.style.display = 'none';
-  }
+// ═════════════════════════════════════════════════════════════════════════
+// Estado de la inspección
+// ═════════════════════════════════════════════════════════════════════════
+let casos = null;        // lista de casos
+let caso = null;         // caso elegido
+let insp = null;         // { id, casoId, tipoSiniestro, folderId, acta, actaUrl, actaGuardada, recintos:[{id,nombre,fotos}] }
+let tabActual = 'acta';
+let tipoSel = '';
+let recAbierto = null;   // id del recinto expandido
+let fotoDestino = null;  // recinto al que van las fotos seleccionadas
+
+const stateKey = () => 'insp2_state_' + (caso ? caso.id : '');
+function guardarLocal() {
+  if (!insp || !caso) return;
+  lsSet(stateKey(), {
+    id: insp.id, casoId: insp.casoId, tipoSiniestro: insp.tipoSiniestro, folderId: insp.folderId || '',
+    acta: insp.acta || '', actaUrl: insp.actaUrl || '', actaGuardada: insp.actaGuardada || '',
+    recintos: insp.recintos.map(r => ({ id: r.id, nombre: r.nombre }))
+  });
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Paso 0: cargar y elegir el caso a inspeccionar
-// ─────────────────────────────────────────────────────────────────────────
-let casosCache = null;
-let casoActual = null;
-
-async function initApp() {
-  registrarSW();
-  window.addEventListener('online', () => { actualizarStatusPill(); procesarQueue(); });
-  window.addEventListener('offline', actualizarStatusPill);
+// ── Inicio de la app ───────────────────────────────────────────────────────
+async function init() {
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw-inspecciones.js').catch(() => {});
+  migrarVersionAnterior();
+  window.addEventListener('online', () => { pintarEstado(); sincronizar(); });
+  window.addEventListener('offline', pintarEstado);
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') { guardarDraftLocal(); }
-    else { actualizarStatusPill(); procesarQueue(); }
+    if (document.visibilityState === 'hidden') { flushActa(); }
+    else sincronizar();
   });
-  window.addEventListener('pagehide', guardarDraftLocal);
-  setInterval(() => { actualizarStatusPill(); procesarQueue(); }, 20000);
-  await recalcularFotosPendientes();
+  window.addEventListener('pagehide', flushActa);
+  setInterval(() => { if (getOps().length || Object.keys(pendientes).length) sincronizar(); }, 25000);
 
-  // Muestra de inmediato lo que haya en caché local (funciona sin conexión).
-  try {
-    const cached = localStorage.getItem('insp_casos_cache');
-    if (cached) casosCache = JSON.parse(cached);
-  } catch(e) {}
-  if (casosCache) {
-    document.getElementById('caso-status').textContent = casosCache.length + ' casos (guardados en el teléfono)';
-    renderCasoPicker();
-  }
+  await recargarPendientes();
+  casos = lsGet('insp_casos_cache', null);
+  if (casos) { $('caso-status').textContent = plural(casos.length, 'caso') + ' (guardados en el teléfono)'; renderPicker(); }
+  const casoIdUrl = new URLSearchParams(location.search).get('casoId');
+  if (casoIdUrl && casos && casos.some(c => String(c.id) === casoIdUrl)) seleccionarCaso(casoIdUrl);
 
   try {
-    const json = await jsonpFetch(SHEETS_URL, 'insp_casos');
+    const json = await jsonp({}, 25000);
     if (json && json.ok && Array.isArray(json.data)) {
-      casosCache = json.data;
-      try { localStorage.setItem('insp_casos_cache', JSON.stringify(casosCache)); } catch(e) {}
-      document.getElementById('caso-status').textContent = casosCache.length + ' casos disponibles';
-      renderCasoPicker();
-    } else if (!casosCache) {
-      document.getElementById('caso-status').textContent = 'No se pudieron cargar los casos.';
-    }
-  } catch(e) {
-    document.getElementById('caso-status').textContent = casosCache
-      ? casosCache.length + ' casos (sin conexión, datos guardados)'
-      : 'Sin conexión y sin datos guardados en este teléfono.';
+      casos = json.data;
+      lsSet('insp_casos_cache', casos);
+      $('caso-status').textContent = plural(casos.length, 'caso disponible', 'casos disponibles');
+      renderPicker();
+      if (casoIdUrl && !caso && casos.some(c => String(c.id) === casoIdUrl)) seleccionarCaso(casoIdUrl);
+    } else if (!casos) $('caso-status').textContent = 'No se pudieron cargar los casos' + (json && json.error ? ': ' + json.error : '');
+  } catch (e) {
+    if (!casos) $('caso-status').textContent = 'Sin conexión y sin casos guardados en este teléfono.';
+    else $('caso-status').textContent = plural(casos.length, 'caso') + ' (sin conexión, datos guardados)';
   }
-
-  const params = new URLSearchParams(location.search);
-  const casoId = params.get('casoId');
-  if (casoId && casosCache) {
-    const c = casosCache.find(x => String(x.id) === String(casoId));
-    if (c) { selectCaso(c.id); return; }
-  }
+  sincronizar();
 }
 
-function renderCasoPicker() {
-  const q = (document.getElementById('caso-search').value || '').toLowerCase();
-  const el = document.getElementById('caso-picker-list');
-  if (!casosCache) { el.innerHTML = ''; return; }
-  const f = casosCache.filter(c => !q || [(c.nombre||''), (c.rut||''), (c.siniestro||''), (c.nrosin||'')].join(' ').toLowerCase().includes(q));
-  if (!f.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-3);font-size:12px;">Sin resultados</div>'; return; }
-  el.innerHTML = f.slice(0, 100).map(c => {
-    const meta = [c.rut, c.nrosin ? 'N° ' + c.nrosin : '', c.siniestro].filter(Boolean).join(' · ');
-    return `<div class="aseg-row" onclick="selectCaso('${escapeHtml(String(c.id))}')">
-      <div style="flex:1;min-width:0"><div class="aseg-nom">${escapeHtml(c.nombre || '(sin nombre)')}</div><div class="aseg-meta">${escapeHtml(meta)}</div></div>
-      <i class="ti ti-chevron-right aseg-go"></i>
-    </div>`;
-  }).join('');
-}
-
-function telHref(num) {
-  if (!num) return '';
-  return 'tel:' + String(num).replace(/[^\d+]/g, '');
-}
-function mapsHref(dir, comuna, ciudad) {
-  const q = [dir, comuna, ciudad].filter(Boolean).join(', ');
-  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
-}
-
-function renderCasoInfoCard(c) {
-  const items = [];
-  if (c.nrosin) items.push(['N° Siniestro', c.nrosin]);
-  if (c.siniestro) items.push(['Tipo de siniestro', c.siniestro]);
-  if (c.fechaSiniestro) items.push(['Fecha de ocurrencia', c.fechaSiniestro]);
-  if (c.rut) items.push(['RUT asegurado', c.rut]);
-  if (c.inspector) items.push(['Inspector', c.inspector]);
-  if (c.liquidadorPersona || c.liquidador) items.push(['Liquidador', [c.liquidadorPersona, c.liquidador].filter(Boolean).join(' · ')]);
-  if (c.dir || c.comuna) items.push(['Dirección', [c.dir, c.comuna, c.ciudad].filter(Boolean).join(', ')]);
-
-  document.getElementById('insp-caso-info-grid').innerHTML = items.map(([label, val]) => `
-    <div class="info-item${label === 'Dirección' ? ' full' : ''}"><label>${escapeHtml(label)}</label><div class="val">${escapeHtml(val)}</div></div>
-  `).join('');
-
-  const acciones = [];
-  if (c.telefono) acciones.push(`<a href="${telHref(c.telefono)}" class="btn-sm" style="background:var(--green);color:#fff;border-color:var(--green)"><i class="ti ti-phone"></i> Llamar asegurado</a>`);
-  if (c.telefonoInspector) acciones.push(`<a href="${telHref(c.telefonoInspector)}" class="btn-sm" style="background:var(--teal-2);color:#fff;border-color:var(--teal-2)"><i class="ti ti-phone-outgoing"></i> Llamar inspector</a>`);
-  if (c.dir || c.comuna) acciones.push(`<a href="${mapsHref(c.dir, c.comuna, c.ciudad)}" target="_blank" rel="noopener" class="btn-sm"><i class="ti ti-map-2"></i> Cómo llegar</a>`);
-  document.getElementById('insp-caso-actions').innerHTML = acciones.join('');
-}
-
-async function selectCaso(id) {
-  const c = casosCache.find(x => String(x.id) === String(id));
-  if (!c) return;
-  casoActual = c;
-  document.getElementById('card-caso-picker').style.display = 'none';
-  document.getElementById('card-caso-info').style.display = 'block';
-  document.getElementById('insp-caso-nombre').textContent = c.nombre || '—';
-  const detalle = [c.rut ? c.rut : '', c.dir ? [c.dir, c.comuna].filter(Boolean).join(', ') : ''].filter(Boolean).join(' · ');
-  document.getElementById('insp-caso-detalle').textContent = detalle || '—';
-  renderCasoInfoCard(c);
-
+// Pasa a la nueva cola lo que haya quedado sin enviar en la versión anterior.
+function migrarVersionAnterior() {
   try {
-    const url = new URL(location.href);
-    url.searchParams.set('casoId', c.id);
-    history.replaceState(null, '', url);
-  } catch(e) {}
-
-  await recalcularFotosPendientes();
-  await cargarEstadoInspeccion();
-}
-
-function cambiarCaso() {
-  casoActual = null;
-  inspState = null;
-  document.getElementById('status-pill').style.visibility = 'hidden';
-  document.getElementById('card-caso-info').style.display = 'none';
-  document.getElementById('card-inicio').style.display = 'none';
-  document.getElementById('insp-main').style.display = 'none';
-  document.getElementById('card-caso-picker').style.display = 'block';
-  actualizarStatusPill();
-  try {
-    const url = new URL(location.href);
-    url.searchParams.delete('casoId');
-    history.replaceState(null, '', url);
-  } catch(e) {}
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// Taxonomía de categorías / elementos constructivos
-// ─────────────────────────────────────────────────────────────────────────
-const INSP_TIPOS_META = [
-  { t: 'Viento y Lluvia', i: 'ti-cloud-rain' },
-  { t: 'Inundación',      i: 'ti-ripple' },
-  { t: 'Sismo',           i: 'ti-activity' },
-  { t: 'Incendio',        i: 'ti-flame' }
-];
-
-const INSP_GRUPOS = {
-  'Pisos y Pavimentos': [
-    'Alfombra (bouclé / cubrepiso)',
-    'Cerámica / Palmetas cerámicas',
-    'Mármol para pavimento',
-    'Palmetas vinílicas adhesivas',
-    'Piedra pizarra',
-    'Piso de ingeniería en madera',
-    'Piso flotante laminado de MDF',
-    'Piso machihembrado de madera y parquet',
-    'Porcelanato'
-  ],
-  'Techumbre y Cubiertas': [
-    'Bajadas y canales de aguas lluvias',
-    'Cerchas y costaneras de techumbre',
-    'Cubierta de fibrocemento (tipo Pizarreño)',
-    'Cubierta de policarbonato (alveolar / ondulado)',
-    'Cubierta de tejas coloniales (arcilla o cemento)',
-    'Cubierta y cumbreras de plancha de zinc-alum / galvanizada',
-    'Fieltro asfáltico (techumbre y muros)',
-    'Forro y cumbrera de hojalatería',
-    'Siding de fibrocemento para frontón',
-    'Tejas asfálticas',
-    'Tejas de zinc'
-  ],
-  'Estructuras, Muros y Cierres': [
-    'Base estabilizada de terreno',
-    'Cierro perimetral tipo pandereta y pilares de hormigón vibrado',
-    'Estructuras de tabiquería en madera (pino 2x3) y Metalcom (acero galvanizado)',
-    'Hormigón armado / Radier de hormigón',
-    'Muro de albañilería (ladrillo)',
-    'Muro tipo Bulldog',
-    'Tabiquería liviana'
-  ],
-  'Terminación y Revestimiento': [
-    'Cielo americano (modular)',
-    'Entramado de madera de pino para cielo',
-    'Estuco de mortero de cemento',
-    'Fibrocemento (Internit)',
-    'Lana mineral (aislante térmico / acústico)',
-    'Madera machihembrada',
-    'Palmetas fotolaminadas de MDF',
-    'Papel mural (estándar / Carpenter / con sellado)',
-    'Planchas de yeso-cartón (volcanita)',
-    'Tableros de Cholguán (hardboard)',
-    'Tableros de Masisa',
-    'Tableros de madera terciada (plywood)'
-  ],
-  'Puertas, Quincallería y Mobiliario': [
-    'Chapas y cerraduras',
-    'Marcos de puertas y ventanas',
-    'Muebles de cocina (aéreos, base con cubierta y melamina)',
-    'Puertas de madera'
-  ],
-  'Instalaciones Sanitarias y Eléctricas': [
-    'Artefactos sanitarios (WC, lavamanos y tina)',
-    'Cañerías de polipropileno copolímero random (PPR) y redes de agua potable',
-    'Canalizaciones, cableado, enchufes y puntos de luz',
-    'Grifería y sellos de silicona',
-    'Tablero eléctrico general (disyuntores y protectores diferenciales)'
-  ],
-  'Otros': []
-};
-const INSP_GRUPO_LIST = Object.keys(INSP_GRUPOS);
-const INSP_TERMINACIONES = ['Pintura', 'Pintura Texturada', 'Barniz', 'Papel Mural'];
-const OTRO_ELEMENTO = 'Otro (especificar)';
-
-let inspState = null; // { casoId, inspeccionId, tipoSiniestro, fechaOcurrencia, folderId, observaciones, recintos:[...] }
-let inspTipoSel = '';
-let inspFotosTargetIndex = null;
-
-// ── Borrador local completo (sobrevive a recargas / cambios de app) ──
-function stateKey() { return 'insp_state_' + (casoActual ? casoActual.id : ''); }
-function serializeInspState(st) {
-  return {
-    casoId: st.casoId, inspeccionId: st.inspeccionId, tipoSiniestro: st.tipoSiniestro,
-    fechaOcurrencia: st.fechaOcurrencia, folderId: st.folderId, observaciones: st.observaciones || '',
-    _localPendingCreacion: !!st._localPendingCreacion,
-    recintos: (st.recintos || []).map(r => ({
-      id: r.id || null, _localId: r._localId, inspeccionId: r.inspeccionId, nombre: r.nombre,
-      ancho: r.ancho, largo: r.largo, alto: r.alto, m2: r.m2, categorias: r.categorias || [],
-      folderId: r.folderId, _dirty: !!r._dirty
-    }))
-  };
-}
-function guardarDraftLocal() {
-  if (!inspState || !casoActual) return;
-  try { localStorage.setItem(stateKey(), JSON.stringify(serializeInspState(inspState))); } catch(e) {}
-}
-function borrarDraftLocal() { try { localStorage.removeItem(stateKey()); } catch(e) {} }
-function restaurarEstadoLocal() {
-  try {
-    const raw = localStorage.getItem(stateKey());
-    if (!raw) return false;
-    const st = JSON.parse(raw);
-    if (!st || String(st.casoId) !== String(casoActual.id)) return false;
-    inspState = Object.assign({}, st, {
-      recintos: (st.recintos || []).map(r => Object.assign({}, r, { _open: false, _fotos: null, _fotosPend: 0, _calcL: '', _calcA: '' }))
-    });
-    return true;
-  } catch(e) { return false; }
-}
-// Combina lo que devuelve el servidor con lo que hay editado localmente sin
-// sincronizar todavía, para no perder cambios hechos sin conexión.
-function mergeRecintosConServidor(serverRecintos) {
-  const localById = {};
-  (inspState.recintos || []).forEach(r => { if (r.id) localById[r.id] = r; });
-  const draftsNuevos = (inspState.recintos || []).filter(r => !r.id);
-  const merged = (serverRecintos || []).map(sr => {
-    const local = localById[sr.id];
-    if (local && local._dirty) {
-      return Object.assign({}, local, { _fotos: local._fotos !== undefined ? local._fotos : null });
-    }
-    return Object.assign({}, sr, {
-      _open: local ? local._open : false,
-      _fotos: (local && local._fotos) || null,
-      _calcL: (local && local._calcL) || '',
-      _calcA: (local && local._calcA) || ''
-    });
-  });
-  inspState.recintos = merged.concat(draftsNuevos);
-}
-
-async function cargarEstadoInspeccion() {
-  inspTipoSel = '';
-  const chipsBox = document.getElementById('insp-tipo-chips');
-  chipsBox.innerHTML = INSP_TIPOS_META.map(m =>
-    `<button type="button" class="sin-btn" onclick="seleccionarTipoSiniestro('${m.t}',this)"><i class="ti ${m.i}"></i>${m.t}</button>`).join('');
-  document.getElementById('insp-fecha-ocurrencia-view').textContent = casoActual.fechaSiniestro || 'No registrada en el caso';
-
-  const yaRestaurado = restaurarEstadoLocal();
-  if (yaRestaurado) {
-    mostrarInspMain();
-  } else {
-    document.getElementById('card-inicio').style.display = 'none';
-    document.getElementById('insp-main').style.display = 'none';
-    document.getElementById('status-pill').style.visibility = 'hidden';
-  }
-
-  if (!navigator.onLine) {
-    if (!inspState) document.getElementById('card-inicio').style.display = 'block';
-    actualizarStatusPill();
-    return;
-  }
-
-  try {
-    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoActual.id);
-    const res = await jsonpOnce(url, 'insp_get', 15000);
-    if (res && res.ok && res.inspeccion && res.inspeccion.estado === 'En proceso') {
-      if (inspState && String(inspState.inspeccionId) === String(res.inspeccion.id)) {
-        inspState.tipoSiniestro = res.inspeccion.tipoSiniestro;
-        inspState.fechaOcurrencia = res.inspeccion.fechaOcurrencia;
-        inspState.folderId = res.inspeccion.folderId;
-        if (!inspState._obsDirty) inspState.observaciones = res.inspeccion.observaciones || inspState.observaciones || '';
-        mergeRecintosConServidor(res.recintos || []);
-      } else if (!inspState || !inspState._localPendingCreacion) {
-        inspState = {
-          casoId: String(casoActual.id), inspeccionId: res.inspeccion.id, tipoSiniestro: res.inspeccion.tipoSiniestro,
-          fechaOcurrencia: res.inspeccion.fechaOcurrencia, folderId: res.inspeccion.folderId,
-          observaciones: res.inspeccion.observaciones || '',
-          recintos: (res.recintos || []).map(r => ({ ...r, _open: false, _fotos: null, _calcL: '', _calcA: '' }))
-        };
+    const q = getOps();
+    Object.keys(localStorage).forEach(k => {
+      if (k.indexOf('insp_queue_') === 0) {
+        (lsGet(k, []) || []).forEach(op => {
+          if (op && op.body && String(op.body.inspeccionId || op.body.id || '').indexOf('LOCAL-') !== 0) {
+            q.push({ opId: 'v1_' + op.opId, action: op.action, body: op.body, ts: op.ts || Date.now() });
+          }
+        });
+        lsDel(k);
       }
-      mostrarInspMain();
-      guardarDraftLocal();
-      return;
-    }
-  } catch(e) { /* sigue con lo que haya en local, o pasa al paso inicial */ }
-  if (!inspState) document.getElementById('card-inicio').style.display = 'block';
-  actualizarStatusPill();
+      if (k.indexOf('insp_state_') === 0) lsDel(k);
+    });
+    lsSet(OPS_KEY, q);
+  } catch (e) {}
 }
 
-function seleccionarTipoSiniestro(t, el) {
-  inspTipoSel = t;
-  document.querySelectorAll('#insp-tipo-chips .sin-btn').forEach(b => b.classList.remove('ac'));
-  el.classList.add('ac');
+// ── 1. Elegir caso ─────────────────────────────────────────────────────────
+function fechaAgenda(c) {
+  const v = c.fechaAgendamiento; if (!v) return null;
+  const s = String(v).trim();
+  let d = null, m;
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) d = new Date(/T/.test(s) ? s : s + 'T00:00');
+  else if ((m = s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(?:\s+(\d{1,2}):(\d{2}))?/))) d = new Date(+m[3], m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0));
+  return d && !isNaN(d) ? d : null;
 }
-
-async function iniciarInspeccionUI() {
-  if (!inspTipoSel) { showToast('Selecciona el tipo de siniestro', 'error'); return; }
-  const fecha = casoActual.fechaSiniestro || '';
-
-  if (!navigator.onLine) {
-    const localId = 'LOCAL-' + Date.now();
-    inspState = {
-      casoId: String(casoActual.id), inspeccionId: localId, tipoSiniestro: inspTipoSel,
-      fechaOcurrencia: fecha, folderId: '', observaciones: '', recintos: [], _localPendingCreacion: true
-    };
-    encolarOperacion('crearInspeccion', { casoId: casoActual.id, tipoSiniestro: inspTipoSel, fechaOcurrencia: fecha }, 'crear_' + localId);
-    guardarDraftLocal();
-    mostrarInspMain();
-    showToast('Sin conexión: la inspección se registrará al reconectar', 'error');
-    return;
-  }
-
-  showToast('Iniciando inspección…');
-  try {
-    await formPost(SHEETS_URL, { action: 'crearInspeccion', casoId: casoActual.id, tipoSiniestro: inspTipoSel, fechaOcurrencia: fecha });
-    await new Promise(r => setTimeout(r, 1300));
-    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(casoActual.id);
-    const data = await jsonpOnce(url, 'insp_get2', 15000);
-    if (data && data.ok && data.inspeccion && data.inspeccion.estado === 'En proceso') {
-      inspState = {
-        casoId: String(casoActual.id), inspeccionId: data.inspeccion.id, tipoSiniestro: data.inspeccion.tipoSiniestro,
-        fechaOcurrencia: data.inspeccion.fechaOcurrencia, folderId: data.inspeccion.folderId,
-        observaciones: data.inspeccion.observaciones || '', recintos: []
-      };
-      guardarDraftLocal();
-      document.getElementById('card-inicio').style.display = 'none';
-      mostrarInspMain();
-      showToast('Inspección iniciada ✓');
-    } else {
-      showToast('No se pudo iniciar la inspección', 'error');
-    }
-  } catch(e) {
-    showToast('Error al iniciar inspección', 'error');
-  }
-}
-
-function mostrarInspMain() {
-  document.getElementById('card-inicio').style.display = 'none';
-  document.getElementById('insp-main').style.display = 'block';
-  document.getElementById('insp-observaciones').value = inspState.observaciones || '';
-  actualizarStatusPill();
-  renderRecintosInsp();
-}
-
-// ── Observaciones generales de la inspección ──
-function updObservaciones(val) {
-  if (!inspState) return;
-  inspState.observaciones = val;
-  inspState._obsDirty = true;
-  guardarDraftLocal();
-}
-let obsGuardarTimer = null;
-function guardarObservacionesUI() {
-  if (!inspState || !inspState._obsDirty) return;
-  clearTimeout(obsGuardarTimer);
-  obsGuardarTimer = setTimeout(async () => {
-    if (!inspState) return;
-    const body = { id: inspState.inspeccionId, observaciones: inspState.observaciones || '' };
-    const enviado = await enviarConCola('actualizarInspeccion', body, 'obs_' + inspState.inspeccionId);
-    if (enviado) { inspState._obsDirty = false; showToast('Observaciones guardadas ✓'); }
-    else showToast('Sin conexión: observaciones guardadas en el teléfono', 'error');
-  }, 300);
-}
-
-function renderRecintosInsp() {
-  const box = document.getElementById('insp-recintos-list');
-  if (!inspState.recintos.length) {
-    box.innerHTML = '<div class="insp-empty"><i class="ti ti-inbox"></i>Aún no hay recintos.<br>Agrega el primero.</div>';
-    return;
-  }
-  box.innerHTML = inspState.recintos.map((r, i) => renderRecintoCard(r, i)).join('');
-  inspState.recintos.forEach((r, i) => {
-    if (r._open && r.id && r._fotos === null) cargarFotosRecinto(i);
-  });
-}
-
-function renderRecintoCard(r, i) {
-  const catsHtml = (r.categorias || []).map((cat, ci) => renderCategoriaRow(cat, i, ci)).join('');
-  const fotosPend = (r._fotosPend || 0);
-  const fotosEnCola = r.id ? (fotosPendientesCount[r.id] || 0) : 0;
-  let fotosHtml = r._fotos ? r._fotos.map(f => `
-      <div class="insp-photo-tile">
-        <img src="https://drive.google.com/thumbnail?id=${f.id}" onerror="this.style.display='none'"/>
-        <button class="insp-photo-del" onclick="eliminarFotoRecintoUI(${i},'${f.id}')" title="Eliminar foto">&times;</button>
-      </div>`).join('') : '';
-  for (let k = 0; k < fotosPend; k++) {
-    fotosHtml += `<div class="insp-photo-tile pending"><i class="ti ti-loader-2 spin"></i></div>`;
-  }
-  for (let k = 0; k < fotosEnCola; k++) {
-    fotosHtml += `<div class="insp-photo-tile queued" title="Guardada sin conexión, pendiente de subir"><i class="ti ti-cloud-off"></i></div>`;
-  }
-  const puedeSubirFotos = !!r.id;
-  const calcRes = (parseFloat(r._calcL) > 0 && parseFloat(r._calcA) > 0) ? (parseFloat(r._calcL) * parseFloat(r._calcA)).toFixed(2) : '—';
-  return `
-  <div class="insp-recinto-card ${r._open ? 'open' : ''}" id="insp-recinto-${i}">
-    <div class="insp-recinto-head" onclick="toggleRecintoUI(${i})">
-      <i class="ti ${r._open ? 'ti-chevron-down' : 'ti-chevron-right'}"></i>
-      <input type="text" value="${escapeHtml(r.nombre || '')}" placeholder="Nombre del recinto"
-        oninput="updRecintoField(${i},'nombre',this.value)" onclick="event.stopPropagation()"/>
-      ${r._dirty ? '<span class="dirty-dot" title="Cambios sin sincronizar"></span>' : ''}
-      <button class="btn-sm" style="border:none;color:var(--red);background:transparent;padding:2px 4px" onclick="event.stopPropagation();eliminarRecintoUI(${i})" title="Eliminar recinto"><i class="ti ti-trash"></i></button>
-    </div>
-    <div class="insp-recinto-body">
-      <div class="dims-row">
-        <div class="dims-field"><label>Ancho</label><input type="number" step="0.01" value="${r.ancho || ''}" oninput="updRecintoField(${i},'ancho',this.value)"/></div>
-        <div class="dims-field"><label>Largo</label><input type="number" step="0.01" value="${r.largo || ''}" oninput="updRecintoField(${i},'largo',this.value)"/></div>
-        <div class="dims-field"><label>Alto</label><input type="number" step="0.01" value="${r.alto || ''}" oninput="updRecintoField(${i},'alto',this.value)"/></div>
-        <div class="dims-field"><label>M²</label><input type="number" step="0.01" value="${r.m2 || ''}" oninput="updRecintoField(${i},'m2',this.value)"/></div>
-      </div>
-
-      <div class="calc-m2">
-        <div class="calc-m2-title"><i class="ti ti-math-function"></i>Calculadora de m² (no altera las medidas)</div>
-        <div class="calc-m2-row">
-          <input type="number" step="0.01" placeholder="Largo" value="${r._calcL || ''}" oninput="updCalcField(${i},'_calcL',this.value)"/>
-          <span class="op">×</span>
-          <input type="number" step="0.01" placeholder="Ancho" value="${r._calcA || ''}" oninput="updCalcField(${i},'_calcA',this.value)"/>
-          <span class="op">=</span>
-          <div class="calc-m2-res" id="calc-res-${i}">${calcRes}</div>
-          <button type="button" class="calc-m2-apply" onclick="aplicarCalcM2(${i})">Usar como M²</button>
-        </div>
-      </div>
-
-      <label style="margin-bottom:6px">Categorías / daños</label>
-      <div id="insp-cats-${i}">${catsHtml}</div>
-      <button class="btn" style="margin:2px 0 12px" onclick="agregarCategoriaUI(${i})"><i class="ti ti-plus"></i> Agregar categoría</button>
-
-      <label style="margin-bottom:6px">Fotografías</label>
-      <div class="insp-photo-grid" id="insp-fotos-${i}">
-        ${fotosHtml}
-        ${puedeSubirFotos ? `<div class="insp-photo-add" onclick="abrirSelectorFotos(${i})" title="Agregar foto"><i class="ti ti-plus"></i></div>` : ''}
-      </div>
-      ${!puedeSubirFotos ? '<div style="font-size:10.5px;color:var(--text-3);margin-top:6px">Guarda el recinto para poder agregar fotos.</div>' : ''}
-      ${fotosEnCola ? `<div class="fotos-pend-nota"><i class="ti ti-cloud-off"></i>${fotosEnCola} foto${fotosEnCola > 1 ? 's' : ''} guardada${fotosEnCola > 1 ? 's' : ''} sin conexión, se subirá${fotosEnCola > 1 ? 'n' : ''} al reconectar</div>` : ''}
-
-      <div class="insp-recinto-actions" style="margin-top:12px">
-        <button class="btn btn-teal" onclick="guardarRecintoUI(${i})"><i class="ti ti-device-floppy"></i> Guardar recinto</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function renderCategoriaRow(cat, i, ci) {
-  const grupo = cat.categoria && INSP_GRUPOS[cat.categoria] !== undefined ? cat.categoria : INSP_GRUPO_LIST[0];
-  const esOtrosGrupo = grupo === 'Otros';
-  const itemsGrupo = INSP_GRUPOS[grupo] || [];
-  const elementoEsOtro = cat.elemento === OTRO_ELEMENTO;
-  return `
-  <div class="insp-cat-row">
-    <button type="button" class="insp-cat-remove" onclick="quitarCategoriaUI(${i},${ci})" title="Quitar categoría">&times;</button>
-    <div class="cat-fields">
-      <div class="ig">
-        <label>Grupo</label>
-        <select onchange="updCategoriaField(${i},${ci},'categoria',this.value)">
-          ${INSP_GRUPO_LIST.map(g => `<option value="${escapeHtml(g)}" ${grupo === g ? 'selected' : ''}>${g}</option>`).join('')}
-        </select>
-      </div>
-      <div class="ig">
-        <label>M² dañados</label>
-        <input type="number" step="0.01" value="${cat.m2 || ''}" oninput="updCategoriaField(${i},${ci},'m2',this.value)"/>
-      </div>
-    </div>
-    ${!esOtrosGrupo ? `
-    <div class="ig">
-      <label>Elemento</label>
-      <select onchange="updCategoriaField(${i},${ci},'elemento',this.value)">
-        <option value="">—</option>
-        ${itemsGrupo.map(it => `<option value="${escapeHtml(it)}" ${cat.elemento === it ? 'selected' : ''}>${it}</option>`).join('')}
-        <option value="${OTRO_ELEMENTO}" ${elementoEsOtro ? 'selected' : ''}>${OTRO_ELEMENTO}</option>
-      </select>
-    </div>` : ''}
-    ${(esOtrosGrupo || elementoEsOtro) ? `<div class="ig"><label>Especifica el elemento</label><input type="text" value="${escapeHtml(cat.otroNombre || '')}" placeholder="Nombre del elemento" oninput="updCategoriaField(${i},${ci},'otroNombre',this.value)"/></div>` : ''}
-    <div class="cat-fields">
-      <div class="ig">
-        <label>Terminación superficial</label>
-        <select onchange="updCategoriaField(${i},${ci},'terminacion',this.value)">
-          <option value="">—</option>
-          ${INSP_TERMINACIONES.map(t => `<option value="${t}" ${cat.terminacion === t ? 'selected' : ''}>${t}</option>`).join('')}
-        </select>
-      </div>
-      <div class="ig">
-        <label>Daño</label>
-        <input type="text" value="${escapeHtml(cat.dano || '')}" placeholder="Descripción del daño" oninput="updCategoriaField(${i},${ci},'dano',this.value)"/>
-      </div>
-    </div>
-  </div>`;
-}
-
-// Calculadora de m² auxiliar: NO modifica ancho/largo/alto, solo calcula y
-// (si el inspector lo decide) copia el resultado al campo M² del recinto.
-function updCalcField(i, campo, val) {
-  inspState.recintos[i][campo] = val;
-  const r = inspState.recintos[i];
-  const res = (parseFloat(r._calcL) > 0 && parseFloat(r._calcA) > 0) ? (parseFloat(r._calcL) * parseFloat(r._calcA)).toFixed(2) : '—';
-  const el = document.getElementById('calc-res-' + i);
-  if (el) el.textContent = res;
-}
-function aplicarCalcM2(i) {
-  const r = inspState.recintos[i];
-  const l = parseFloat(r._calcL), a = parseFloat(r._calcA);
-  if (!(l > 0 && a > 0)) { showToast('Ingresa largo y ancho en la calculadora', 'error'); return; }
-  r.m2 = (l * a).toFixed(2);
-  guardarDraftLocal();
-  renderRecintosInsp();
-  showToast('M² actualizado a ' + r.m2);
-}
-
-function toggleRecintoUI(i) {
-  inspState.recintos[i]._open = !inspState.recintos[i]._open;
-  if (inspState.recintos[i]._open && inspState.recintos[i].id && inspState.recintos[i]._fotos === null) cargarFotosRecinto(i);
-  renderRecintosInsp();
-}
-function updRecintoField(i, campo, val) {
-  inspState.recintos[i][campo] = val;
-  if (inspState.recintos[i].id) inspState.recintos[i]._dirty = true;
-  guardarDraftLocal();
-}
-function agregarRecintoUI() {
-  inspState.recintos.push({
-    id: null, _localId: 'rec_' + Date.now(), nombre: '', ancho: '', largo: '', alto: '', m2: '',
-    categorias: [], folderId: '', _open: true, _fotos: null, _calcL: '', _calcA: ''
-  });
-  renderRecintosInsp();
-  guardarDraftLocal();
-}
-async function eliminarRecintoUI(i) {
-  const r = inspState.recintos[i];
-  if (!confirm(`¿Eliminar el recinto "${r.nombre || 'sin nombre'}"? También se eliminarán sus fotos.`)) return;
-  if (r.id) {
-    await enviarConCola('eliminarRecinto', { id: r.id }, 'eliminar_' + r.id);
-  } else if (r._localId) {
-    quitarDeQueue('guardarRecinto_' + r._localId);
-  }
-  inspState.recintos.splice(i, 1);
-  renderRecintosInsp();
-  guardarDraftLocal();
-  showToast('Recinto eliminado');
-}
-function agregarCategoriaUI(i) {
-  inspState.recintos[i].categorias = inspState.recintos[i].categorias || [];
-  inspState.recintos[i].categorias.push({ categoria: INSP_GRUPO_LIST[0], elemento: '', otroNombre: '', materialidad: '', terminacion: '', dano: '', m2: '' });
-  if (inspState.recintos[i].id) inspState.recintos[i]._dirty = true;
-  renderRecintosInsp();
-  guardarDraftLocal();
-}
-function quitarCategoriaUI(i, ci) {
-  inspState.recintos[i].categorias.splice(ci, 1);
-  if (inspState.recintos[i].id) inspState.recintos[i]._dirty = true;
-  renderRecintosInsp();
-  guardarDraftLocal();
-}
-function updCategoriaField(i, ci, campo, val) {
-  inspState.recintos[i].categorias[ci][campo] = val;
-  if (inspState.recintos[i].id) inspState.recintos[i]._dirty = true;
-  guardarDraftLocal();
-  if (campo === 'categoria' || campo === 'elemento') renderRecintosInsp();
-}
-
-async function guardarRecintoUI(i) {
-  const r = inspState.recintos[i];
-  if (!r.nombre || !r.nombre.trim()) { showToast('Ponle un nombre al recinto', 'error'); return; }
-  const body = {
-    action: 'guardarRecinto', inspeccionId: inspState.inspeccionId,
-    nombre: r.nombre, ancho: r.ancho, largo: r.largo, alto: r.alto, m2: r.m2,
-    categorias: r.categorias || []
+function renderPicker() {
+  const el = $('picker-list');
+  if (!casos) { el.innerHTML = ''; return; }
+  const q = ($('caso-search').value || '').toLowerCase().trim();
+  const hoy = new Date().toDateString();
+  const lista = casos.filter(c => !q || [c.nombre, c.rut, c.nrosin, c.dir, c.comuna].join(' ').toLowerCase().includes(q));
+  const deHoy = [], resto = [];
+  lista.forEach(c => { const d = fechaAgenda(c); (d && d.toDateString() === hoy ? deHoy : resto).push(c); });
+  deHoy.sort((a, b) => fechaAgenda(a) - fechaAgenda(b));
+  const fila = (c, badge) => {
+    const meta = [c.rut, c.nrosin ? 'N° ' + c.nrosin : '', c.comuna || c.ciudad].filter(Boolean).join(' · ');
+    return `<div class="aseg-row" onclick="seleccionarCaso('${esc(c.id)}')">
+      <div style="flex:1;min-width:0"><div class="aseg-nom">${esc(c.nombre || '(sin nombre)')}</div><div class="aseg-meta">${esc(meta)}</div></div>
+      ${badge ? `<span class="aseg-hoy">${esc(badge)}</span>` : '<i class="ti ti-chevron-right" style="color:var(--teal-2);font-size:18px"></i>'}
+    </div>`;
   };
-  if (r.id) body.id = r.id;
-  const opId = 'guardarRecinto_' + (r.id || r._localId);
+  let html = '';
+  if (deHoy.length) {
+    html += '<div class="picker-sec">Agendadas para hoy</div>';
+    html += deHoy.map(c => { const d = fechaAgenda(c); return fila(c, 'Hoy ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0')); }).join('');
+    if (resto.length) html += '<div class="picker-sec">Todos los casos</div>';
+  }
+  html += resto.slice(0, 80).map(c => fila(c)).join('');
+  el.innerHTML = html || '<div class="empty">Sin resultados</div>';
+}
 
-  if (!navigator.onLine || String(inspState.inspeccionId).indexOf('LOCAL-') === 0) {
-    r._dirty = true;
-    encolarOperacion('guardarRecinto', body, opId);
-    guardarDraftLocal();
-    renderRecintosInsp();
-    showToast('Sin conexión: recinto guardado en el teléfono, se sincronizará después', 'error');
+function seleccionarCaso(id) {
+  const c = (casos || []).find(x => String(x.id) === String(id));
+  if (!c) return;
+  caso = c; insp = null; recAbierto = null;
+  try { const u = new URL(location.href); u.searchParams.set('casoId', c.id); history.replaceState(null, '', u); } catch(e) {}
+  $('h-title').textContent = c.nombre || 'Inspección';
+  $('h-sub').textContent = [c.nrosin ? 'N° ' + c.nrosin : '', c.siniestro].filter(Boolean).join(' · ') || 'Inspección de terreno';
+  pintarCaso();
+
+  const local = lsGet(stateKey(), null);
+  if (local && local.id) {
+    insp = Object.assign({}, local, { recintos: (local.recintos || []).map(r => ({ id: r.id, nombre: r.nombre, fotos: null })) });
+    mostrarVista('trabajo');
+  } else {
+    mostrarVista('inicio');
+  }
+  cargarDelServidor();
+}
+
+function pintarCaso() {
+  const c = caso;
+  $('caso-nombre').textContent = c.nombre || '—';
+  $('caso-detalle').textContent = [c.rut, [c.dir, c.comuna].filter(Boolean).join(', ')].filter(Boolean).join(' · ') || '—';
+  const tel = n => 'tel:' + String(n).replace(/[^\d+]/g, '');
+  const acc = [];
+  if (c.telefono) acc.push(`<a href="${esc(tel(c.telefono))}" class="btn btn-sm" style="background:var(--green);color:#fff;border-color:var(--green)"><i class="ti ti-phone"></i>Asegurado</a>`);
+  if (c.telefonoInspector) acc.push(`<a href="${esc(tel(c.telefonoInspector))}" class="btn btn-sm"><i class="ti ti-phone-outgoing"></i>Inspector</a>`);
+  if (c.dir || c.comuna) acc.push(`<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([c.dir, c.comuna, c.ciudad].filter(Boolean).join(', '))}" target="_blank" rel="noopener" class="btn btn-sm"><i class="ti ti-map-2"></i>Cómo llegar</a>`);
+  $('caso-actions').innerHTML = acc.join('');
+  $('caso-actions').hidden = !acc.length;
+  const items = [
+    ['N° siniestro', c.nrosin], ['Tipo', c.siniestro], ['Póliza', c.poliza], ['Banco', c.banco],
+    ['Inspector', c.inspector], ['Liquidador', [c.liquidadorPersona, c.liquidador].filter(Boolean).join(' · ')],
+    ['Dirección', [c.dir, c.comuna, c.ciudad].filter(Boolean).join(', ')]
+  ].filter(x => x[1]);
+  $('caso-info').innerHTML = items.map(([k, v]) => `<div class="info-item${k === 'Dirección' ? ' full' : ''}"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('');
+}
+
+// Trae la inspección del servidor y la combina con lo que hay en el teléfono.
+async function cargarDelServidor() {
+  if (!navigator.onLine || !caso) return;
+  const casoId = caso.id;
+  let res;
+  try { res = await jsonp({ action: 'obtenerInspeccion', casoId }); } catch (e) { return; }
+  if (!caso || caso.id !== casoId || !res || !res.ok) return;
+  const srv = res.inspeccion && res.inspeccion.estado === 'En proceso' ? res.inspeccion : null;
+
+  if (!insp) {
+    if (!srv) return; // no hay nada en curso: queda en "Comenzar"
+    insp = { id: srv.id, casoId: String(casoId), tipoSiniestro: srv.tipoSiniestro, folderId: srv.folderId,
+      acta: srv.acta || srv.observaciones || '', actaUrl: srv.actaUrl || '', actaGuardada: '', recintos: [] };
+  } else if (!srv || String(srv.id) !== String(insp.id)) {
+    // Lo local es de una inspección que el servidor aún no tiene (creada sin
+    // señal) → se mantiene. Si ya no está pendiente, quedó obsoleta.
+    if (opPendiente('crear_' + insp.id)) return;
+    lsDel(stateKey()); insp = null;
+    if (srv) return cargarDelServidor();
+    mostrarVista('inicio');
     return;
+  } else {
+    insp.folderId = srv.folderId; insp.tipoSiniestro = srv.tipoSiniestro;
+    if (srv.actaUrl) insp.actaUrl = srv.actaUrl;
+    if (!opPendiente('acta_' + insp.id) && (srv.acta || '') !== insp.acta && document.activeElement !== $('acta-texto')) insp.acta = srv.acta || '';
   }
+  // Recintos: los del servidor + los creados aquí que aún no suben
+  const locales = insp.recintos || [];
+  const merged = (res.recintos || []).map(sr => {
+    const l = locales.find(x => x.id === sr.id);
+    const nombrePend = l && opPendiente('rec_' + sr.id);
+    return { id: sr.id, nombre: nombrePend ? l.nombre : sr.nombre, fotos: l ? l.fotos : null };
+  }).filter(r => !opPendiente('delrec_' + r.id));
+  locales.forEach(l => { if (!merged.some(m => m.id === l.id) && opPendiente('rec_' + l.id)) merged.push(l); });
+  insp.recintos = merged;
+  guardarLocal();
+  mostrarVista('trabajo');
+  cargarFotosDeTodos();
+}
 
-  showToast('Guardando recinto…');
-  try {
-    await formPost(SHEETS_URL, body);
-    await new Promise(res => setTimeout(res, 1300));
-    const url = SHEETS_URL + '?action=obtenerInspeccion&casoId=' + encodeURIComponent(inspState.casoId);
-    const data = await jsonpOnce(url, 'insp_get3', 15000);
-    if (data && data.ok && data.inspeccion && data.inspeccion.id === inspState.inspeccionId) {
-      r._dirty = false;
-      quitarDeQueue(opId);
-      mergeRecintosConServidor(data.recintos || []);
-      renderRecintosInsp();
-      showToast('Recinto guardado ✓');
-      guardarDraftLocal();
-      await recalcularFotosPendientes();
-    } else {
-      encolarOperacion('guardarRecinto', body, opId);
-      showToast('Guardado, pero no se pudo confirmar', 'error');
-    }
-  } catch(e) {
-    r._dirty = true;
-    encolarOperacion('guardarRecinto', body, opId);
-    guardarDraftLocal();
-    showToast('Sin conexión: recinto guardado en el teléfono', 'error');
+// ── 2. Iniciar ─────────────────────────────────────────────────────────────
+function pintarInicio() {
+  const tipoCaso = String(caso.siniestro || '').toLowerCase();
+  const match = TIPOS.find(x => tipoCaso && (tipoCaso.includes(x.t.toLowerCase().split(' ')[0]) || x.t.toLowerCase().includes(tipoCaso)));
+  tipoSel = match ? match.t : '';
+  $('tipo-chips').innerHTML = TIPOS.map(m =>
+    `<button type="button" class="sin-btn${m.t === tipoSel ? ' ac' : ''}" onclick="elegirTipo('${m.t}',this)"><i class="ti ${m.i}"></i>${m.t}</button>`).join('');
+}
+function elegirTipo(t, el) {
+  tipoSel = t;
+  document.querySelectorAll('#tipo-chips .sin-btn').forEach(b => b.classList.toggle('ac', b === el));
+}
+function iniciarInspeccion() {
+  if (!tipoSel) { toast('Elige el tipo de siniestro', 'error'); return; }
+  insp = { id: uid('INSP'), casoId: String(caso.id), tipoSiniestro: tipoSel, folderId: '', acta: '', actaUrl: '', actaGuardada: '', recintos: [] };
+  encolar('crear_' + insp.id, 'crearInspeccion', { id: insp.id, casoId: caso.id, tipoSiniestro: tipoSel, fechaOcurrencia: caso.fechaSiniestro || '' });
+  guardarLocal();
+  tabActual = 'acta';
+  mostrarVista('trabajo');
+  toast('Inspección iniciada', 'success');
+  setTimeout(() => $('acta-texto').focus(), 150);
+}
+
+// ── Vistas ─────────────────────────────────────────────────────────────────
+function mostrarVista(v) {
+  $('v-picker').hidden = v !== 'picker';
+  $('v-caso').hidden = !(v === 'inicio' || (v === 'trabajo' && tabActual === 'acta'));
+  $('v-inicio').hidden = v !== 'inicio';
+  $('v-done').hidden = v !== 'done';
+  $('tabs').hidden = v !== 'trabajo';
+  $('bottom-bar').hidden = v !== 'trabajo';
+  $('v-acta').hidden = !(v === 'trabajo' && tabActual === 'acta');
+  $('v-fotos').hidden = !(v === 'trabajo' && tabActual === 'fotos');
+  $('status-pill').hidden = !(v === 'trabajo' || getOps().length);
+  if (v === 'inicio') pintarInicio();
+  if (v === 'trabajo') { pintarActa(); pintarRecintos(); pintarQuick(); }
+  pintarEstado();
+}
+function irTab(t) {
+  tabActual = t;
+  $('tab-acta').classList.toggle('ac', t === 'acta');
+  $('tab-fotos').classList.toggle('ac', t === 'fotos');
+  if (t !== 'acta') flushActa();
+  mostrarVista('trabajo');
+  window.scrollTo({ top: 0 });
+}
+function cambiarCaso() {
+  flushActa();
+  caso = null; insp = null;
+  try { const u = new URL(location.href); u.searchParams.delete('casoId'); history.replaceState(null, '', u); } catch(e) {}
+  $('h-title').textContent = 'Inspección de terreno';
+  $('h-sub').textContent = 'Elige el caso a inspeccionar';
+  mostrarVista('picker');
+  renderPicker();
+}
+
+// ── Estado de sincronización (píldora del header) ──────────────────────────
+function contarFotosPend() { return Object.values(pendientes).reduce((n, a) => n + a.length, 0); }
+function pintarEstado() {
+  const pill = $('status-pill'), txt = $('status-txt');
+  const ops = getOps().length, fotos = contarFotosPend();
+  pill.classList.remove('warn', 'off');
+  if (!navigator.onLine) { pill.classList.add('off'); txt.textContent = 'Sin señal' + (ops + fotos ? ' · ' + (ops + fotos) : ''); }
+  else if (sincronizando || subiendoFotos) { pill.classList.add('warn'); txt.textContent = 'Subiendo…' + (fotos ? ' ' + fotos : ''); }
+  else if (ops || fotos) { pill.classList.add('warn'); txt.textContent = (ops + fotos) + ' pendiente' + (ops + fotos > 1 ? 's' : ''); }
+  else txt.textContent = 'Guardado';
+  if (ops || fotos) pill.hidden = false;
+  pintarActaEstado();
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// ACTA — bloc de notas con autoguardado
+// ═════════════════════════════════════════════════════════════════════════
+let actaTimer = null, actaLocalTimer = null;
+function pintarActa() {
+  const ta = $('acta-texto');
+  if (document.activeElement !== ta && ta.value !== (insp.acta || '')) ta.value = insp.acta || '';
+  autoAlto(); contarPalabras(); pintarActaEstado();
+  const tools = [];
+  tools.push(`<button class="chip teal" onclick="insertar('[' + hora() + '] ')"><i class="ti ti-clock"></i>Hora</button>`);
+  insp.recintos.forEach(r => tools.push(`<button class="chip" onclick="insertarTitulo(${esc(JSON.stringify(r.nombre))})"><i class="ti ti-hash"></i>${esc(r.nombre)}</button>`));
+  tools.push(`<button class="chip" onclick="insertarTitulo(prompt('Subtítulo:') || '')"><i class="ti ti-heading"></i>Subtítulo</button>`);
+  if (!String(insp.acta || '').trim()) tools.push(`<button class="chip" onclick="insertarPlantilla()"><i class="ti ti-template"></i>Plantilla</button>`);
+  $('acta-tools').innerHTML = tools.join('');
+}
+function pintarActaEstado() {
+  const el = $('acta-state');
+  if (!el || !insp) return;
+  const link = $('acta-link');
+  if (insp.actaUrl) { link.href = insp.actaUrl; link.hidden = false; } else link.hidden = true;
+  const pend = opPendiente('acta_' + insp.id) || actaTimer;
+  el.className = 'acta-state';
+  if (pend && !navigator.onLine) { el.classList.add('warn'); el.innerHTML = '<i class="ti ti-device-mobile"></i>Guardado en el teléfono · se sube al volver la señal'; }
+  else if (pend) { el.innerHTML = '<i class="ti ti-loader-2 spin"></i>Guardando en Drive…'; }
+  else if (insp.actaGuardada) { el.classList.add('ok'); el.innerHTML = '<i class="ti ti-cloud-check"></i>Guardado en Drive · ' + esc(insp.actaGuardada); }
+  else el.innerHTML = '<i class="ti ti-pencil"></i>Se guarda solo mientras escribes';
+}
+function onActaInput() {
+  insp.acta = $('acta-texto').value;
+  autoAlto(); contarPalabras();
+  clearTimeout(actaLocalTimer);
+  actaLocalTimer = setTimeout(guardarLocal, 250);
+  clearTimeout(actaTimer);
+  actaTimer = setTimeout(flushActa, 2500);
+  pintarActaEstado();
+}
+function flushActa() {
+  clearTimeout(actaTimer); actaTimer = null;
+  if (!insp) return;
+  const ta = $('acta-texto');
+  if (!$('v-acta').hidden) insp.acta = ta.value;
+  guardarLocal();
+  const ultimo = lsGet('insp2_acta_enviada_' + insp.id, '');
+  if (ultimo === insp.acta && !opPendiente('acta_' + insp.id)) { pintarActaEstado(); return; }
+  lsSet('insp2_acta_enviada_' + insp.id, insp.acta);
+  encolar('acta_' + insp.id, 'guardarActa', { inspeccionId: insp.id, texto: insp.acta });
+}
+function autoAlto() {
+  const ta = $('acta-texto');
+  const y = window.scrollY;
+  ta.style.height = 'auto';
+  ta.style.height = Math.max(ta.scrollHeight, window.innerHeight * 0.58) + 'px';
+  window.scrollTo(0, y);
+}
+function contarPalabras() {
+  const n = (String(insp.acta || '').trim().match(/\S+/g) || []).length;
+  $('acta-count').textContent = plural(n, 'palabra');
+}
+function insertar(txt) {
+  const ta = $('acta-texto');
+  const a = ta.selectionStart ?? ta.value.length, b = ta.selectionEnd ?? a;
+  ta.value = ta.value.slice(0, a) + txt + ta.value.slice(b);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = a + txt.length;
+  onActaInput();
+}
+function insertarTitulo(nombre) {
+  nombre = String(nombre || '').trim(); if (!nombre) return;
+  const ta = $('acta-texto');
+  const a = ta.selectionStart ?? ta.value.length;
+  const antes = ta.value.slice(0, a);
+  const pre = !antes ? '' : antes.endsWith('\n\n') ? '' : antes.endsWith('\n') ? '\n' : '\n\n';
+  insertar(pre + '## ' + nombre + '\n');
+}
+function insertarPlantilla() {
+  insertar('Asistentes: \nAcceso y estado general de la vivienda: \n\n## Recintos inspeccionados\n\n\n## Observaciones\n');
+  pintarActa();
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// RECINTOS — solo carpetas de fotos
+// ═════════════════════════════════════════════════════════════════════════
+function pintarQuick() {
+  $('quick-recintos').innerHTML = RECINTOS_RAPIDOS.map(n =>
+    `<button class="chip" onclick="agregarRecinto('${esc(n)}', true)"><i class="ti ti-plus"></i>${esc(n)}</button>`).join('');
+}
+function nombreUnico(base) {
+  const nombres = insp.recintos.map(r => r.nombre.toLowerCase());
+  if (!nombres.includes(base.toLowerCase())) return base;
+  let n = 2; while (nombres.includes((base + ' ' + n).toLowerCase())) n++;
+  return base + ' ' + n;
+}
+function agregarRecinto(nombre, esRapido) {
+  nombre = String(nombre || '').trim().slice(0, 60);
+  if (!nombre) { toast('Escribe un nombre para el recinto', 'error'); return; }
+  if (esRapido) nombre = nombreUnico(nombre);
+  else if (insp.recintos.some(r => r.nombre.toLowerCase() === nombre.toLowerCase())) nombre = nombreUnico(nombre);
+  const r = { id: uid('REC'), nombre, fotos: [] };
+  insp.recintos.push(r);
+  encolar('rec_' + r.id, 'guardarRecinto', { id: r.id, inspeccionId: insp.id, nombre });
+  recAbierto = r.id;
+  guardarLocal();
+  pintarRecintos();
+  const el = $('rec-' + r.id);
+  if (el) { el.classList.add('flash'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+}
+function agregarRecintoCustom() {
+  const inp = $('nuevo-recinto');
+  agregarRecinto(inp.value, false);
+  inp.value = ''; inp.blur();
+}
+
+function pintarRecintos() {
+  if (!insp) return;
+  const box = $('recintos-list');
+  let totalFotos = 0;
+  if (!insp.recintos.length) {
+    box.innerHTML = '<div class="card empty"><i class="ti ti-camera-plus"></i>Agrega un recinto arriba y luego toma sus fotos.<br>Cada recinto queda como una carpeta en Drive.</div>';
+  } else {
+    box.innerHTML = insp.recintos.slice().reverse().map(r => {
+      const pend = pendientes[r.id] || [];
+      const srv = Array.isArray(r.fotos) ? r.fotos : [];
+      const n = srv.length + pend.length;
+      totalFotos += n;
+      const errores = pend.filter(p => p.estado === 'error').length;
+      const sub = r.fotos === null && !pend.length ? 'Cargando fotos…'
+        : errores ? `<span class="warn">${plural(errores, 'foto no se pudo subir', 'fotos no se pudieron subir')}</span>`
+        : pend.length ? `<span class="warn">${plural(n, 'foto')} · ${pend.length} por subir</span>` : plural(n, 'foto');
+      const portada = pend.length ? pend[pend.length - 1].url : srv[0] ? thumb(srv[0].id, 120) : '';
+      const abierto = recAbierto === r.id;
+      const tiles = pend.slice().reverse().map(p => `
+        <div class="tile" onclick="verFoto('${esc(r.id)}','p:${esc(p.key)}')"><img src="${esc(p.url)}" alt="">
+          <div class="ov ${p.estado === 'subiendo' ? '' : 'q'}">${p.estado === 'subiendo' ? '<i class="ti ti-loader-2 spin"></i>' : p.estado === 'error' ? '<i class="ti ti-alert-triangle"></i>' : '<i class="ti ti-cloud-upload"></i>'}</div></div>`).join('')
+        + srv.map(f => `<div class="tile" onclick="verFoto('${esc(r.id)}','s:${esc(f.id)}')"><div class="ph"><i class="ti ti-photo"></i></div>
+          <img src="${esc(thumb(f.id, 300))}" alt="" loading="lazy" onerror="this.remove()"></div>`).join('');
+      return `<div class="rec${abierto ? ' open' : ''}" id="rec-${esc(r.id)}">
+        <div class="rec-head" onclick="toggleRec('${esc(r.id)}')">
+          <div class="rec-ico">${portada ? `<img src="${esc(portada)}" alt="" onerror="this.remove()">` : '<i class="ti ti-door"></i>'}</div>
+          <div class="rec-name"><b>${esc(r.nombre)}</b><span>${sub}</span></div>
+          <button class="cam-btn" title="Tomar foto" onclick="event.stopPropagation();abrirFotos('${esc(r.id)}','camara')"><i class="ti ti-camera"></i></button>
+        </div>
+        <div class="rec-body">
+          ${tiles ? `<div class="grid">${tiles}</div>` : '<p class="muted" style="margin-bottom:10px">Sin fotos todavía.</p>'}
+          <div class="rec-actions">
+            <button class="btn btn-sm" onclick="abrirFotos('${esc(r.id)}','galeria')"><i class="ti ti-photo-plus"></i>Desde galería</button>
+            <button class="btn btn-sm" onclick="menuRecinto('${esc(r.id)}')"><i class="ti ti-dots"></i>Más</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
   }
+  if (!insp.recintos.length) totalFotos = 0;
+  $('badge-fotos').textContent = totalFotos;
 }
+function thumb(id, w) { return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w' + w; }
+function toggleRec(id) { recAbierto = recAbierto === id ? null : id; pintarRecintos(); }
 
-async function cargarFotosRecinto(i) {
-  const r = inspState.recintos[i];
-  if (!r || !r.id) return;
+async function cargarFotosRecinto(r) {
+  if (!r || opPendiente('rec_' + r.id) && r.fotos === null) { if (r) r.fotos = r.fotos || []; return; }
   try {
-    const url = SHEETS_URL + '?action=getArchivosRecinto&recintoId=' + encodeURIComponent(r.id);
-    const res = await jsonpOnce(url, 'insp_fotos', 15000);
-    r._fotos = (res && res.ok) ? (res.archivos || []) : [];
-  } catch(e) { r._fotos = []; }
-  renderRecintosInsp();
+    const res = await jsonp({ action: 'getArchivosRecinto', recintoId: r.id });
+    if (res && res.ok) r.fotos = (res.archivos || []).filter(f => /^image\//.test(f.mime || 'image/'));
+    else if (r.fotos === null) r.fotos = [];
+  } catch (e) { if (r.fotos === null) r.fotos = []; }
+  pintarRecintos();
+}
+async function cargarFotosDeTodos() {
+  if (!insp || !navigator.onLine) return;
+  const cola = insp.recintos.filter(r => r.fotos === null);
+  let i = 0;
+  const w = async () => { while (i < cola.length) await cargarFotosRecinto(cola[i++]); };
+  await Promise.all([w(), w()]);
 }
 
-function abrirSelectorFotos(i) {
-  inspFotosTargetIndex = i;
-  document.getElementById('insp-file-input').click();
+// ── Agregar fotos ──────────────────────────────────────────────────────────
+function abrirFotos(recId, modo) {
+  fotoDestino = recId;
+  $(modo === 'camara' ? 'in-camara' : 'in-galeria').click();
 }
-
-const SUBIDA_CONCURRENCIA = 3;
-
-async function onInspFilesSelected(ev) {
+async function onFotos(ev) {
   const files = Array.from(ev.target.files || []);
   ev.target.value = '';
-  const i = inspFotosTargetIndex;
-  if (i === null || !files.length) return;
-  const r = inspState.recintos[i];
-  if (!r || !r.id) return;
-
-  r._fotosPend = files.length;
-  renderRecintosInsp();
-  showToast(`Procesando ${files.length} foto${files.length > 1 ? 's' : ''}…`);
-
-  const comprimidas = await Promise.all(files.map(f => comprimirImagen(f)));
-  let ok = 0, encoladas = 0;
-  let idx = 0;
-  const recintoId = r.id;
-  async function worker() {
-    while (idx < comprimidas.length) {
-      const miIdx = idx++;
-      const resultado = await subirOEncolarFoto(comprimidas[miIdx], recintoId);
-      if (resultado === 'ok') ok++;
-      else if (resultado === 'encolada') encoladas++;
-      const rr = inspState.recintos.find(x => x.id === recintoId) || r;
-      rr._fotosPend = Math.max(0, (rr._fotosPend || 1) - 1);
-      renderRecintosInsp();
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(SUBIDA_CONCURRENCIA, comprimidas.length) }, worker));
-
-  if (ok && !encoladas) showToast(`${ok} foto${ok > 1 ? 's' : ''} subida${ok > 1 ? 's' : ''} ✓`);
-  else if (encoladas) showToast(`${encoladas} foto${encoladas > 1 ? 's' : ''} guardada${encoladas > 1 ? 's' : ''} sin conexión, se subirá${encoladas > 1 ? 'n' : ''} después`, 'error');
-  else if (!ok) showToast('No se pudo procesar la foto', 'error');
-
-  await recalcularFotosPendientes();
-  await cargarFotosRecinto(i);
-}
-
-async function subirOEncolarFoto(file, recintoId) {
-  if (navigator.onLine) {
-    const subida = await subirFotoRecinto(file, recintoId);
-    if (subida) return 'ok';
-  }
-  try {
-    const key = 'foto_' + recintoId + '_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    await idbPut({ key, recintoId, fileName: file.name, mimeType: file.type || 'image/jpeg', blob: file, ts: Date.now() });
-    return 'encolada';
-  } catch(e) { return 'error'; }
-}
-
-async function subirFotoRecinto(file, recintoId) {
-  const nombre = file.name;
-  const mime = file.type || 'image/jpeg';
-  try {
-    const url = SHEETS_URL + '?action=iniciarSubidaRecinto&recintoId=' + encodeURIComponent(recintoId)
-      + '&fileName=' + encodeURIComponent(nombre) + '&mimeType=' + encodeURIComponent(mime);
-    const ini = await jsonpOnce(url, 'insp_upr', 20000);
-    if (!ini || !ini.ok || !ini.uploadUrl) throw new Error((ini && ini.error) || 'sin url de subida');
-    const put = await fetch(ini.uploadUrl, { method: 'PUT', headers: { 'Content-Type': mime }, body: file });
-    if (!put.ok) throw new Error('PUT ' + put.status);
-    return true;
-  } catch(e) {
+  const r = insp && insp.recintos.find(x => x.id === fotoDestino);
+  if (!r || !files.length) return;
+  recAbierto = r.id;
+  const sello = new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '_');
+  const base = r.nombre.replace(/[\\/:*?"<>|]/g, '').trim() || 'Recinto';
+  let n = 0;
+  for (const f of files) {
+    const blob = await comprimir(f);
+    n++;
+    const key = 'foto_' + r.id + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
     try {
-      const dataBase64 = await fileToBase64(file);
-      await formPost(SHEETS_URL, { action: 'uploadArchivoRecinto', recintoId, fileName: nombre, mimeType: mime, dataBase64 });
-      return true;
-    } catch(e2) { return false; }
+      await idbPut({ key, recintoId: r.id, fileName: `${base} ${sello}${files.length > 1 ? '_' + n : ''}.jpg`, mimeType: blob.type || 'image/jpeg', blob, ts: Date.now() });
+    } catch (e) { toast('No hay espacio en el teléfono para guardar la foto', 'error'); break; }
+    await recargarPendientes();
+    pintarRecintos(); pintarEstado();
   }
+  if (!navigator.onLine) toast(plural(n, 'foto guardada', 'fotos guardadas') + ' en el teléfono · se suben al volver la señal');
+  programarSync(100);
 }
 
-async function eliminarFotoRecintoUI(i, fileId) {
-  if (!confirm('¿Eliminar esta foto? Se enviará a la papelera de Drive.')) return;
-  const r = inspState.recintos[i];
-  try {
-    await formPost(SHEETS_URL, { action: 'deleteArchivoRecinto', recintoId: r.id, fileId });
-    showToast('Foto eliminada');
-    await cargarFotosRecinto(i);
-  } catch(e) {
-    showToast('Error al eliminar', 'error');
-  }
+// ── Visor de fotos ─────────────────────────────────────────────────────────
+function listaFotos(recId) {
+  const r = insp.recintos.find(x => x.id === recId);
+  const pend = (pendientes[recId] || []).slice().reverse().map(p => ({ ref: 'p:' + p.key, src: p.url, pend: p }));
+  const srv = (r && r.fotos || []).map(f => ({ ref: 's:' + f.id, src: thumb(f.id, 1600), id: f.id, name: f.name }));
+  return { r, fotos: pend.concat(srv) };
+}
+function verFoto(recId, ref) {
+  const { r, fotos } = listaFotos(recId);
+  let i = fotos.findIndex(f => f.ref === ref);
+  if (i < 0 || !r) return;
+  const root = $('overlay-root');
+  const pintar = () => {
+    const f = fotos[i];
+    const estado = f.pend ? (f.pend.estado === 'error' ? 'No se pudo subir: ' + (f.pend.error || '') : 'Pendiente de subir') : '';
+    root.innerHTML = `<div class="overlay">
+      <div class="top">
+        <button class="ov-btn" onclick="cerrarOverlay()"><i class="ti ti-x"></i></button>
+        <div class="t">${esc(r.nombre)} · ${i + 1}/${fotos.length}${estado ? '<br><small style="color:#f0b35e">' + esc(estado) + '</small>' : ''}</div>
+        ${f.id ? `<a class="ov-btn" href="https://drive.google.com/file/d/${esc(f.id)}/view" target="_blank" rel="noopener"><i class="ti ti-external-link"></i></a>` : ''}
+        <button class="ov-btn" style="background:rgba(192,57,43,.8)" id="ov-del"><i class="ti ti-trash"></i></button>
+      </div>
+      <div class="img"><img src="${esc(f.src)}" alt=""></div>
+      <div class="nav">
+        <button class="ov-btn" id="ov-prev" ${i === 0 ? 'style="visibility:hidden"' : ''}><i class="ti ti-chevron-left"></i></button>
+        <button class="ov-btn" id="ov-next" ${i === fotos.length - 1 ? 'style="visibility:hidden"' : ''}><i class="ti ti-chevron-right"></i></button>
+      </div></div>`;
+    $('ov-prev').onclick = () => { if (i > 0) { i--; pintar(); } };
+    $('ov-next').onclick = () => { if (i < fotos.length - 1) { i++; pintar(); } };
+    $('ov-del').onclick = async () => {
+      if (!confirm('¿Eliminar esta foto?')) return;
+      if (f.pend) { await idbDel(f.pend.key); await recargarPendientes(); }
+      else {
+        r.fotos = (r.fotos || []).filter(x => x.id !== f.id);
+        encolar('delfoto_' + f.id, 'deleteArchivoRecinto', { recintoId: r.id, fileId: f.id });
+      }
+      fotos.splice(i, 1);
+      pintarRecintos(); pintarEstado();
+      if (!fotos.length) cerrarOverlay(); else { i = Math.min(i, fotos.length - 1); pintar(); }
+      toast('Foto eliminada');
+    };
+    // Deslizar para cambiar de foto
+    let x0 = null;
+    const img = root.querySelector('.img');
+    img.ontouchstart = e => { x0 = e.touches[0].clientX; };
+    img.ontouchend = e => {
+      if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (dx > 50 && i > 0) { i--; pintar(); } else if (dx < -50 && i < fotos.length - 1) { i++; pintar(); }
+    };
+  };
+  pintar();
+}
+function cerrarOverlay() { $('overlay-root').innerHTML = ''; }
+
+// ── Menú del recinto: renombrar / eliminar ─────────────────────────────────
+function menuRecinto(recId) {
+  const r = insp.recintos.find(x => x.id === recId);
+  if (!r) return;
+  $('overlay-root').innerHTML = `<div class="sheet-bg" onclick="if(event.target===this)cerrarOverlay()"><div class="sheet">
+    <h3>${esc(r.nombre)}</h3>
+    <label class="lbl">Nombre del recinto</label>
+    <input type="text" id="ren-input" value="${esc(r.nombre)}" maxlength="60" style="margin-bottom:10px">
+    <button class="btn btn-teal" onclick="renombrarRecinto('${esc(r.id)}')"><i class="ti ti-check"></i>Guardar nombre</button>
+    <button class="btn btn-danger" onclick="eliminarRecinto('${esc(r.id)}')"><i class="ti ti-trash"></i>Eliminar recinto y sus fotos</button>
+    <button class="btn btn-ghost" onclick="cerrarOverlay()">Cancelar</button>
+  </div></div>`;
+}
+function renombrarRecinto(recId) {
+  const r = insp.recintos.find(x => x.id === recId);
+  const nuevo = String($('ren-input').value || '').trim().slice(0, 60);
+  cerrarOverlay();
+  if (!r || !nuevo || nuevo === r.nombre) return;
+  r.nombre = nuevo;
+  encolar('rec_' + r.id, 'guardarRecinto', { id: r.id, inspeccionId: insp.id, nombre: nuevo });
+  guardarLocal(); pintarRecintos();
+  toast('Recinto renombrado');
+}
+async function eliminarRecinto(recId) {
+  const r = insp.recintos.find(x => x.id === recId);
+  if (!r) return;
+  const n = (r.fotos || []).length + (pendientes[recId] || []).length;
+  if (!confirm(`¿Eliminar "${r.nombre}"${n ? ' y sus ' + plural(n, 'foto') : ''}? Las fotos van a la papelera de Drive.`)) return;
+  cerrarOverlay();
+  quitarOp('rec_' + r.id);   // si aún no llegaba al servidor, ya no se crea
+  encolar('delrec_' + r.id, 'eliminarRecinto', { id: r.id });
+  for (const p of (pendientes[recId] || [])) { try { await idbDel(p.key); } catch(e) {} }
+  await recargarPendientes();
+  insp.recintos = insp.recintos.filter(x => x.id !== recId);
+  guardarLocal(); pintarRecintos(); pintarActa();
+  toast('Recinto eliminado');
 }
 
-async function finalizarInspeccionUI() {
-  if (!inspState || !inspState.inspeccionId) return;
-  if (String(inspState.inspeccionId).indexOf('LOCAL-') === 0) { showToast('Espera a sincronizar antes de finalizar', 'error'); return; }
-  if (!navigator.onLine) { showToast('Sin conexión: no se puede finalizar todavía', 'error'); return; }
-  if (getQueue().length) { showToast('Hay cambios sincronizándose, espera un momento e inténtalo de nuevo', 'error'); return; }
-  const sinGuardar = inspState.recintos.some(r => !r.id);
-  if (sinGuardar && !confirm('Hay recintos sin guardar que no quedarán en la planilla. ¿Finalizar de todos modos?')) return;
-  if (!confirm('¿Finalizar esta inspección? Se generará la planilla en la carpeta del asegurado y ya no aparecerá como "en curso".')) return;
-  showToast('Finalizando y generando planilla…');
-  try {
-    await formPost(SHEETS_URL, { action: 'finalizarInspeccion', id: inspState.inspeccionId });
-    await new Promise(r => setTimeout(r, 1500));
-    showToast('Inspección finalizada ✓');
-    borrarDraftLocal();
-    document.getElementById('insp-main').style.display = 'none';
-    document.getElementById('status-pill').style.visibility = 'hidden';
-    document.getElementById('card-inicio').style.display = 'block';
-    inspState = null;
-    actualizarStatusPill();
-  } catch(e) {
-    showToast('Error al finalizar', 'error');
+// ═════════════════════════════════════════════════════════════════════════
+// FINALIZAR
+// ═════════════════════════════════════════════════════════════════════════
+function pedirFinalizar() {
+  flushActa();
+  const fotos = contarFotosPend();
+  const aviso = !navigator.onLine ? 'Necesitas señal para finalizar. Todo lo hecho ya está guardado en el teléfono.'
+    : fotos ? `Faltan ${plural(fotos, 'foto')} por subir. Espera a que terminen para que queden en el registro fotográfico.` : '';
+  const nRec = insp.recintos.length, nFotos = insp.recintos.reduce((n, r) => n + (r.fotos || []).length, 0);
+  $('overlay-root').innerHTML = `<div class="sheet-bg" onclick="if(event.target===this)cerrarOverlay()"><div class="sheet">
+    <h3>¿Finalizar la inspección?</h3>
+    <p class="muted" style="margin-bottom:12px">Se guardará la versión final del acta en la carpeta del asegurado, con el registro fotográfico al final (${plural(nRec, 'recinto')}, ${plural(nFotos, 'foto')}).</p>
+    ${aviso ? `<p style="background:var(--amber-bg);color:var(--amber);padding:10px;border-radius:10px;font-size:12.5px;font-weight:700;margin-bottom:12px">${esc(aviso)}</p>` : ''}
+    <button class="btn btn-green" id="btn-fin" ${!navigator.onLine || fotos ? 'disabled style="opacity:.5"' : ''} onclick="finalizar()"><i class="ti ti-circle-check"></i>Sí, finalizar</button>
+    <button class="btn btn-ghost" onclick="cerrarOverlay()">Seguir inspeccionando</button>
+  </div></div>`;
+}
+async function finalizar() {
+  const btn = $('btn-fin');
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2 spin"></i>Finalizando…';
+  await sincronizar();
+  if (getOps().length || contarFotosPend()) {
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-circle-check"></i>Sí, finalizar';
+    toast('Aún hay cambios sin subir. Revisa la señal e intenta de nuevo.', 'error');
+    return;
   }
+  const r = await postApi({ action: 'finalizarInspeccion', id: insp.id, texto: insp.acta || '' });
+  if (r.estado !== 'ok') {
+    btn.disabled = false; btn.innerHTML = '<i class="ti ti-circle-check"></i>Sí, finalizar';
+    toast(r.estado === 'retry' ? 'Sin respuesta del servidor. Intenta de nuevo.' : 'Error: ' + r.error, 'error');
+    return;
+  }
+  cerrarOverlay();
+  const d = r.data || {};
+  const actaUrl = d.actaUrl || insp.actaUrl;
+  $('done-acta').hidden = !actaUrl; if (actaUrl) $('done-acta').href = actaUrl;
+  $('done-fotos').hidden = !d.fotosUrl; if (d.fotosUrl) $('done-fotos').href = d.fotosUrl;
+  lsDel(stateKey()); lsDel('insp2_acta_enviada_' + insp.id);
+  insp = null;
+  mostrarVista('done');
+  window.scrollTo({ top: 0 });
 }
 
-initApp();
+if (!SHEETS_URL) { document.addEventListener('DOMContentLoaded', () => { $('caso-status').textContent = 'Error: no cargó config.js'; }); }
+mostrarVista('picker');
+init();
 </script>
 </body>
 </html>
