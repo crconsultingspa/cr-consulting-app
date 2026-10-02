@@ -724,6 +724,21 @@
     .docs-list li .doc-act:hover { background: rgba(0,101,126,.10); color: var(--teal); }
     .docs-list li .doc-act.del:hover { background: rgba(227,93,78,.12); color: #e35d4e; }
     .docs-empty { font-size:12px; color: var(--text-3); text-align:center; padding: 8px 0; }
+    /* Carpetas dentro de "Documentos del caso" */
+    .docs-nav { display:flex; align-items:center; gap:8px; margin: 14px 0 0; min-height:30px; }
+    .docs-crumbs { flex:1; min-width:0; display:flex; align-items:center; flex-wrap:wrap; gap:2px; font-size:12.5px; }
+    .docs-crumbs button { background:none; border:none; padding:3px 6px; border-radius:6px; cursor:pointer; color: var(--teal); font: inherit; font-weight:600; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .docs-crumbs button:hover { background: rgba(0,101,126,.10); }
+    .docs-crumbs .cur { color: var(--navy); font-weight:700; padding:3px 6px; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .docs-crumbs .sep { color: var(--text-3); font-size:13px; }
+    .docs-nav-act { flex-shrink:0; display:inline-flex; align-items:center; gap:5px; background:none; border:1px solid var(--border); border-radius:8px; padding:5px 9px; font-size:11.5px; font-weight:600; color: var(--teal); cursor:pointer; text-decoration:none; font-family:inherit; }
+    .docs-nav-act:hover { background: rgba(0,101,126,.08); border-color: var(--teal); }
+    .docs-nav-act i { font-size:14px; }
+    .docs-list li.is-folder { cursor:pointer; background: var(--surface); }
+    .docs-list li.is-folder:hover { border-color: var(--teal); background: rgba(0,101,126,.05); }
+    .docs-list li.is-folder i.doc-ico { color: #c99a2e; font-size:19px; }
+    .docs-list li .doc-go { color: var(--text-3); font-size:15px; flex-shrink:0; }
+    @media (max-width:760px) { .docs-nav-act span { display:none; } }
     .docs-uploading { font-size:12px; color: var(--teal); display:flex; align-items:center; gap:7px; margin-top:10px; }
     .docs-uploading i { animation: blink 1s infinite; }
 
@@ -2825,6 +2840,9 @@ function subirActa(id) {
 // ── DOCUMENTOS DEL CASO (subida a Drive) ─────────────────────────────────────
 const MAX_FILE_MB = 25; // límite por archivo
 let docsCaseId = null;  // caso activo para la subida/lista de documentos
+let docsFolderId = '';  // subcarpeta abierta en el modal ('' = carpeta del asegurado)
+let docsRuta = [];      // [{id,name}] desde la carpeta del asegurado hasta la actual
+let docsReqSeq = 0;     // descarta respuestas viejas si se navega rápido
 
 function openDocs(id) {
   docsCaseId = String(id);
@@ -2833,7 +2851,45 @@ function openDocs(id) {
   document.getElementById('docs-modal-rut').textContent    = c?.rut    || '—';
   const up = document.getElementById('docs-uploading');
   if (up) up.style.display = 'none';
+  docsFolderId = ''; docsRuta = [];
+  pintarRutaDocs();
   document.getElementById('modal-docs').classList.add('open');
+  cargarArchivosCaso(docsCaseId);
+}
+function abrirCarpetaDocs(folderId) {
+  docsFolderId = String(folderId || '');
+  // Si la carpeta ya está en la ruta (volver atrás), se recorta ahí mismo
+  const i = docsRuta.findIndex(r => String(r.id) === docsFolderId);
+  if (i >= 0) docsRuta = docsRuta.slice(0, i + 1);
+  if (i === 0) docsFolderId = '';
+  pintarRutaDocs();
+  cargarArchivosCaso(docsCaseId);
+}
+function pintarRutaDocs(folderUrl) {
+  const box = document.getElementById('docs-crumbs');
+  if (!box) return;
+  const ruta = docsRuta.length ? docsRuta : [{ id: '', name: 'Carpeta del asegurado' }];
+  box.innerHTML = '<i class="ti ti-folder" style="color:var(--teal);font-size:15px;margin-right:2px"></i>' + ruta.map((r, i) => {
+    const nombre = i === 0 ? 'Carpeta del asegurado' : r.name;
+    if (i === ruta.length - 1) return `<span class="cur" title="${escapeHtml(nombre)}">${escapeHtml(nombre)}</span>`;
+    return `<button type="button" title="${escapeHtml(nombre)}" onclick="abrirCarpetaDocs('${escapeHtml(String(r.id))}')">${escapeHtml(nombre)}</button><span class="sep">›</span>`;
+  }).join('');
+  const dz = document.getElementById('dz-sub');
+  if (dz) dz.textContent = ruta.length > 1 ? 'Se guardan en la carpeta «' + ruta[ruta.length - 1].name + '»' : 'Se guardan directo en la carpeta del asegurado';
+  const link = document.getElementById('docs-drive-link');
+  if (link) { if (folderUrl) { link.href = folderUrl; link.hidden = false; } else if (folderUrl === '') link.hidden = true; }
+}
+async function nuevaCarpetaDocs() {
+  if (!docsCaseId) return;
+  const nombre = (prompt('Nombre de la nueva carpeta:') || '').trim();
+  if (!nombre) return;
+  try {
+    const r = await postJson(SHEETS_URL, { action: 'crearCarpeta', id: String(docsCaseId), parentId: docsFolderId, nombre });
+    if (!r || !r.ok) throw new Error((r && r.error) || 'No se pudo crear');
+    showToast(r.yaExistia ? 'Esa carpeta ya existía' : 'Carpeta creada ✓');
+  } catch (e) {
+    if (!e.sinConfirmar) { showToast('Error al crear la carpeta: ' + e.message, 'error'); return; }
+  }
   cargarArchivosCaso(docsCaseId);
 }
 function closeDocs() { document.getElementById('modal-docs').classList.remove('open'); }
@@ -2882,22 +2938,47 @@ function fileToBase64(file) {
 async function cargarArchivosCaso(id) {
   const list = document.getElementById('docs-list');
   if (!list) return;
+  const seq = ++docsReqSeq;
   list.innerHTML = '<li class="docs-empty">Cargando documentos…</li>';
   try {
-    const url = SHEETS_URL + '?action=getArchivos&id=' + encodeURIComponent(id);
-    const res = await jsonpOnce(url, 'cr_files', 15000);
-    if (!res || !res.ok) { list.innerHTML = '<li class="docs-empty">No se pudieron cargar los documentos</li>'; return; }
-    renderDocsList(res.archivos || []);
+    const url = SHEETS_URL + '?action=getArchivos&id=' + encodeURIComponent(id)
+      + (docsFolderId ? '&folderId=' + encodeURIComponent(docsFolderId) : '');
+    const res = await jsonpOnce(url, 'cr_files', 20000);
+    if (seq !== docsReqSeq) return; // llegó tarde: el usuario ya navegó a otra carpeta
+    if (!res || !res.ok) {
+      list.innerHTML = '<li class="docs-empty">No se pudieron cargar los documentos' + (res && res.error ? ' (' + escapeHtml(res.error) + ')' : '') + '</li>';
+      return;
+    }
+    if (Array.isArray(res.ruta) && res.ruta.length) docsRuta = res.ruta;
+    pintarRutaDocs(res.folderUrl || '');
+    renderDocsList(res.archivos || [], res.carpetas || []);
   } catch(e) {
+    if (seq !== docsReqSeq) return;
     list.innerHTML = '<li class="docs-empty">No se pudieron cargar los documentos</li>';
   }
 }
 
-function renderDocsList(archivos) {
+function renderDocsList(archivos, carpetas) {
   const list = document.getElementById('docs-list');
   if (!list) return;
-  if (!archivos.length) { list.innerHTML = '<li class="docs-empty">Aún no hay documentos en la carpeta del caso.</li>'; return; }
-  list.innerHTML = archivos.map(a => {
+  carpetas = carpetas || [];
+  if (!archivos.length && !carpetas.length) {
+    list.innerHTML = '<li class="docs-empty">' + (docsFolderId ? 'Esta carpeta está vacía.' : 'Aún no hay documentos en la carpeta del caso.') + '</li>';
+    return;
+  }
+  const htmlCarpetas = carpetas.map(c => {
+    const nombre = String(c.name || 'Carpeta');
+    const n = Number(c.items) || 0;
+    return `
+    <li class="is-folder" onclick="abrirCarpetaDocs('${escapeHtml(String(c.id))}')" title="Abrir carpeta">
+      <i class="ti ti-folder-filled doc-ico"></i>
+      <span class="doc-name" title="${escapeHtml(nombre)}">${escapeHtml(nombre)}</span>
+      <span class="doc-size">${n === 0 ? 'vacía' : n + (n === 1 ? ' elemento' : ' elementos')}</span>
+      <button type="button" class="doc-act" title="Abrir en Drive" onclick="event.stopPropagation();window.open('${escapeHtml(String(c.url || ''))}','_blank')"><i class="ti ti-external-link"></i></button>
+      <i class="ti ti-chevron-right doc-go"></i>
+    </li>`;
+  }).join('');
+  list.innerHTML = htmlCarpetas + archivos.map(a => {
     const nombre = String(a.name || 'archivo');
     return `
     <li>
@@ -2918,14 +2999,15 @@ function onFilesSelected(ev) {
 
 // Sube UN archivo directo a Drive con sesión reanudable (rápido: sin base64 y
 // sin pasar los bytes por Apps Script). Si falla, cae al método antiguo.
-async function subirUnArchivo(file, casoId, nombreDestino) {
+async function subirUnArchivo(file, casoId, nombreDestino, folderId) {
   const nombre = nombreDestino || file.name;
   const mime   = file.type || 'application/octet-stream';
   try {
     const url = SHEETS_URL
       + '?action=iniciarSubida&id=' + encodeURIComponent(casoId)
       + '&fileName=' + encodeURIComponent(nombre)
-      + '&mimeType=' + encodeURIComponent(mime);
+      + '&mimeType=' + encodeURIComponent(mime)
+      + (folderId ? '&folderId=' + encodeURIComponent(folderId) : '');
     const ini = await jsonpOnce(url, 'cr_up', 20000);
     if (!ini || !ini.ok || !ini.uploadUrl) throw new Error(ini?.error || 'Sin URL de subida');
     const put = await fetch(ini.uploadUrl, {
@@ -2942,6 +3024,7 @@ async function subirUnArchivo(file, casoId, nombreDestino) {
       await formPost(SHEETS_URL, {
         action: 'uploadArchivo',
         id: String(casoId),
+        folderId: folderId || '',
         fileName: nombre,
         mimeType: mime,
         dataBase64
@@ -2957,6 +3040,10 @@ async function subirArchivos(files, opts) {
   opts = opts || {};
   const casoId = opts.casoId || docsCaseId;
   if (!casoId) { showToast('Selecciona un caso primero', 'error'); return; }
+  // Con el modal abierto en una subcarpeta, los archivos van a esa subcarpeta.
+  const modalDocsAbierto = document.getElementById('modal-docs')?.classList.contains('open');
+  const folderDestino = opts.folderId !== undefined ? opts.folderId
+    : (modalDocsAbierto && String(casoId) === String(docsCaseId) ? docsFolderId : '');
   const upBox = document.getElementById('docs-uploading');
   const upTxt = document.getElementById('docs-uploading-txt');
 
@@ -2990,7 +3077,7 @@ async function subirArchivos(files, opts) {
     while (cola.length) {
       const f = cola.shift();
       const nombre = opts.prefijo ? (opts.prefijo + f.name) : f.name;
-      const ok = await subirUnArchivo(f, casoId, nombre);
+      const ok = await subirUnArchivo(f, casoId, nombre, folderDestino);
       if (ok) subidos++; else fallidos++;
       marcar();
     }
@@ -3009,7 +3096,7 @@ async function eliminarArchivo(fileId, nombre) {
   if (!docsCaseId) return;
   if (!confirm(`¿Eliminar "${nombre}" de la carpeta del caso?\nSe enviará a la papelera de Drive.`)) return;
   try {
-    await formPost(SHEETS_URL, { action: 'deleteArchivo', id: String(docsCaseId), fileId: String(fileId) });
+    await formPost(SHEETS_URL, { action: 'deleteArchivo', id: String(docsCaseId), folderId: docsFolderId, fileId: String(fileId) });
     showToast('Archivo eliminado');
     setTimeout(() => cargarArchivosCaso(docsCaseId), 1400);
   } catch(e) {
@@ -4219,12 +4306,17 @@ setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 
     <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
       <i class="ti ti-cloud-upload"></i>
       <span class="dz-main">Arrastra archivos aquí o haz clic para subir</span>
-      <span class="dz-sub">Se guardan directo en la carpeta del asegurado</span>
+      <span class="dz-sub" id="dz-sub">Se guardan directo en la carpeta del asegurado</span>
     </div>
     <input type="file" id="file-input" multiple style="display:none" onchange="onFilesSelected(event)"/>
     <input type="file" id="acta-input" multiple style="display:none"/>
     <div class="docs-uploading" id="docs-uploading" style="display:none"><i class="ti ti-loader"></i> <span id="docs-uploading-txt">Subiendo…</span></div>
-    <ul class="docs-list" id="docs-list"></ul>
+    <div class="docs-nav" id="docs-nav">
+      <div class="docs-crumbs" id="docs-crumbs"></div>
+      <button type="button" class="docs-nav-act" onclick="nuevaCarpetaDocs()" title="Crear carpeta aquí"><i class="ti ti-folder-plus"></i><span>Nueva carpeta</span></button>
+      <a class="docs-nav-act" id="docs-drive-link" href="#" target="_blank" rel="noopener" title="Abrir esta carpeta en Google Drive" hidden><i class="ti ti-brand-google-drive"></i><span>Drive</span></a>
+    </div>
+    <ul class="docs-list" id="docs-list" style="margin-top:8px"></ul>
   </div>
 </div>
 
