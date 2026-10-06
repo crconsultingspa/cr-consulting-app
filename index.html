@@ -1579,7 +1579,8 @@
       </div>
       <div style="margin-top:16px">
         <button type="button" class="btn" id="btn-agendar-calendar" style="color:var(--teal);border-color:var(--teal)" onclick="agendarEnCalendar()"><i class="ti ti-calendar-event"></i> Agendar en Calendar</button>
-        <span style="font-size:11px;color:#6b93a3;margin-left:10px">Invita al asegurado y al inspector de CR con la fecha, dirección y datos de contacto.</span>
+        <span style="font-size:11px;color:#6b93a3;margin-left:10px">Antes de enviar te pregunta si invitar solo al inspector CR o también al asegurado.</span>
+        <span class="agenda-ultimo" id="agenda-ultimo" style="display:none"></span>
       </div>
     </section>
 
@@ -1688,6 +1689,10 @@ if (!SHEETS_URL || !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(
 // entrada con la misma clave y la lista de cambios. Es lo que se muestra al
 // pasar el mouse sobre el número de versión en la esquina inferior izquierda.
 const APP_CHANGELOG = {
+  '2026-10-05-v23': [
+    'Agendar en Calendar: ahora confirma antes de enviar y deja elegir invitar solo al inspector CR o también al asegurado',
+    'Aviso si ya se envió una invitación para la misma fecha (evita eventos duplicados)',
+  ],
   '2026-09-30-v21': [
     'Pendientes de hoy separados otra vez: Camilo, René y Maglin',
     'Inspección de terreno: acta escrita a mano (queda como Doc en la carpeta del asegurado) + fotos por recinto',
@@ -2092,49 +2097,271 @@ async function postJson(url, data) {
 }
 
 // ── AGENDAR INSPECCIÓN EN CALENDAR ────────────────────────────────────────────
-// Crea un evento en el Calendar de CR Consulting e invita al asegurado (con su
-// email ya guardado en el caso) y al inspector de CR (email fijo en el backend).
-// Primero GUARDA el caso (para que la fecha quede en la Hoja aunque no se haya
-// apretado "Guardar" antes) y recién después pide el agendamiento — por vía
-// JSONP (GET), no con el formPost de "no-cors", para poder mostrar un error
-// real si algo falla (por ejemplo si el backend aún no tiene esta acción).
-async function agendarEnCalendar() {
-  if (!editingId) { showToast('Guarda el caso primero', 'error'); return; }
-  const fecha = document.getElementById('f-fechaAgendamiento').value;
-  if (!fecha) { showToast('Ingresa la fecha de agendamiento primero', 'error'); return; }
-  const email = (document.getElementById('f-email').value || '').trim();
-  if (!email && !confirm('El asegurado no tiene correo registrado: solo se invitará al inspector de CR. ¿Continuar?')) return;
+// El botón abre un modal de confirmación con el resumen de lo que va al evento
+// y la elección de a quién invitar (solo inspector CR, o inspector + asegurado).
+// Protecciones:
+//  · Hay que elegir explícitamente a quién invitar antes de poder confirmar.
+//  · "Inspector y asegurado" se deshabilita si el correo falta, no es válido o
+//    tiene cambios sin guardar (se invitaría al correo antiguo).
+//  · Mientras se envía no se puede cerrar ni volver a apretar (sin doble envío).
+//  · Sin reintento automático: un reintento podría crear un evento duplicado.
+//  · El servidor recuerda el último agendamiento y no repite la misma
+//    fecha + mismos invitados salvo que se confirme a sabiendas.
+//  · Usa la acción nueva 'agendarInspeccion': un backend sin actualizar no la
+//    reconoce y no invita a nadie (en vez de invitar al asegurado por error).
+const AGENDA_EMAIL_RE = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
+const AGENDA_MODO_TXT = { inspector: 'solo inspector CR', ambos: 'inspector y asegurado' };
+const AGENDA_MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const AGENDA_DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 
-  const btn = document.getElementById('btn-agendar-calendar');
-  const original = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader"></i> Guardando fecha…';
+let agendaEstado = { casoId: null, fecha: '', modo: null, previo: null, forzar: false, enviando: false, enviadoEn: 0 };
+
+function parseFechaAgendaLocal(s) {
+  const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  const d = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+  return isNaN(d) ? null : d;
+}
+function normFechaAgenda(s) {
+  const d = parseFechaAgendaLocal(isoLocal(s));
+  if (!d) return '';
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function textoFechaAgenda(s) {
+  const d = parseFechaAgendaLocal(s);
+  if (!d) return String(s || '—');
+  const p = n => String(n).padStart(2, '0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} · ${p(d.getHours())}:${p(d.getMinutes())} hrs`;
+}
+function leerAgendaCaso(c) {
+  if (!c || !c.agendaCalendar) return null;
   try {
-    // 1) Guarda la fecha (y solo la fecha) en la Hoja, por si no se había
-    //    guardado el caso todavía.
-    await apiCall({ action: 'update', id: editingId, fechaAgendamiento: fecha });
+    const o = JSON.parse(String(c.agendaCalendar));
+    return (o && o.fecha && o.modo) ? o : null;
+  } catch (e) { return null; }
+}
+function avisoAgendaHtml(tipo, icono, html) {
+  return `<div class="agenda-aviso ${tipo}"><i class="ti ${icono}"></i><div>${html}</div></div>`;
+}
 
-    // 2) Pide el agendamiento en Calendar y espera una respuesta real.
-    btn.innerHTML = '<i class="ti ti-loader"></i> Agendando…';
-    const url = SHEETS_URL
-      + '?action=agendarCalendar'
-      + '&id=' + encodeURIComponent(editingId)
-      + '&fecha=' + encodeURIComponent(fecha);
-    const res = await jsonpFetch(url, 'cr_agenda');
+// Línea bajo el botón con el último agendamiento enviado (si existe).
+function renderAgendaUltimo(c) {
+  const el = document.getElementById('agenda-ultimo');
+  if (!el) return;
+  const previo = leerAgendaCaso(c);
+  if (!previo) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'block';
+  el.innerHTML = `<i class="ti ti-circle-check"></i> Última invitación: <b>${escapeHtml(textoFechaAgenda(previo.fecha))}</b> · ${escapeHtml(AGENDA_MODO_TXT[previo.modo] || previo.modo)}`;
+}
 
-    if (res && res.ok) {
-      const omitidos = res.omitidos && res.omitidos.length ? ` (sin invitar: ${res.omitidos.join(', ')})` : '';
-      showToast('✓ Invitación de Calendar enviada' + omitidos);
-    } else {
-      showToast('Error al agendar: ' + ((res && res.error) || 'respuesta inválida del servidor'), 'error');
-    }
-  } catch (err) {
-    showToast('Error al agendar en Calendar: ' + (err && err.message ? err.message : 'sin conexión'), 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = original;
+function agendarEnCalendar() {
+  if (agendaEstado.enviando) return;
+  if (!editingId) { showToast('Guarda el caso primero', 'error'); return; }
+  const inputFecha = document.getElementById('f-fechaAgendamiento');
+  const fecha = (inputFecha && inputFecha.value) || '';
+  const d = parseFechaAgendaLocal(fecha);
+  if (!d) {
+    showToast('Ingresa la fecha y hora de agendamiento primero', 'error');
+    if (inputFecha) inputFecha.focus();
+    return;
+  }
+  const caso = cases.find(x => String(x.id) === String(editingId));
+  if (!caso) { showToast('No se encontró el caso. Recarga la página e intenta de nuevo.', 'error'); return; }
+
+  agendaEstado = { casoId: String(editingId), fecha, modo: null, previo: leerAgendaCaso(caso), forzar: false, enviando: false, enviadoEn: 0 };
+
+  // ── Resumen: datos GUARDADOS del caso (son los que irán en el evento) ──
+  const fin = new Date(d.getTime() + 60 * 60000);
+  const p = n => String(n).padStart(2, '0');
+  document.getElementById('agenda-mes').textContent = AGENDA_MESES[d.getMonth()];
+  document.getElementById('agenda-num').textContent = d.getDate();
+  document.getElementById('agenda-sem').textContent = AGENDA_DIAS[d.getDay()].slice(0, 3);
+  document.getElementById('agenda-hora').textContent =
+    `${AGENDA_DIAS[d.getDay()].replace(/^./, ch => ch.toUpperCase())} · ${p(d.getHours())}:${p(d.getMinutes())} – ${p(fin.getHours())}:${p(fin.getMinutes())} hrs`;
+  // Comuna y ciudad suelen ser iguales: no se repiten ("Talcahuano, Talcahuano").
+  const direccion = [caso.dir, caso.comuna, caso.ciudad].map(v => String(v || '').trim()).filter(Boolean)
+    .filter((v, i, arr) => arr.findIndex(x => x.toLowerCase() === v.toLowerCase()) === i).join(', ');
+  document.getElementById('agenda-nombre').textContent = String(caso.nombre || '').trim() || 'Sin nombre';
+  document.getElementById('agenda-dir').textContent = direccion || 'Sin dirección registrada';
+  document.getElementById('agenda-tel').textContent = String(caso.telefono || '').trim() || 'Sin teléfono registrado';
+
+  // ── Avisos ──
+  const avisos = [];
+  if (d.getTime() < Date.now()) {
+    avisos.push(avisoAgendaHtml('warn', 'ti-clock-exclamation', '<b>La fecha elegida ya pasó.</b> Revisa que la fecha y hora sean correctas.'));
+  }
+  const CAMPOS = { nombre: 'Nombre', email: 'Correo', dir: 'Dirección', comuna: 'Comuna', ciudad: 'Ciudad', telefono: 'Teléfono' };
+  const sinGuardar = Object.keys(CAMPOS).filter(k => {
+    const el = document.getElementById('f-' + k);
+    return el && String(el.value || '').trim() !== String(caso[k] || '').trim();
+  });
+  if (sinGuardar.length) {
+    avisos.push(avisoAgendaHtml('warn', 'ti-device-floppy',
+      `<b>Hay cambios sin guardar</b> en: ${sinGuardar.map(k => CAMPOS[k]).join(', ')}. La invitación usará los datos guardados (los que ves arriba). Si quieres usar los nuevos, cancela y aprieta <b>Guardar</b> primero.`));
+  }
+  const previo = agendaEstado.previo;
+  const fechaNorm = normFechaAgenda(fecha);
+  if (previo && previo.fecha === fechaNorm) {
+    avisos.push(avisoAgendaHtml('warn', 'ti-copy',
+      `<b>Ya se envió una invitación para esta misma fecha</b> (${escapeHtml(AGENDA_MODO_TXT[previo.modo] || previo.modo)}). Si confirmas, se creará <b>otro evento</b> en el Calendar.`));
+  } else if (previo) {
+    avisos.push(avisoAgendaHtml('info', 'ti-info-circle',
+      `Este caso ya tenía una invitación para el <b>${escapeHtml(textoFechaAgenda(previo.fecha))}</b>. Ese evento <b>no se borra solo</b>: si cambió la fecha, elimínalo del Calendar después de agendar.`));
+  }
+  document.getElementById('agenda-avisos').innerHTML = avisos.join('');
+
+  // ── Opción "Inspector y asegurado": solo si el correo guardado sirve ──
+  const emailGuardado = String(caso.email || '').trim();
+  let motivo = '';
+  if (!emailGuardado) motivo = 'El asegurado no tiene correo registrado';
+  else if (!AGENDA_EMAIL_RE.test(emailGuardado)) motivo = 'El correo registrado no es válido';
+  else if (sinGuardar.includes('email')) motivo = 'El correo tiene cambios sin guardar';
+  const optAmbos = document.getElementById('agenda-opt-ambos');
+  const motivoEl = document.getElementById('agenda-opt-ambos-motivo');
+  document.getElementById('agenda-opt-ambos-sub').textContent = emailGuardado
+    ? 'También se invita a ' + emailGuardado
+    : 'También se invita al asegurado por correo.';
+  optAmbos.disabled = !!motivo;
+  optAmbos.setAttribute('aria-disabled', motivo ? 'true' : 'false');
+  motivoEl.style.display = motivo ? 'flex' : 'none';
+  motivoEl.innerHTML = motivo ? `<i class="ti ti-alert-triangle"></i> ${escapeHtml(motivo)}` : '';
+
+  document.getElementById('agenda-status').innerHTML = '';
+  bloquearAgenda(false);
+  elegirModoAgenda(null);
+  document.getElementById('modal-agenda').classList.add('open');
+}
+
+function elegirModoAgenda(modo) {
+  if (agendaEstado.enviando) return;
+  if (modo === 'ambos' && document.getElementById('agenda-opt-ambos').disabled) return;
+  agendaEstado.modo = modo;
+  agendaEstado.forzar = false;
+  ['inspector', 'ambos'].forEach(m => {
+    document.getElementById('agenda-opt-' + m).setAttribute('aria-checked', m === modo ? 'true' : 'false');
+  });
+  // Si ya existe la misma fecha con los mismos invitados, el usuario ya vio el
+  // aviso: confirmar = agendar de nuevo a sabiendas.
+  const previo = agendaEstado.previo;
+  const repetido = !!(modo && previo && previo.fecha === normFechaAgenda(agendaEstado.fecha) && previo.modo === modo);
+  agendaEstado.forzar = repetido;
+  const btn = document.getElementById('agenda-confirmar');
+  const txt = document.getElementById('agenda-confirmar-txt');
+  btn.disabled = !modo;
+  txt.textContent = !modo ? 'Elige a quién invitar'
+    : repetido ? 'Agendar de nuevo'
+    : modo === 'ambos' ? 'Agendar e invitar a ambos'
+    : 'Agendar solo inspector';
+  document.getElementById('agenda-status').innerHTML = '';
+}
+
+function bloquearAgenda(on) {
+  agendaEstado.enviando = on;
+  ['agenda-cancelar', 'agenda-x', 'agenda-opt-inspector'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.disabled = on;
+  });
+  const optAmbos = document.getElementById('agenda-opt-ambos');
+  if (on) optAmbos.disabled = true;
+  else optAmbos.disabled = optAmbos.getAttribute('aria-disabled') === 'true';
+  const btn = document.getElementById('agenda-confirmar');
+  if (on) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ti ti-loader"></i> <span id="agenda-confirmar-txt">Agendando…</span>';
+  } else {
+    btn.innerHTML = '<i class="ti ti-calendar-plus"></i> <span id="agenda-confirmar-txt"></span>';
   }
 }
+
+function cerrarAgenda() {
+  if (agendaEstado.enviando) return; // no se cierra a medio envío
+  document.getElementById('modal-agenda').classList.remove('open');
+}
+
+async function confirmarAgenda() {
+  const est = agendaEstado;
+  if (est.enviando || !est.modo || !est.casoId) return;
+  const status = document.getElementById('agenda-status');
+  bloquearAgenda(true);
+  status.innerHTML = avisoAgendaHtml('info', 'ti-loader', 'Creando el evento y enviando la invitación…');
+  const inicio = Date.now();
+
+  let res = null, errorRed = null;
+  try {
+    const url = SHEETS_URL
+      + '?action=agendarInspeccion'
+      + '&id=' + encodeURIComponent(est.casoId)
+      + '&fecha=' + encodeURIComponent(est.fecha)
+      + '&modo=' + encodeURIComponent(est.modo)
+      + (est.forzar ? '&forzar=1' : '');
+    // jsonpOnce (sin reintento automático) con margen amplio: Calendar puede tardar.
+    res = await jsonpOnce(url, 'cr_agenda', 45000);
+  } catch (err) {
+    errorRed = err;
+  }
+
+  // Un "duplicado" cuyo registro se creó durante ESTE mismo envío significa que
+  // la petición llegó dos veces (respaldo de red): el evento sí se creó.
+  if (res && !res.ok && res.duplicado && res.previo && est.enviadoEn === 0) {
+    const t = Date.parse(res.previo.en || '');
+    if (!isNaN(t) && t >= inicio - 5000) res = { ok: true, eventId: res.previo.eventId, modo: res.previo.modo, invitados: res.previo.invitados || [], agenda: res.previo };
+  }
+
+  bloquearAgenda(false);
+
+  if (res && res.ok && res.eventId) {
+    est.enviadoEn = Date.now();
+    const quienes = (res.invitados || []).join(', ');
+    status.innerHTML = avisoAgendaHtml('ok', 'ti-circle-check',
+      `<b>Listo.</b> Invitación enviada a ${escapeHtml(quienes || AGENDA_MODO_TXT[res.modo] || '')}.`);
+    document.getElementById('agenda-confirmar').disabled = true;
+    document.getElementById('agenda-confirmar-txt').textContent = 'Agendado';
+    // Refleja el agendamiento en el caso de inmediato y luego sincroniza.
+    const caso = cases.find(x => String(x.id) === est.casoId);
+    if (caso) {
+      if (res.fecha) caso.fechaAgendamiento = res.fecha;
+      if (res.agenda) caso.agendaCalendar = JSON.stringify(res.agenda);
+      if (String(editingId) === est.casoId) renderAgendaUltimo(caso);
+    }
+    showToast('✓ Inspección agendada · ' + (AGENDA_MODO_TXT[res.modo] || ''));
+    setTimeout(() => { if (!agendaEstado.enviando) cerrarAgenda(); }, 1400);
+    loadFromSheets().catch(() => {});
+    return;
+  }
+
+  // ── Errores ──
+  // Se restaura la elección y el texto del botón para que se pueda reintentar.
+  const modo = est.modo;
+  elegirModoAgenda(modo);
+  if (res && res.duplicado) {
+    // Otro usuario (o una pestaña antigua) agendó lo mismo hace poco.
+    est.previo = res.previo || est.previo;
+    est.forzar = true;
+    document.getElementById('agenda-confirmar-txt').textContent = 'Agendar de todas formas';
+    const cuando = res.previo && res.previo.en ? new Date(res.previo.en).toLocaleString('es-CL') : 'antes';
+    status.innerHTML = avisoAgendaHtml('warn', 'ti-copy',
+      `<b>Esta invitación ya existía</b> (enviada ${escapeHtml(cuando)}). No se creó nada nuevo. Si de verdad quieres otro evento, aprieta <b>Agendar de todas formas</b>.`);
+  } else if (res && res.ok && !res.eventId) {
+    status.innerHTML = avisoAgendaHtml('err', 'ti-server-off',
+      '<b>El servidor no reconoce esta acción.</b> Falta implementar la nueva versión del Apps Script (Gestionar implementaciones → Nueva versión). No se envió ninguna invitación.');
+  } else if (res && !res.ok) {
+    status.innerHTML = avisoAgendaHtml('err', 'ti-alert-circle',
+      `<b>No se pudo agendar:</b> ${escapeHtml(res.error || 'error desconocido')}`);
+  } else if (errorRed && errorRed.message === 'timeout') {
+    status.innerHTML = avisoAgendaHtml('warn', 'ti-clock-exclamation',
+      '<b>No llegó confirmación a tiempo.</b> Puede que el evento sí se haya creado: revisa tu Google Calendar antes de reintentar. Si reintentas y ya existía, el sistema te avisará.');
+  } else {
+    status.innerHTML = avisoAgendaHtml('err', 'ti-wifi-off',
+      `<b>Error de conexión:</b> ${escapeHtml((errorRed && errorRed.message) || 'sin respuesta del servidor')}. Revisa tu Calendar antes de reintentar.`);
+  }
+}
+
+// Esc cierra el modal de agenda (si no está enviando) sin cerrar el del caso.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const m = document.getElementById('modal-agenda');
+  if (m && m.classList.contains('open')) { e.stopPropagation(); cerrarAgenda(); }
+}, true);
 
 // ── GOOGLE SHEETS ─────────────────────────────────────────────────────────────
 let _syncEnCurso = null;
@@ -3340,6 +3567,7 @@ function openModal(prefill) {
   refreshModalHeader();
   updateResumenLive();
   renderModalFooterMeta(prefill);
+  renderAgendaUltimo(prefill);
   // "Nuevo caso": solo Captación queda habilitada; al editar, las 5 etapas
   // quedan disponibles (Antecedentes siempre deshabilitada, sin campos aún).
   currentStep = 0;
@@ -4287,6 +4515,93 @@ setTimeout(function(){ if (typeof loadAjustes === 'function') loadAjustes(); }, 
     <div class="modal-footer">
       <button type="button" class="btn" onclick="closeModalPeriodo()">Cancelar</button>
       <button type="button" class="btn btn-primary" onclick="savePeriodo()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGENDAR INSPECCIÓN EN CALENDAR -->
+<style>
+  #modal-agenda .modal { max-width: 540px; }
+  .agenda-resumen { display:flex; gap:16px; align-items:stretch; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:16px; }
+  .agenda-dia { flex-shrink:0; width:64px; border-radius:10px; background:var(--navy); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 4px; }
+  .agenda-dia-mes { font-family:var(--disp); font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#9fc4dc; }
+  .agenda-dia-num { font-family:var(--disp); font-size:28px; font-weight:600; line-height:1.05; }
+  .agenda-dia-sem { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#cfe3ec; }
+  .agenda-datos { min-width:0; flex:1; display:flex; flex-direction:column; gap:3px; }
+  .agenda-hora { font-family:var(--disp); font-size:17px; font-weight:600; color:var(--navy); letter-spacing:.01em; }
+  .agenda-linea { font-size:12.5px; color:var(--text-2); display:flex; gap:6px; align-items:flex-start; overflow-wrap:anywhere; }
+  .agenda-linea i { color:var(--teal); font-size:14px; margin-top:1px; flex-shrink:0; }
+  .agenda-label { display:block; font-size:10px; color:var(--text-3); text-transform:uppercase; letter-spacing:.09em; margin:2px 0 9px; font-weight:700; }
+  .agenda-opciones { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .agenda-opt { position:relative; text-align:left; display:flex; flex-direction:column; gap:6px; padding:13px 14px 12px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--surface); cursor:pointer; font:inherit; color:var(--text); transition:border-color .14s, background .14s, box-shadow .14s; }
+  .agenda-opt:hover:not(:disabled) { border-color:var(--teal); background:#f8fcfd; }
+  .agenda-opt:focus-visible { outline:2px solid var(--teal); outline-offset:2px; }
+  .agenda-opt .agenda-opt-ico { width:30px; height:30px; border-radius:9px; background:#e3f0f4; color:var(--teal); display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .agenda-opt-tit { font-weight:700; font-size:13.5px; color:var(--navy); }
+  .agenda-opt-sub { font-size:11.5px; color:var(--text-3); line-height:1.45; overflow-wrap:anywhere; }
+  .agenda-opt-check { position:absolute; top:11px; right:11px; width:18px; height:18px; border-radius:50%; border:1.5px solid var(--border-strong); background:#fff; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; }
+  .agenda-opt[aria-checked="true"] { border-color:var(--teal); background:#eef7f9; box-shadow:0 0 0 3px rgba(0,101,126,.12); }
+  .agenda-opt[aria-checked="true"] .agenda-opt-ico { background:var(--teal); color:#fff; }
+  .agenda-opt[aria-checked="true"] .agenda-opt-check { background:var(--teal); border-color:var(--teal); }
+  .agenda-opt:disabled { cursor:not-allowed; background:var(--surface2); border-style:dashed; }
+  .agenda-opt:disabled > :not(.agenda-opt-motivo) { opacity:.45; }
+  .agenda-opt-motivo { font-size:11.5px; font-weight:700; color:#8a520c; display:flex; gap:4px; align-items:flex-start; }
+  .agenda-aviso { display:flex; gap:9px; align-items:flex-start; padding:10px 12px; border-radius:var(--radius-sm); font-size:12.5px; line-height:1.5; margin-bottom:12px; }
+  .agenda-aviso i { font-size:16px; margin-top:1px; flex-shrink:0; }
+  .agenda-aviso.warn { background:var(--amber-bg); color:#7a4a0c; border:1px solid rgba(173,106,19,.25); }
+  .agenda-aviso.info { background:#e9f3f6; color:var(--text-2); border:1px solid rgba(0,101,126,.18); }
+  .agenda-aviso.err  { background:var(--red-bg); color:var(--red); border:1px solid rgba(192,57,43,.25); }
+  .agenda-aviso.ok   { background:var(--green-bg); color:var(--green); border:1px solid rgba(26,122,82,.25); }
+  #agenda-confirmar:disabled { opacity:.5; cursor:not-allowed; box-shadow:none; }
+  .agenda-ultimo { display:block; margin-top:8px; font-size:11.5px; color:var(--text-2); }
+  .agenda-ultimo i { color:var(--green); vertical-align:-2px; }
+  @media (max-width:520px) { .agenda-opciones { grid-template-columns:1fr; } }
+</style>
+<div class="modal-backdrop" id="modal-agenda" onclick="if(event.target===this) cerrarAgenda()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="agenda-titulo">
+    <div class="modal-header">
+      <div class="modal-title-text" id="agenda-titulo"><i class="ti ti-calendar-event" style="margin-right:7px;font-size:19px;vertical-align:-2px;color:var(--teal)"></i>Agendar inspección</div>
+      <button type="button" class="btn" id="agenda-x" onclick="cerrarAgenda()" style="padding:4px 8px;border:none" aria-label="Cerrar"><i class="ti ti-x" style="font-size:18px"></i></button>
+    </div>
+
+    <div class="agenda-resumen">
+      <div class="agenda-dia">
+        <span class="agenda-dia-mes" id="agenda-mes">—</span>
+        <span class="agenda-dia-num" id="agenda-num">—</span>
+        <span class="agenda-dia-sem" id="agenda-sem">—</span>
+      </div>
+      <div class="agenda-datos">
+        <div class="agenda-hora" id="agenda-hora">—</div>
+        <div class="agenda-linea"><i class="ti ti-user"></i><span id="agenda-nombre">—</span></div>
+        <div class="agenda-linea"><i class="ti ti-map-pin"></i><span id="agenda-dir">—</span></div>
+        <div class="agenda-linea"><i class="ti ti-phone"></i><span id="agenda-tel">—</span></div>
+      </div>
+    </div>
+
+    <div id="agenda-avisos"></div>
+
+    <span class="agenda-label" id="agenda-pregunta">¿A quién enviar la invitación?</span>
+    <div class="agenda-opciones" role="radiogroup" aria-labelledby="agenda-pregunta">
+      <button type="button" class="agenda-opt" id="agenda-opt-inspector" role="radio" aria-checked="false" onclick="elegirModoAgenda('inspector')">
+        <span class="agenda-opt-check"><i class="ti ti-check"></i></span>
+        <span class="agenda-opt-ico"><i class="ti ti-user-check"></i></span>
+        <span class="agenda-opt-tit">Solo inspector CR</span>
+        <span class="agenda-opt-sub">El evento llega solo a tu calendario. El asegurado no recibe nada.</span>
+      </button>
+      <button type="button" class="agenda-opt" id="agenda-opt-ambos" role="radio" aria-checked="false" onclick="elegirModoAgenda('ambos')">
+        <span class="agenda-opt-check"><i class="ti ti-check"></i></span>
+        <span class="agenda-opt-ico"><i class="ti ti-users"></i></span>
+        <span class="agenda-opt-tit">Inspector y asegurado</span>
+        <span class="agenda-opt-sub" id="agenda-opt-ambos-sub">También se invita al asegurado por correo.</span>
+        <span class="agenda-opt-motivo" id="agenda-opt-ambos-motivo" style="display:none"></span>
+      </button>
+    </div>
+
+    <div id="agenda-status" style="margin-top:14px"></div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn" id="agenda-cancelar" onclick="cerrarAgenda()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="agenda-confirmar" onclick="confirmarAgenda()" disabled><i class="ti ti-calendar-plus"></i> <span id="agenda-confirmar-txt">Elige a quién invitar</span></button>
     </div>
   </div>
 </div>
