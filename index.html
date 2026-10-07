@@ -402,7 +402,7 @@
 
     /* ── FRANJA FINANCIERA ── */
     .commission-row { margin-top:18px; background:var(--navy); border-radius:12px; padding:14px 18px;
-      display:grid; grid-template-columns:1.3fr repeat(4,1fr); gap:16px; align-items:end; }
+      display:grid; grid-template-columns:1.3fr repeat(2,1fr); gap:16px; align-items:end; }
     .comm-item { min-width:0; }
     .comm-label { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,247,238,.55); margin-bottom:6px; }
     .comm-value { font-family:var(--disp); font-size:18px; font-weight:500; color:var(--cream); font-variant-numeric:tabular-nums; }
@@ -1604,8 +1604,13 @@
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px 16px">
         <div style="display:flex;flex-direction:column;gap:6px">
-          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Monto indemnizado ($)</label>
-          <input type="number" min="0" id="f-monto" placeholder="0" oninput="updateResumenLive()" style="font-family:'Oswald',sans-serif;font-size:19px;font-weight:600;color:#002b41;font-variant-numeric:tabular-nums;padding:8px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid #00657e;border-radius:10px;background:#fff;outline:none;width:100%"/>
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Monto indemnizado ($ CLP)</label>
+          <input type="number" min="0" step="1" id="f-monto" placeholder="0" oninput="onMontoInput('clp')" style="font-family:'Oswald',sans-serif;font-size:19px;font-weight:600;color:#002b41;font-variant-numeric:tabular-nums;padding:8px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid #00657e;border-radius:10px;background:#fff;outline:none;width:100%"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">Monto indemnizado (UF)</label>
+          <input type="number" min="0" step="0.01" id="f-montoUF" placeholder="0,00" oninput="onMontoInput('uf')" style="font-family:'Oswald',sans-serif;font-size:19px;font-weight:600;color:#002b41;font-variant-numeric:tabular-nums;padding:8px 12px;border:1px solid rgba(0,43,65,.13);border-bottom:1.5px solid #00657e;border-radius:10px;background:#fff;outline:none;width:100%"/>
+          <span id="uf-hint" style="font-size:10.5px;color:#6b93a3">Cargando UF…</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b93a3">% Comisión CR</label>
@@ -1633,14 +1638,6 @@
         <div style="display:flex;flex-direction:column;gap:5px;border-left:1px solid rgba(255,247,238,.14);padding-left:14px">
           <span style="font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#7ba9ba">Comisión CR <span id="resumen-pct" style="color:#7fd6ab">—</span></span>
           <span id="resumen-comision" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;color:#7fd6ab;font-variant-numeric:tabular-nums;line-height:1.1">—</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:5px;border-left:1px solid rgba(255,247,238,.14);padding-left:14px">
-          <span style="font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#7ba9ba">Fondo CR (90%)</span>
-          <span id="resumen-fondo" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;color:#cfe6ed;font-variant-numeric:tabular-nums;line-height:1.1">—</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:5px;border-left:1px solid rgba(255,247,238,.14);padding-left:14px">
-          <span style="font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#7ba9ba">Retiro c/u (¼ fondo)</span>
-          <span id="resumen-retiro" style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;color:#cfe6ed;font-variant-numeric:tabular-nums;line-height:1.1">—</span>
         </div>
       </div>
     </section>
@@ -1689,6 +1686,11 @@ if (!SHEETS_URL || !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(
 // entrada con la misma clave y la lista de cambios. Es lo que se muestra al
 // pasar el mouse sobre el número de versión en la esquina inferior izquierda.
 const APP_CHANGELOG = {
+  '2026-10-07-v24': [
+    'Monto indemnizado en CLP y en UF con conversión automática (UF del día)',
+    'Comisión = 10% del % CR; se quitan Fondo CR y Retiro c/u',
+    'Guardado y lectura de documentos más rápidos y estables',
+  ],
   '2026-10-05-v23': [
     'Agendar en Calendar: ahora confirma antes de enviar y deja elegir invitar solo al inspector CR o también al asegurado',
     'Aviso si ya se envió una invitación para la misma fecha (evita eventos duplicados)',
@@ -1781,6 +1783,30 @@ function fechaLargaHoy() {
   return `${d.getDate()} de ${M[d.getMonth()]} de ${d.getFullYear()}`;
 }
 const fmtCLP = n => n ? '$' + Math.round(n).toLocaleString('es-CL') : '—';
+// Convierte "81.400,00" / "1234.5" / 1234 a número (el Sheet tiene ambos formatos)
+function numCL(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  let t = String(v).trim().replace(/[^\d.,-]/g, '');
+  if (t.indexOf(',') >= 0) t = t.replace(/\./g, '').replace(',', '.');
+  else if ((t.match(/\./g) || []).length > 1) t = t.replace(/\./g, '');
+  const n = parseFloat(t);
+  return isFinite(n) ? n : 0;
+}
+const fmtUF = n => n ? Number(n).toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' UF' : '—';
+// Comisión CR = monto × % CR × 10%  (cambiar aquí si la regla cambia; en el
+// backend es la constante COMISION_FACTOR de Código.gs y deben coincidir)
+const COMISION_FACTOR = 0.10;
+const calcComision = (monto, pct) => monto ? Math.round(monto * (pct || 0) * COMISION_FACTOR) : null;
+// UF del día (se pide al backend, que la cachea y la guarda como respaldo)
+let UF_HOY = { valor: 0, fecha: '', desactualizada: false };
+async function cargarUF() {
+  try {
+    const j = await jsonpFetch(SHEETS_URL + '?action=getUF');
+    if (j && j.ok && j.valor > 0) { UF_HOY = { valor: j.valor, fecha: j.fecha, desactualizada: !!j.desactualizada }; }
+  } catch(e) { console.warn('UF no disponible', e); }
+  if (typeof actualizarUFModal === 'function') actualizarUFModal();
+}
 function formatFechaSin(f) {
   // Convierte 'aaaa-mm-dd' a 'dd/mm/aaaa'; si ya viene en otro formato lo deja igual
   if (!f) return '—';
@@ -2376,12 +2402,11 @@ function loadFromSheets() {
         cases = json.data.map(r => ({
           ...r,
           id: String(r.id),
-          monto:      r.monto      ? parseFloat(r.monto)      : null,
-          porcentaje: r.porcentaje ? parseFloat(r.porcentaje) : 0.25,
-          comision:   r.comision   ? parseFloat(r.comision)   : null,
-          fondo:      r.fondo      ? parseFloat(r.fondo)      : null,
-          retiro:     r.retiro     ? parseFloat(r.retiro)     : null,
-        }));
+          monto:      numCL(r.monto) || null,
+          porcentaje: numCL(r.porcentaje) || 0.25,
+          montoUF:    numCL(r.montoUF) || null,
+          montoBase:  r.montoBase === 'UF' ? 'UF' : 'CLP',
+        })).map(r => ({ ...r, comision: calcComision(r.monto, r.porcentaje) }));
         setSyncStatus('ok', `${cases.length} casos · sync ✓`);
         // Cache local: la próxima vez que se abra la app, se pinta al instante
         // con estos datos mientras se sincroniza en segundo plano.
@@ -2572,11 +2597,9 @@ function buildCaseDetailInnerHtml(c, arch, idSuffix) {
           </div>`:''}
           ${c.monto?`
           <div class="commission-row">
-            <div class="comm-item total"><div class="comm-label">Monto indemnizado</div><div class="comm-value">${fmtCLP(c.monto)}</div></div>
+            <div class="comm-item total"><div class="comm-label">Monto indemnizado</div><div class="comm-value">${fmtCLP(c.monto)}${c.montoBase==='UF'&&c.montoUF?` <span style="font-size:12px;opacity:.6">(${fmtUF(c.montoUF)})</span>`:''}</div></div>
             <div class="comm-item"><div class="comm-label">% CR</div><div class="comm-value">${Math.round((c.porcentaje||0)*100)}%</div></div>
             <div class="comm-item"><div class="comm-label">Comisión CR</div><div class="comm-value">${fmtCLP(c.comision)}</div></div>
-            <div class="comm-item"><div class="comm-label">Fondo CR</div><div class="comm-value">${fmtCLP(c.fondo)}</div></div>
-            <div class="comm-item"><div class="comm-label">Retiro c/u</div><div class="comm-value">${fmtCLP(c.retiro)}</div></div>
           </div>`:''}
           <div class="action-row" onclick="event.stopPropagation()">
             <button class="btn btn-primary" onclick="editCase('${c.id}')"><i class="ti ti-edit"></i> Editar</button>
@@ -3546,7 +3569,10 @@ function openModal(prefill) {
     if(fd) fd.value = toDateInput(prefill.fechaDenuncio);
     const fa = document.getElementById('f-fechaAgendamiento');
     if(fa) fa.value = toDateTimeInput(prefill.fechaAgendamiento);
-    document.getElementById('f-monto').value = prefill.monto || '';
+    document.getElementById('f-monto').value = prefill.monto ? Math.round(prefill.monto) : '';
+    const fuf = document.getElementById('f-montoUF');
+    if (fuf) fuf.value = prefill.montoUF || (prefill.monto && UF_HOY.valor ? (prefill.monto / UF_HOY.valor).toFixed(2) : '');
+    montoBaseActual = prefill.montoBase === 'UF' ? 'UF' : 'CLP';
     document.getElementById('f-porcentaje').value = prefill.porcentaje || '0.25';
   } else {
     document.querySelectorAll('#modal-backdrop input:not([type=file]):not([type=checkbox]):not([type=radio]),#modal-backdrop textarea').forEach(i=>i.value='');
@@ -3559,8 +3585,10 @@ function openModal(prefill) {
       if (vacia) sel.value = ''; else sel.selectedIndex = 0;
     });
     document.getElementById('f-porcentaje').value='0.25';
+    montoBaseActual = 'CLP';
     const fe = document.getElementById('f-estado'); if (fe) fe.value = '';
   }
+  actualizarUFModal();
   initSugerencias();
   sugerirEvento();
   sugerirPlazo();
@@ -3750,19 +3778,38 @@ function refreshModalHeader() {
   }
 }
 
-// ── Resumen de liquidación en vivo (Monto / Comisión / Fondo / Retiro) ──
+// ── Monto en CLP o UF con conversión automática (UF del día) ──
+let montoBaseActual = 'CLP';
+function actualizarUFModal() {
+  const h = document.getElementById('uf-hint');
+  if (!h) return;
+  h.textContent = UF_HOY.valor
+    ? 'UF hoy: $' + UF_HOY.valor.toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2}) + (UF_HOY.desactualizada ? ' (último valor guardado)' : '')
+    : 'UF no disponible: ingresa el monto en CLP';
+}
+function onMontoInput(origen) {
+  const clp = document.getElementById('f-monto'), uf = document.getElementById('f-montoUF');
+  if (origen === 'clp') {
+    montoBaseActual = 'CLP';
+    const v = parseFloat(clp.value) || 0;
+    uf.value = (v && UF_HOY.valor) ? (v / UF_HOY.valor).toFixed(2) : '';
+  } else {
+    montoBaseActual = 'UF';
+    const v = parseFloat(uf.value) || 0;
+    clp.value = (v && UF_HOY.valor) ? Math.round(v * UF_HOY.valor) : '';
+  }
+  updateResumenLive();
+}
+
+// ── Resumen de liquidación en vivo (Monto / Comisión) ──
 function updateResumenLive() {
   const monto = parseFloat(document.getElementById('f-monto')?.value) || 0;
   const pct   = parseFloat(document.getElementById('f-porcentaje')?.value) || 0;
-  const comision = monto ? monto * pct : 0;
-  const fondo    = comision ? comision * 0.9 : 0;
-  const retiro   = fondo ? fondo * 0.25 : 0;
+  const comision = calcComision(monto, pct) || 0;
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   set('resumen-monto',    monto    ? fmtCLP(monto)    : '—');
   set('resumen-pct',      pct      ? Math.round(pct * 100) + '%' : '—');
   set('resumen-comision', comision ? fmtCLP(comision) : '—');
-  set('resumen-fondo',    fondo    ? fmtCLP(fondo)    : '—');
-  set('resumen-retiro',   retiro   ? fmtCLP(retiro)   : '—');
 }
 
 // ── Texto de "última edición" en el pie del modal ──
@@ -3800,9 +3847,9 @@ async function saveCase(e) {
   btn.disabled=true; if(btn2) btn2.disabled=true; if (label) label.innerHTML='<i class="ti ti-loader"></i> Guardando…';
   const monto    = parseFloat(document.getElementById('f-monto').value)||null;
   const pct      = parseFloat(document.getElementById('f-porcentaje').value)||0.25;
-  const comision = monto ? monto*pct : null;
-  const fondo    = comision ? comision*0.9 : null;
-  const retiro   = fondo ? fondo*0.25 : null;
+  const comision = calcComision(monto, pct);
+  const montoUF  = parseFloat(document.getElementById('f-montoUF')?.value) || null;
+  const montoBase = (montoBaseActual === 'UF' && montoUF) ? 'UF' : 'CLP';
   const data = {
     nombre:      document.getElementById('f-nombre').value,
     rut:         document.getElementById('f-rut').value,
@@ -3817,7 +3864,7 @@ async function saveCase(e) {
     caso:        document.getElementById('f-caso').value,
     correlativo: document.getElementById('f-correlativo').value,
     cobertura:   document.getElementById('f-cobertura')?.value || '',
-    monto, porcentaje:pct, comision, fondo, retiro,
+    monto, porcentaje:pct, comision, montoUF, montoBase,
     obs:      document.getElementById('f-obs').value,
     relato:   document.getElementById('f-relato')?.value || '',
     telefono: document.getElementById('f-telefono').value,
@@ -3954,7 +4001,6 @@ function buildResumen() {
   const gestion    = cs.filter(c=>c.estado!=='Pagado'&&c.estado!=='Rechazado');
   const totalMonto = pagados.reduce((a,c)=>a+(c.monto||0),0);
   const totalCom   = pagados.reduce((a,c)=>a+(c.comision||0),0);
-  const totalFondo = pagados.reduce((a,c)=>a+(c.fondo||0),0);
   const avgMonto   = pagados.length ? totalMonto/pagados.length : 0;
   const tasaExito  = (pagados.length+rechazados.length) ? Math.round(pagados.length/(pagados.length+rechazados.length)*100) : 0;
 
@@ -3983,7 +4029,7 @@ function buildResumen() {
     </div>
     <div class="hero-side">
       <div class="hero-stat"><i class="ti ti-coins hs-ico"></i><div class="hs-label">Monto total gestionado</div><div class="hs-value">${fmtCLP(totalMonto)}</div><div class="hs-sub"><strong>${pagados.length}</strong> casos pagados</div></div>
-      <div class="hero-stat"><i class="ti ti-receipt-2 hs-ico"></i><div class="hs-label">Comisión total CR</div><div class="hs-value">${fmtCLP(totalCom)}</div><div class="hs-sub">Fondo acumulado: <strong>${fmtCLP(totalFondo)}</strong></div></div>
+      <div class="hero-stat"><i class="ti ti-receipt-2 hs-ico"></i><div class="hs-label">Comisión total CR</div><div class="hs-value">${fmtCLP(totalCom)}</div><div class="hs-sub">10% del % CR sobre casos pagados</div></div>
       <div class="hero-stat"><i class="ti ti-chart-line hs-ico"></i><div class="hs-label">Promedio por caso</div><div class="hs-value">${fmtCLP(avgMonto)}</div><div class="hs-sub">en casos pagados</div></div>
       <div class="hero-stat"><i class="ti ti-hourglass-high hs-ico"></i><div class="hs-label">Comisión potencial en gestión</div><div class="hs-value">${fmtCLP(gestionPot)}</div><div class="hs-sub"><strong>${gestion.length}</strong> casos abiertos</div></div>
     </div>`;
@@ -5658,5 +5704,6 @@ function ajDeletePlazo(i) {
 }
 </script>
 
+<script>cargarUF();</script>
 </body>
 </html>
